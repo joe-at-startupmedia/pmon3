@@ -3,9 +3,9 @@ package exec
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/model"
-	"github.com/ntt360/pmon2/client/proxy"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/client/proxy"
 	"os"
 	"path"
 	"path/filepath"

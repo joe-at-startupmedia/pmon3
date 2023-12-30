@@ -2,7 +2,7 @@ package model
 
 import (
 	"encoding/json"
-	"github.com/ntt360/pmon2/app/utils/cpu"
+	"github.com/joe-at-startupmedia/pmon2/app/utils/cpu"
 	"os"
 	"strconv"
 	"time"

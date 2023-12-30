@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/conf"
-	"github.com/ntt360/pmon2/client/cmd"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/conf"
+	"github.com/joe-at-startupmedia/pmon2/client/cmd"
 	"log"
 )
 

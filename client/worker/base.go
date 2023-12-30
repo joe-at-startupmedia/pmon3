@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"github.com/ntt360/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
 	"os"
 	"os/user"
 	"strconv"

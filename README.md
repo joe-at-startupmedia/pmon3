@@ -28,16 +28,16 @@ Currently `pmon2` supports CentOS6, CentOS7, CentOS8 Linux distributions.
 
 ```bash
 # CentOS6
-sudo yum install -y https://github.com/ntt360/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el6.x86_64.rpm
+sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el6.x86_64.rpm
 
 # CentOS7
-sudo yum install -y https://github.com/ntt360/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el7.x86_64.rpm
+sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el7.x86_64.rpm
 
 # CentOS8
-sudo yum install -y https://github.com/ntt360/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
+sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
 
 # Rocky8
-sudo dnf install -y https://github.com/ntt360/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
+sudo dnf install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:

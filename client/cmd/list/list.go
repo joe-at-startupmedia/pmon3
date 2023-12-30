@@ -1,9 +1,9 @@
 package list
 
 import (
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/model"
-	"github.com/ntt360/pmon2/app/output"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app/output"
 	"github.com/spf13/cobra"
 )
 

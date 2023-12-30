@@ -2,11 +2,11 @@ package reload
 
 import (
 	"fmt"
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/god/proc"
-	"github.com/ntt360/pmon2/app/model"
-	"github.com/ntt360/pmon2/app/output"
-	"github.com/ntt360/pmon2/app/utils/array"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/god/proc"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app/output"
+	"github.com/joe-at-startupmedia/pmon2/app/utils/array"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"os"

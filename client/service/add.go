@@ -3,8 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
 )
 
 func AddData(process *model.Process) (string, error) {

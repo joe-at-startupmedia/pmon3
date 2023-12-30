@@ -2,11 +2,11 @@ package proxy
 
 import (
 	"github.com/ntt360/errors"
-	"github.com/ntt360/pmon2/app"
-	conf2 "github.com/ntt360/pmon2/app/conf"
-	"github.com/ntt360/pmon2/app/model"
-	"github.com/ntt360/pmon2/app/utils/array"
-	"github.com/ntt360/pmon2/client/worker"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	conf2 "github.com/joe-at-startupmedia/pmon2/app/conf"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app/utils/array"
+	"github.com/joe-at-startupmedia/pmon2/client/worker"
 )
 
 var cmdTypes = []string{"start", "restart"}

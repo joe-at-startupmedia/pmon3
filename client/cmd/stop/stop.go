@@ -3,10 +3,10 @@ package stop
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"github.com/ntt360/pmon2/app"
-	"github.com/ntt360/pmon2/app/model"
-	"github.com/ntt360/pmon2/app/output"
-	process2 "github.com/ntt360/pmon2/app/svc/process"
+	"github.com/joe-at-startupmedia/pmon2/app"
+	"github.com/joe-at-startupmedia/pmon2/app/model"
+	"github.com/joe-at-startupmedia/pmon2/app/output"
+	process2 "github.com/joe-at-startupmedia/pmon2/app/svc/process"
 	"github.com/spf13/cobra"
 	"os"
 )

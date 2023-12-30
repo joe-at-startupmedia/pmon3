@@ -1,4 +1,4 @@
-module github.com/ntt360/pmon2
+module github.com/joe-at-startupmedia/pmon2
 
 go 1.20
 

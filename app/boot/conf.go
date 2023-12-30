@@ -2,7 +2,7 @@ package boot
 
 import (
 	"github.com/ntt360/errors"
-	"github.com/ntt360/pmon2/app/conf"
+	"github.com/joe-at-startupmedia/pmon2/app/conf"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
