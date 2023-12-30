@@ -1,7 +1,7 @@
 package executor
 
 import (
-	"github.com/ntt360/errors"
+	"github.com/pkg/errors"
 	"github.com/joe-at-startupmedia/pmon2/app"
 	"os"
 	"strings"

@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"github.com/ntt360/errors"
+	"github.com/pkg/errors"
 	"github.com/joe-at-startupmedia/pmon2/app"
 	"github.com/joe-at-startupmedia/pmon2/app/executor"
 	"github.com/joe-at-startupmedia/pmon2/app/model"

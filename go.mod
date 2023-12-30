@@ -6,8 +6,8 @@ require (
 	github.com/goinbox/shell v1.0.1
 	github.com/jinzhu/gorm v1.9.15
 	github.com/mdlayher/netlink v1.6.0
-	github.com/ntt360/errors v0.9.6
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
 	github.com/struCoder/pidusage v0.1.3
@@ -25,7 +25,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.0 // indirect
 	github.com/mdlayher/socket v0.1.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/stretchr/testify v1.8.3 // indirect
 	golang.org/x/crypto v0.9.0 // indirect

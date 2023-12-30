@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"github.com/ntt360/errors"
+	"github.com/pkg/errors"
 	"github.com/joe-at-startupmedia/pmon2/app"
 	conf2 "github.com/joe-at-startupmedia/pmon2/app/conf"
 	"github.com/joe-at-startupmedia/pmon2/app/model"
