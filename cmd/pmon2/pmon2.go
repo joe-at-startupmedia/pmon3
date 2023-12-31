@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/joe-at-startupmedia/pmon2/app"
-	"github.com/joe-at-startupmedia/pmon2/app/conf"
-	"github.com/joe-at-startupmedia/pmon2/client/cmd"
+	"pmon2/pmond"
+	"pmon2/pmond/conf"
+	"pmon2/cli/cmd"
 	"log"
 )
 
 
 func main() {
-	conf := conf.GetDefaultConf()
-	err := app.Instance(conf)
+	config := conf.GetDefaultConf()
+	err := pmond.Instance(config)
 	if err != nil {
 		log.Fatal(err)
 	}
