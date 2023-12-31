@@ -11,7 +11,7 @@ sudo pmon2 run [./application binary] [arg1]  ...
 
 ## Introduction
 
-Golang currently has no officially support process management tools. For the deployment of `Go` services we use the `Linux` built-in command `nohup` & combination, or use the process management tools provided by the operating system such as SystemD, init.d configuration. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
+Golang currently has no officially support process management tools. For the deployment of `Go` services we use the Linux built-in command `nohup [process] &`  combination, or use the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
 
 Each method has certain advantages and disadvantages. We hope to inherit the convenient and easy-to-use ideas of the GO language deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
 
@@ -22,32 +22,20 @@ By default, if the `pmon2` agent abnormally terminates, `pmond` will try to rest
 
 ## How To Install
 
-Currently `pmon2` supports CentOS6, CentOS7, CentOS8 Linux distributions.
+[Releases](https://github.com/ntt360/pmon2/releases) 
 
-[Releases](https://github.com/ntt360/`pmon2`/releases) 
+### RPM packages
+These are compatible with systemd-based Linux distributions.
 
 ```bash
-# CentOS6
-sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el6.x86_64.rpm
-
-# CentOS7
-sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el7.x86_64.rpm
-
-# CentOS8
-sudo yum install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
-
-# Rocky8
-sudo dnf install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.12.1/pmon2-1.12.1-1.el8.x86_64.rpm
+sudo dnf install -y https://github.com/joe-at-startupmedia/pmon2/releases/download/v1.13.0/pmon2-1.13.0-1.el9.x86_64.rpm
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
+
 After installing `pmon2` for the first time, the `pmon2` service does not start automatically. You need to manually start the service:
 
 ```shell
-# centos6 uses initctl
-sudo initctl start pmon2
-
-# centos7+ uses systemd
 sudo systemctl start pmon2
 
 # Others
@@ -103,7 +91,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 // Only custom log directory, priority is lower than --log
 --log_dir -d
 
-// Provide environment variables, multiple variables are divided by spaces
+// Provide parameters to be passed to the binary, multiple parameters are separated by spaces
 --args  -a "-arg1=val1 -arg2=val2"
 
 // managing user
@@ -120,7 +108,8 @@ sudo pmon2 run ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
-Environment variables need to use the absolute path。
+
+Parameter arguments need to use the absolute path。
 
 #### View List  [ list/ls ]
 
@@ -167,13 +156,13 @@ sudo pmon2 reload --sig HUP [id or name]
 
 #### Delete the process  [ del/delete ]
 
-```go
+```shell
 sudo pmon2 del [id or name]
 ```
 
 #### View details [ show/desc ]
 
-```go
+```shell
 sudo pmon2 show [id or name]
 ```
 ![](https://jscssimg-img.oss-cn-beijing.aliyuncs.com/89c3f649a583a852.png?t=1506950494)
@@ -186,12 +175,9 @@ sudo pmon2 show [id or name]
 
 ### 2. The process startup parameter must pass the absolute path?
 
-if there is a path in the parameters you pass, please use the absolute path. The `pmon2` startup process will start a new sandbox environment to avoid environmental variable pollution.
+If there is a path in the parameters you pass, please use the absolute path. The `pmon2` startup process will start a new sandbox environment to avoid environmental variable pollution.
 
-### 3. Platform Support
-
-At present, RPM adapts CentOS6, CentOS7, CentOS8 and `pmon2` itself can run in any Linux environment.
-### 4. Command ling automation
+### 3. Command line automation
 
 `pmon2` provides Bash automation. If you find that the command cannot be automatically provided in the sudo mode, please install `bash-completion` and exit the terminal to re-enter:
 
@@ -199,14 +185,10 @@ At present, RPM adapts CentOS6, CentOS7, CentOS8 and `pmon2` itself can run in a
 sudo yum install -y bash-completion
 ```
 
-### 5. FATAL stat /var/run/pmon2/pmon2.sock: no such file or directory
+### 4. FATAL stat /var/run/pmon2/pmon2.sock: no such file or directory
 
-If you encounter the error above, try to run:
+If you encounter the error above, make sure the pmon2 service has started sucessfully.
 
 ```bash
-# centos6 use initctl
-sudo initctl start pmon2
-
-# centos7 use systemd
 sudo systemctl start pmon2
 ```
