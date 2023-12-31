@@ -3,6 +3,7 @@ package exec
 import (
 	"github.com/spf13/cobra"
 	"os"
+	"path/filepath"
 	"pmon2/pmond"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
@@ -24,12 +25,12 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&flag.NoAutoRestart, "no-autorestart", "n", false, "not auto restart when process run failure")
-	Cmd.Flags().StringVarP(&flag.User, "user", "u", "", "the process run user")
-	Cmd.Flags().StringVarP(&flag.Log, "log", "l", "", "the process stdout log")
-	Cmd.Flags().StringVarP(&flag.Args, "args", "a", "", "the process extra arguments")
-	Cmd.Flags().StringVar(&flag.Name, "name", "", "run process name")
-	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the process stdout log dir")
+	Cmd.Flags().BoolVarP(&flag.NoAutoRestart, "no-autorestart", "n", false, "do not restart upon process failure")
+	Cmd.Flags().StringVarP(&flag.User, "user", "u", "", "the processes run user")
+	Cmd.Flags().StringVarP(&flag.Log, "log", "l", "", "the processes stdout log")
+	Cmd.Flags().StringVarP(&flag.Args, "args", "a", "", "the processes extra arguments")
+	Cmd.Flags().StringVar(&flag.Name, "name", "", "the processes name")
+	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the processes stdout log dir")
 }
 
 func cmdRun(args []string, flags string) {
@@ -39,7 +40,18 @@ func cmdRun(args []string, flags string) {
 		pmond.Log.Error(err.Error())
 		return
 	}
-	m, exist := processExist(execPath)
+	execflags := model.ExecFlags{}
+	flagModel, err := execflags.Parse(flags)
+	if err != nil {
+		pmond.Log.Fatalf("could not parse flags: %+v", err)
+		return
+	}
+	name := flagModel.Name
+	// get process file name
+	if len(name) <= 0 {
+		name = filepath.Base(args[0])
+	}
+	m, exist := processExist(execPath, name)
 	var rel []string
 	if exist {
 		pmond.Log.Debugf("restart process: %v", flags)

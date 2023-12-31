@@ -1,6 +1,7 @@
 GO ?= go
 GOFMT ?= gofmt "-s"
 GO_VERSION=$(shell $(GO) version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
+PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
 TEST_DIR_LOGS="$(ROOTDIR)/tmp/logs"
@@ -55,5 +56,5 @@ build:
 	$(GO) build -o bin/pmon2 cmd/pmon2/pmon2.go
 	$(GO) build -o bin/pmond cmd/pmond/pmond.go
 install:
-	rm -rf /usr/local/pmon2/bin/
-	cp -R bin/ /usr/local/pmon2/
+	sudo rm -rf /usr/local/pmon2/bin/
+	sudo cp -R bin/ /usr/local/pmon2/

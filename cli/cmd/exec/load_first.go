@@ -24,9 +24,9 @@ func loadFirst(execPath string, flags string) ([]string, error) {
 }
 
 // check the process already have
-func processExist(execPath string) (*model.Process, bool) {
+func processExist(execPath string, name string) (*model.Process, bool) {
 	var process model.Process
-	err := pmond.Db().First(&process, "process_file = ?", execPath).Error
+	err := pmond.Db().First(&process, "process_file = ? AND name = ?", execPath, name).Error
 	if err != nil {
 		return nil, false
 	}
@@ -38,7 +38,7 @@ func getExecFile(args []string) (string, error) {
 	execFile := args[0]
 	_, err := os.Stat(execFile)
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s not exist", execFile)
+		return "", fmt.Errorf("%s does not exist", execFile)
 	}
 
 	if path.IsAbs(execFile) {

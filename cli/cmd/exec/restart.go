@@ -18,7 +18,7 @@ func restart(m *model.Process, flags string) ([]string, error) {
 		return newData, nil
 	}
 
-	return nil, fmt.Errorf("the process already start")
+	return nil, fmt.Errorf("process already running with the name provided: %s", m.Name)
 }
 
 func reloadProcess(m *model.Process, flags string) ([]string, error) {

@@ -10,7 +10,7 @@ import (
 func AddData(process *model.Process) (string, error) {
 	// save to db
 	var originOne model.Process
-	err := pmond.Db().First(&originOne, "process_file = ?", process.ProcessFile).Error
+	err := pmond.Db().First(&originOne, "process_file = ? AND name = ?", process.ProcessFile, process.Name).Error
 	if err == nil && originOne.ID > 0 { // process already exist
 		process.ID = originOne.ID
 	}
