@@ -3,8 +3,8 @@ package exec
 import (
 	"encoding/json"
 	"fmt"
-	"pmon2/pmond/model"
 	"pmon2/cli/proxy"
+	"pmon2/pmond/model"
 )
 
 func restart(m *model.Process, flags string) ([]string, error) {

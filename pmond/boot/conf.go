@@ -2,9 +2,9 @@ package boot
 
 import (
 	"github.com/pkg/errors"
-	"pmon2/pmond/conf"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"pmon2/pmond/conf"
 )
 
 func Conf(confFile string) (*conf.Tpl, error) {
@@ -21,5 +21,5 @@ func Conf(confFile string) (*conf.Tpl, error) {
 
 	c.Conf = confFile
 
-  return &c,nil
+	return &c, nil
 }

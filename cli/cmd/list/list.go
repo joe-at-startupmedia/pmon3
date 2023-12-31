@@ -1,16 +1,16 @@
 package list
 
 import (
+	"github.com/spf13/cobra"
 	"pmon2/pmond"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
-	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
-	Use:                        "ls",
-	Aliases:                    []string{"list"},
-	Short:                      "list all processes",
+	Use:     "ls",
+	Aliases: []string{"list"},
+	Short:   "list all processes",
 	Run: func(cmd *cobra.Command, args []string) {
 		runCmd(nil)
 	},

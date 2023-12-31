@@ -1,11 +1,11 @@
 package exec
 
 import (
+	"github.com/spf13/cobra"
+	"os"
 	"pmon2/pmond"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
-	"github.com/spf13/cobra"
-	"os"
 )
 
 // process failed auto restart

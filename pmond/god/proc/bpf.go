@@ -22,7 +22,7 @@ func loadBPF(filters []EventType) ([]bpf.RawInstruction, error) {
 	return inst, err
 }
 
-//if needed, change the endian-ness before we file the bitmask off to bpf
+// if needed, change the endian-ness before we file the bitmask off to bpf
 func swap(val uint32) uint32 {
 
 	if nlenc.NativeEndian() == binary.LittleEndian {

@@ -2,12 +2,12 @@ package start
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
+	"os"
 	"pmon2/pmond"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
 	"pmon2/pmond/svc/process"
-	"github.com/spf13/cobra"
-	"os"
 )
 
 var flag model.ExecFlags

@@ -13,5 +13,5 @@ func TestProcess_RenderTable(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(info.CPU, info.Memory / 1024)
+	fmt.Println(info.CPU, info.Memory/1024)
 }

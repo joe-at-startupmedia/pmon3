@@ -3,11 +3,11 @@ package process
 import (
 	"encoding/json"
 	"fmt"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/cli/proxy"
 	"os"
 	"os/exec"
+	"pmon2/cli/proxy"
+	"pmon2/pmond"
+	"pmon2/pmond/model"
 	"strconv"
 )
 

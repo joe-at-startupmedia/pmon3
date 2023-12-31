@@ -2,8 +2,8 @@ package executor
 
 import (
 	"github.com/pkg/errors"
-	"pmon2/pmond"
 	"os"
+	"pmon2/pmond"
 	"strings"
 	"syscall"
 )

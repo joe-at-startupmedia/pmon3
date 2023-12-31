@@ -2,14 +2,14 @@ package reload
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
+	"os"
 	"pmon2/pmond"
 	"pmon2/pmond/god/proc"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
 	"pmon2/pmond/utils/array"
-	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
-	"os"
 	"strings"
 	"syscall"
 	"time"

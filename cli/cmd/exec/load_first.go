@@ -3,12 +3,12 @@ package exec
 import (
 	"encoding/json"
 	"fmt"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/cli/proxy"
 	"os"
 	"path"
 	"path/filepath"
+	"pmon2/cli/proxy"
+	"pmon2/pmond"
+	"pmon2/pmond/model"
 )
 
 func loadFirst(execPath string, flags string) ([]string, error) {

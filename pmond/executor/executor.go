@@ -2,10 +2,10 @@ package executor
 
 import (
 	"github.com/pkg/errors"
-	"pmon2/pmond/model"
-	"pmon2/pmond/utils/crypto"
 	"os"
 	"os/user"
+	"pmon2/pmond/model"
+	"pmon2/pmond/utils/crypto"
 	"strconv"
 	"strings"
 	"syscall"

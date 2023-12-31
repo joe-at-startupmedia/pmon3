@@ -1,4 +1,4 @@
-//Package garlic is a simple proc connector interface for golang.
+// Package garlic is a simple proc connector interface for golang.
 package proc
 
 /*
@@ -15,7 +15,7 @@ import (
 	"github.com/mdlayher/netlink"
 )
 
-//parse and handle the event Interface
+// parse and handle the event Interface
 func getEvent(hdr procEventHdr, data []byte) (EventData, error) {
 	switch hdr.What {
 	case ProcEventNone:
@@ -75,13 +75,13 @@ func (c CnConn) parseCn(data []byte) (ProcEvent, error) {
 	return ProcEvent{What: hdr.What, CPU: hdr.CPU, Timestamp: ts, EventData: ev, WhatString: evtType2Str(hdr.What)}, nil
 }
 
-//ClosePCN closes the netlink  connection
+// ClosePCN closes the netlink  connection
 func (c CnConn) ClosePCN() error {
 	return c.c.Close()
 }
 
-//ReadPCN reads waits for a Proc connector event to come across the nl socket, and returns an event struct
-//This is a blocking operation
+// ReadPCN reads waits for a Proc connector event to come across the nl socket, and returns an event struct
+// This is a blocking operation
 func (c CnConn) ReadPCN() ([]ProcEvent, error) {
 	retMsg, err := c.c.Receive()
 	if err != nil {
@@ -155,14 +155,14 @@ func dialPCN() (CnConn, error) {
 	return CnConn{c: c, boottime: bt}, nil
 }
 
-//DialPCN connects to the proc connector socket, and returns a connection that will listens for all available event types:
-//None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit
+// DialPCN connects to the proc connector socket, and returns a connection that will listens for all available event types:
+// None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit
 func DialPCN() (CnConn, error) {
 	return dialPCN()
 }
 
-//DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event.
-//It uses bitmasks and PBF to filter for the given events
+// DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event.
+// It uses bitmasks and PBF to filter for the given events
 func DialPCNWithEvents(events []EventType) (CnConn, error) {
 
 	c, err := dialPCN()

@@ -8,7 +8,7 @@ import (
 	"github.com/mdlayher/netlink/nlenc"
 )
 
-//CnConn contains the connection to the proc connector socket
+// CnConn contains the connection to the proc connector socket
 type CnConn struct {
 	c        *netlink.Conn
 	boottime int64
@@ -24,10 +24,10 @@ const ( //proc_cn_mcast_op
 	ProcCnMcastIgnore = iota
 )
 
-//CnIdxProc is the Id used for proc/connector, and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
+// CnIdxProc is the Id used for proc/connector, and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnIdxProc = 0x1
 
-//CnValProc is the corrisponding value used by chID,  and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
+// CnValProc is the corrisponding value used by chID,  and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnValProc = 0x1
 
 //Various message structs from connector.h
@@ -42,7 +42,7 @@ type cbID struct {
 	Val uint32
 }
 
-//The connector message struct
+// The connector message struct
 type cnMsg struct {
 	ID    cbID
 	Seq   uint32
@@ -53,7 +53,7 @@ type cnMsg struct {
 
 var cnMsgLen = binary.Size(cnMsg{})
 
-//MarshallBinary converts the entire struct into a slice, along with the proc_cn_mcast_op body
+// MarshallBinary converts the entire struct into a slice, along with the proc_cn_mcast_op body
 func (hdr cnMsg) marshalBinaryAndBody(body uint32) []byte {
 
 	bytes := make([]byte, binary.Size(hdr)+binary.Size(body))
@@ -68,7 +68,7 @@ func (hdr cnMsg) marshalBinaryAndBody(body uint32) []byte {
 	return bytes
 }
 
-//This is just an internal  header that allows us to easily cast the raw binary data
+// This is just an internal  header that allows us to easily cast the raw binary data
 type procEventHdr struct {
 	What      EventType
 	CPU       uint32
@@ -77,7 +77,7 @@ type procEventHdr struct {
 
 var procEventHdrLen = binary.Size(procEventHdr{})
 
-//unmarshal the proc hdr
+// unmarshal the proc hdr
 func unmarshalProcEventHdr(data []byte) procEventHdr {
 	hdr := procEventHdr{}
 
@@ -88,10 +88,10 @@ func unmarshalProcEventHdr(data []byte) procEventHdr {
 	return hdr
 }
 
-//EventType is a type for carrying around the valid list of event types
+// EventType is a type for carrying around the valid list of event types
 type EventType uint32
 
-//These types are taken from cn_proc.h, and represent all the known types that the proc connector will notify on
+// These types are taken from cn_proc.h, and represent all the known types that the proc connector will notify on
 const (
 
 	//ProcEventNone is only used for ACK events
@@ -116,7 +116,7 @@ const (
 	ProcEventExit EventType = 0x80000000
 )
 
-//ProcEvent is the struct representing all the event data that comes across the wire, in parsed form.
+// ProcEvent is the struct representing all the event data that comes across the wire, in parsed form.
 type ProcEvent struct {
 	WhatString string    `json:"event_string"`
 	What       EventType `json:"event"`

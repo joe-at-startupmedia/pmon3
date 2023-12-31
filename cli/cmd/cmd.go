@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"pmon2/pmond/conf"
+	"github.com/spf13/cobra"
 	"pmon2/cli/cmd/completion"
 	"pmon2/cli/cmd/del"
 	"pmon2/cli/cmd/desc"
@@ -14,9 +14,8 @@ import (
 	"pmon2/cli/cmd/restart"
 	"pmon2/cli/cmd/start"
 	"pmon2/cli/cmd/stop"
-	"github.com/spf13/cobra"
+	"pmon2/pmond/conf"
 )
-
 
 var rootCmd = &cobra.Command{
 	Use:   "pmon2",

@@ -2,12 +2,12 @@ package worker
 
 import (
 	"github.com/pkg/errors"
+	"os"
+	"path/filepath"
+	"pmon2/cli/service"
 	"pmon2/pmond"
 	"pmon2/pmond/executor"
 	"pmon2/pmond/model"
-	"pmon2/cli/service"
-	"os"
-	"path/filepath"
 	"time"
 )
 

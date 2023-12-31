@@ -34,7 +34,7 @@ func DescTable(tbData [][]string) {
 }
 
 // render single one table row
-func TableOne(data []string)  {
+func TableOne(data []string) {
 	Table([][]string{data})
 }
 

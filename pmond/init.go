@@ -3,11 +3,11 @@ package pmond
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/sirupsen/logrus"
+	"os"
 	"pmon2/pmond/boot"
 	"pmon2/pmond/conf"
 	"pmon2/pmond/model"
-	"github.com/sirupsen/logrus"
-	"os"
 	"sync"
 )
 

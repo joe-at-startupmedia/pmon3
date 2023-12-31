@@ -3,12 +3,12 @@ package stop
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"github.com/spf13/cobra"
+	"os"
 	"pmon2/pmond"
 	"pmon2/pmond/model"
 	"pmon2/pmond/output"
 	process2 "pmon2/pmond/svc/process"
-	"github.com/spf13/cobra"
-	"os"
 )
 
 var Cmd = &cobra.Command{

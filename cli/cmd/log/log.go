@@ -2,10 +2,10 @@ package log
 
 import (
 	"fmt"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
 	"github.com/spf13/cobra"
 	"os/exec"
+	"pmon2/pmond"
+	"pmon2/pmond/model"
 )
 
 var Cmd = &cobra.Command{

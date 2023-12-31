@@ -1,10 +1,10 @@
 package del
 
 import (
-	"pmon2/pmond"
-	"pmon2/pmond/model"
 	"github.com/spf13/cobra"
 	"os"
+	"pmon2/pmond"
+	"pmon2/pmond/model"
 )
 
 var Cmd = &cobra.Command{

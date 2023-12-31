@@ -1,12 +1,11 @@
 package main
 
 import (
+	"log"
+	"pmon2/cli/cmd"
 	"pmon2/pmond"
 	"pmon2/pmond/conf"
-	"pmon2/cli/cmd"
-	"log"
 )
-
 
 func main() {
 	config := conf.GetDefaultConf()

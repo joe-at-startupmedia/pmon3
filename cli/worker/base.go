@@ -1,9 +1,9 @@
 package worker
 
 import (
-	"pmon2/pmond/model"
 	"os"
 	"os/user"
+	"pmon2/pmond/model"
 	"strconv"
 )
 

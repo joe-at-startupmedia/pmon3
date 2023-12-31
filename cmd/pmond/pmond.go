@@ -1,10 +1,10 @@
 package main
 
 import (
+	"log"
 	"pmon2/pmond"
 	"pmon2/pmond/conf"
 	"pmon2/pmond/god"
-	"log"
 )
 
 func main() {
