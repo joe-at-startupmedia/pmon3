@@ -27,7 +27,7 @@ const ( //proc_cn_mcast_op
 // CnIdxProc is the Id used for proc/connector, and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnIdxProc = 0x1
 
-// CnValProc is the corrisponding value used by chID,  and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
+// CnValProc is the corresponding value used by chID,  and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnValProc = 0x1
 
 //Various message structs from connector.h

@@ -83,7 +83,7 @@ func (f Fork) Tgid() uint32 {
 
 // Exec is the event for process exec()s
 type Exec struct {
-	ProcessPid  uint32 `json:"proces_pid" pretty:"Process PID"`
+	ProcessPid  uint32 `json:"process_pid" pretty:"Process PID"`
 	ProcessTgid uint32 `json:"process_tgid" pretty:"Process TGID"`
 }
 
