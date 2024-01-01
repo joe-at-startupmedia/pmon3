@@ -38,7 +38,7 @@ func Exec(processFile, customLogFile, name, extArgs string, user *user.User, aut
 		},
 	}
 
-	var processParams = []string{processFile}
+	var processParams = []string{name}
 	if len(extArgs) > 0 {
 		processParams = append(processParams, strings.Split(extArgs, " ")...)
 	}

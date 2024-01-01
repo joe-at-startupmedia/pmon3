@@ -47,8 +47,9 @@ func TryStart(m model.Process, flags string) ([]string, error) {
 		Name:          m.Name,
 	}
 
+	pmond.Log.Debugf("starting process: %s %s\n", m.Name, m.ProcessFile)
 	if len(flags) > 0 {
-		pmond.Log.Debugf("start with flags: %s \n", flags)
+		pmond.Log.Debugf("with flags: %s \n", flags)
 		execFlags := model.ExecFlags{}
 		curFlag, err := execFlags.Parse(flags)
 		if err != nil {

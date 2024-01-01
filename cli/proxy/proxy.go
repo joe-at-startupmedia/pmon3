@@ -12,6 +12,11 @@ import (
 var cmdTypes = []string{"start", "restart"}
 
 func RunProcess(args []string) ([]byte, error) {
+
+	for _, arg := range args {
+		pmond.Log.Debugf("RunProcess arg: %s\n", arg)
+	}
+
 	if len(args) <= 2 {
 		return nil, errors.New("process params not valid")
 	}
