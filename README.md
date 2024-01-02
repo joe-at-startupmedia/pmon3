@@ -32,6 +32,9 @@ The systemd installation process entails the following steps:
 1. enable and start the `pmond` system service
 
 ```shell
+#build the project
+make build
+#install on systemd-based system
 make systemd_install
 ```
 
