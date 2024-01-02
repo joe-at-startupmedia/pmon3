@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/pmon3/bin/pmond
+ExecStart=/usr/local/bin/pmond
 ExecStop=/usr/bin/kill $MAINPID
 TimeoutStartSec=0
 RemainAfterExit=no
