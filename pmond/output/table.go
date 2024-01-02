@@ -84,7 +84,7 @@ const (
 func getStatusColor(status string) (string) {
   switch status {
     case "running":
-      return "#87d700"
+      return "#16ff16"
     case "stopped":
       return "#ffff00"
     case "failed":
