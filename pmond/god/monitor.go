@@ -18,9 +18,6 @@ import (
 	"github.com/goinbox/shell"
 )
 
-type Monitor struct {
-}
-
 func NewMonitor() {
 	if pmond.Config.ShouldHandleInterrupts() {
 		pmond.Log.Debugf("Capturing interrupts.")
@@ -112,6 +109,7 @@ func runningTask() {
 }
 
 // Detects whether a new process is created
+// @TODO this probably wont work when process contain substrings of other process names
 func checkFork(process model.Process) bool {
 	// try to get process new pid
 	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep '%s ' | grep -v grep | awk '{print $2}'", process.Name))
