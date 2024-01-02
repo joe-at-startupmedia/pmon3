@@ -1,7 +1,7 @@
 # `pmon3`
 `pmon3` is a process manager for Golang applications with a built-in load balancer. It allows you to keep applications alive forever and to reload them without downtime.
 
-<img src="http://p0.qhimg.com/t017d6cbb68aed4b693.png" style="max-width:680px" />
+<img width="699" alt="Screen Shot 2024-01-02 at 8 25 43 AM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5ffb2aa4-17eb-4a21-b7f8-c3631740b198">
 
 ## Start Process
 
@@ -174,7 +174,7 @@ pmon3 kill [--force]
 pmon3 drop [--force]
 ```
 
-![](https://jscssimg-img.oss-cn-beijing.aliyuncs.com/89c3f649a583a852.png?t=1506950494)
+<img width="366" alt="Screen Shot 2024-01-02 at 8 25 23 AM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/37b689a9-015e-4815-bd6b-f4cc16f0aa55">
 
 ## Development
 
