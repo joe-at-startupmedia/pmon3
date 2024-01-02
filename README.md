@@ -33,10 +33,10 @@ sudo dnf install -y https://github.com/joe-at-startupmedia/pmon3/releases/downlo
 
 :exclamation::exclamation: Note :exclamation::exclamation:
 
-After installing `pmon3` for the first time, the `pmon3` service does not start automatically. You need to manually start the service:
+After installing `pmon3` for the first time, the `pmond` service does not start automatically. You need to manually start the service:
 
 ```shell
-sudo systemctl start pmon3
+sudo systemctl start pmond
 
 # Others
 sudo /usr/local/pmon3/bin/pmond &
@@ -194,8 +194,8 @@ sudo yum install -y bash-completion
 
 ### 4. FATAL stat /var/run/pmon3/pmon3.sock: no such file or directory
 
-If you encounter the error above, make sure the pmon3 service has started sucessfully.
+If you encounter the error above, make sure the pmond service has started sucessfully.
 
 ```bash
-sudo systemctl start pmon3
+sudo systemctl start pmond
 ```
