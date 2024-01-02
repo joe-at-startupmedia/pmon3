@@ -55,6 +55,19 @@ build:
 	$(GO) mod tidy
 	$(GO) build -o bin/pmon3 cmd/pmon3/pmon3.go
 	$(GO) build -o bin/pmond cmd/pmond/pmond.go
+systemd_install: systemd_uninstall install
+	sudo cp "$(ROOTDIR)/rpm/pmond.service" /usr/lib/systemd/system/
+	sudo cp "$(ROOTDIR)/rpm/pmond.logrotate" /etc/logrotate.d/pmond
+	sudo mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
+	sudo cp "$(ROOTDIR)/config.yml" /etc/pmon3/config/
+	sudo systemctl enable pmond
+	sudo systemctl start pmond
+	sudo sh -c "$(ROOTDIR)/bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
+	sudo "$(ROOTDIR)/bin/pmon3" ls
+	sudo "$(ROOTDIR)/bin/pmon3" --help
+systemd_uninstall: 
+	sudo rm -rf /var/log/pmond /etc/pmon3/config /etc/pmon3/data /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
+	sudo systemctl stop pmond
+	sudo systemctl disable pmond
 install:
-	sudo rm -rf /usr/local/pmon3/bin/
-	sudo cp -R bin/ /usr/local/pmon3/
+	sudo cp -R bin/pmon* /usr/local/bin/

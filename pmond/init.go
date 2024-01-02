@@ -1,14 +1,15 @@
 package pmond
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/sirupsen/logrus"
 	"os"
 	"pmon3/pmond/boot"
 	"pmon3/pmond/conf"
 	"pmon3/pmond/model"
 	"sync"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/sirupsen/logrus"
 )
 
 var Log *logrus.Logger
@@ -43,7 +44,7 @@ func Instance(confDir string) error {
 
 func Db() *gorm.DB {
 	dbOnce.Do(func() {
-		pmondDbDir := Config.Data + "/db"
+		pmondDbDir := Config.Data
 		_, err := os.Stat(pmondDbDir)
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(pmondDbDir, 0755)

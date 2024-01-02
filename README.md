@@ -24,6 +24,17 @@ By default, if the `pmon3` agent abnormally terminates, `pmond` will try to rest
 
 [Releases](https://github.com/ntt360/pmon3/releases) 
 
+### Using Makefile
+The systemd installation process entails the following steps:
+1. create the log, configuration and database directories
+1. create the log rotation file
+1. create the bash completion profile (requires the bash-completion package)
+1. enable and start the `pmond` system service
+
+```shell
+make systemd_install
+```
+
 ### RPM packages
 These are compatible with systemd-based Linux distributions.
 
