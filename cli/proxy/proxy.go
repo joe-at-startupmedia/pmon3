@@ -2,11 +2,11 @@ package proxy
 
 import (
 	"github.com/pkg/errors"
-	"pmon2/cli/worker"
-	"pmon2/pmond"
-	conf2 "pmon2/pmond/conf"
-	"pmon2/pmond/model"
-	"pmon2/pmond/utils/array"
+	"pmon3/cli/worker"
+	"pmon3/pmond"
+	conf2 "pmon3/pmond/conf"
+	"pmon3/pmond/model"
+	"pmon3/pmond/utils/array"
 )
 
 var cmdTypes = []string{"start", "restart"}

@@ -1,4 +1,4 @@
-/var/log/pmon2/*.log {
+/var/log/pmond/*.log {
     daily
     rotate 7
     missingok

@@ -2,30 +2,31 @@ package cmd
 
 import (
 	"fmt"
+	"pmon3/cli/cmd/completion"
+	"pmon3/cli/cmd/del"
+	"pmon3/cli/cmd/desc"
+	"pmon3/cli/cmd/exec"
+	"pmon3/cli/cmd/list"
+	"pmon3/cli/cmd/log"
+	"pmon3/cli/cmd/logf"
+	"pmon3/cli/cmd/reload"
+	"pmon3/cli/cmd/restart"
+	"pmon3/cli/cmd/start"
+	"pmon3/cli/cmd/stop"
+	"pmon3/pmond/conf"
+
 	"github.com/spf13/cobra"
-	"pmon2/cli/cmd/completion"
-	"pmon2/cli/cmd/del"
-	"pmon2/cli/cmd/desc"
-	"pmon2/cli/cmd/exec"
-	"pmon2/cli/cmd/list"
-	"pmon2/cli/cmd/log"
-	"pmon2/cli/cmd/logf"
-	"pmon2/cli/cmd/reload"
-	"pmon2/cli/cmd/restart"
-	"pmon2/cli/cmd/start"
-	"pmon2/cli/cmd/stop"
-	"pmon2/pmond/conf"
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pmon2",
-	Short: "pmon2 cli",
+	Use:   "pmon3",
+	Short: "pmon3 cli",
 }
 
 var verCmd = &cobra.Command{
 	Use: "version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Pmon2: %s \n", conf.Version)
+		fmt.Printf("pmon3: %s \n", conf.Version)
 	},
 }
 

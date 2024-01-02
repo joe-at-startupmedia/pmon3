@@ -3,7 +3,7 @@ package executor
 import (
 	"github.com/pkg/errors"
 	"os"
-	"pmon2/pmond"
+	"pmon3/pmond"
 	"strings"
 	"syscall"
 )

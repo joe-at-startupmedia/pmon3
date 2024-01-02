@@ -3,8 +3,8 @@ package del
 import (
 	"github.com/spf13/cobra"
 	"os"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
 )
 
 var Cmd = &cobra.Command{

@@ -6,9 +6,9 @@ import "os"
 var Version = "1.10.0"
 
 func GetDefaultConf() string {
-	conf := os.Getenv("PMON2_CONF")
+	conf := os.Getenv("PMON3_CONF")
 	if len(conf) == 0 {
-		conf = "/etc/pmon2/config/config.yml"
+		conf = "/etc/pmon3/config/config.yml"
 	}
 	return conf
 

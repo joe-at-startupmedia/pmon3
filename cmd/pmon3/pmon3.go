@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"pmon2/cli/cmd"
-	"pmon2/pmond"
-	"pmon2/pmond/conf"
+	"pmon3/cli/cmd"
+	"pmon3/pmond"
+	"pmon3/pmond/conf"
 )
 
 func main() {

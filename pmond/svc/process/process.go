@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"pmon2/cli/proxy"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
+	"pmon3/cli/proxy"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
 	"strconv"
 )
 

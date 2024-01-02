@@ -3,10 +3,10 @@ package worker
 import (
 	"errors"
 	"fmt"
-	"pmon2/cli/service"
-	"pmon2/pmond"
-	"pmon2/pmond/executor"
-	"pmon2/pmond/model"
+	"pmon3/cli/service"
+	"pmon3/pmond"
+	"pmon3/pmond/executor"
+	"pmon3/pmond/model"
 	"time"
 )
 

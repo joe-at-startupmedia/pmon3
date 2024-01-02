@@ -1,10 +1,10 @@
 [Unit]
-Description=Pmon2 Daemon Service
+Description=Pmon3 Daemon Service
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/pmon2/bin/pmond
+ExecStart=/usr/local/pmon3/bin/pmond
 ExecStop=/usr/bin/kill $MAINPID
 TimeoutStartSec=0
 RemainAfterExit=no

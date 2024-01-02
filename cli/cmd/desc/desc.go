@@ -4,9 +4,9 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/cobra"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
 	"strconv"
 )
 
@@ -16,7 +16,7 @@ var Cmd = &cobra.Command{
 	Short:   "print the process detail message",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			pmond.Log.Fatalf("The command need process name or id, Example: sudo pmon2 show test")
+			pmond.Log.Fatalf("The command need process name or id, Example: sudo pmon3 show test")
 			return
 		}
 
@@ -31,7 +31,7 @@ func cmdRun(args []string) {
 	err := pmond.Db().Find(&process, "name = ? or id = ?", val, val).Error
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			pmond.Log.Fatalf("pmon2 run err: %v", err)
+			pmond.Log.Fatalf("pmon3 run err: %v", err)
 		}
 
 		// not found

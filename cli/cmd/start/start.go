@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
-	"pmon2/pmond/svc/process"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
+	"pmon3/pmond/svc/process"
 )
 
 var flag model.ExecFlags
@@ -48,7 +48,7 @@ func cmdRun(args []string, flags string) {
 
 	rel, err := process.TryStart(m, flags)
 	if err != nil {
-		if len(os.Getenv("PMON2_DEBUG")) > 0 {
+		if len(os.Getenv("PMON3_DEBUG")) > 0 {
 			pmond.Log.Fatalf("%+v", err)
 		} else {
 			pmond.Log.Fatal(err.Error())

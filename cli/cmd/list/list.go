@@ -2,9 +2,9 @@ package list
 
 import (
 	"github.com/spf13/cobra"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
 )
 
 var Cmd = &cobra.Command{
@@ -21,7 +21,7 @@ func runCmd(_ []string) {
 	var all []model.Process
 	err := pmond.Db().Find(&all).Error
 	if err != nil {
-		pmond.Log.Fatalf("pmon2 run err: %v", err)
+		pmond.Log.Fatalf("pmon3 run err: %v", err)
 	}
 
 	var allProcess [][]string

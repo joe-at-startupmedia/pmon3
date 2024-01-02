@@ -3,8 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
 )
 
 func AddData(process *model.Process) (string, error) {
@@ -17,7 +17,7 @@ func AddData(process *model.Process) (string, error) {
 
 	err = pmond.Db().Save(&process).Error
 	if err != nil {
-		return "", fmt.Errorf("pmon2 run err: %w", err)
+		return "", fmt.Errorf("pmon3 run err: %w", err)
 	}
 
 	output, err := json.Marshal(process.RenderTable())

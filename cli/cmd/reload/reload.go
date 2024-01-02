@@ -5,11 +5,11 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"os"
-	"pmon2/pmond"
-	"pmon2/pmond/god/proc"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
-	"pmon2/pmond/utils/array"
+	"pmon3/pmond"
+	"pmon3/pmond/god/proc"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
+	"pmon3/pmond/utils/array"
 	"strings"
 	"syscall"
 	"time"
@@ -21,7 +21,7 @@ var sigFlag string
 var Cmd = &cobra.Command{
 	Use:   "reload",
 	Short: "reload some process",
-	Long:  "pmon2 will send -SIGUSR2 signal to the process.",
+	Long:  "pmon3 will send -SIGUSR2 signal to the process.",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},

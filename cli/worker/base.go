@@ -3,7 +3,7 @@ package worker
 import (
 	"os"
 	"os/user"
-	"pmon2/pmond/model"
+	"pmon3/pmond/model"
 	"strconv"
 )
 

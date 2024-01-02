@@ -5,16 +5,16 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/cobra"
 	"os"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
-	process2 "pmon2/pmond/svc/process"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
+	process2 "pmon3/pmond/svc/process"
 )
 
 var Cmd = &cobra.Command{
 	Use:     "stop",
 	Short:   "stop running process",
-	Example: "sudo pmon2 stop [id or name]",
+	Example: "sudo pmon3 stop [id or name]",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},

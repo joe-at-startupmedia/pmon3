@@ -3,7 +3,7 @@ package model
 import (
 	"encoding/json"
 	"os"
-	"pmon2/pmond/utils/cpu"
+	"pmon3/pmond/utils/cpu"
 	"strconv"
 	"time"
 )

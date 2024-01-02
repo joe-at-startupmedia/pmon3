@@ -43,8 +43,8 @@ tools:
 		$(GO) install github.com/client9/misspell/cmd/misspell; \
 	fi
 test: build_test
-	sudo PMON2_DEBUG=true PMON2_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
-	sudo PMON2_DEBUG=true PMON2_CONF=$(TEST_FILE_CONFIG) ./bin/pmon2 exec bin/test_server
+	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
+	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec bin/test_server
 	pidof pmond
 build_test: build
 	sudo rm -rf "$(ROOTDIR)/tmp" 
@@ -53,8 +53,8 @@ build_test: build
 	$(GO) build -o bin/test_server test/test_server.go
 build:
 	$(GO) mod tidy
-	$(GO) build -o bin/pmon2 cmd/pmon2/pmon2.go
+	$(GO) build -o bin/pmon3 cmd/pmon3/pmon3.go
 	$(GO) build -o bin/pmond cmd/pmond/pmond.go
 install:
-	sudo rm -rf /usr/local/pmon2/bin/
-	sudo cp -R bin/ /usr/local/pmon2/
+	sudo rm -rf /usr/local/pmon3/bin/
+	sudo cp -R bin/ /usr/local/pmon3/

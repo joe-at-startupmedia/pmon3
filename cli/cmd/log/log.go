@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os/exec"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
 )
 
 var Cmd = &cobra.Command{

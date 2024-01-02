@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"pmon2/pmond"
-	"pmon2/pmond/conf"
-	"pmon2/pmond/god"
+	"pmon3/pmond"
+	"pmon3/pmond/conf"
+	"pmon3/pmond/god"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("pmon2 daemon is running! \n")
+	log.Printf("pmon3 daemon is running! \n")
 
 	god.NewMonitor()
 }

@@ -5,9 +5,9 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sirupsen/logrus"
 	"os"
-	"pmon2/pmond/boot"
-	"pmon2/pmond/conf"
-	"pmon2/pmond/model"
+	"pmon3/pmond/boot"
+	"pmon3/pmond/conf"
+	"pmon3/pmond/model"
 	"sync"
 )
 
@@ -18,7 +18,7 @@ var db *gorm.DB
 
 func init() {
 	Log = logrus.New()
-	if os.Getenv("PMON2_DEBUG") == "true" {
+	if os.Getenv("PMON3_DEBUG") == "true" {
 		Log.SetLevel(logrus.DebugLevel)
 		Log.SetReportCaller(true)
 	} else {

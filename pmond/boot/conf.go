@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"pmon2/pmond/conf"
+	"pmon3/pmond/conf"
 )
 
 func Conf(confFile string) (*conf.Tpl, error) {

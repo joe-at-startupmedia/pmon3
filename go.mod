@@ -1,4 +1,4 @@
-module pmon2
+module pmon3
 
 go 1.20
 

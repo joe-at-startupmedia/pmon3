@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
-	"pmon2/pmond"
-	"pmon2/pmond/model"
-	"pmon2/pmond/output"
+	"pmon3/pmond"
+	"pmon3/pmond/model"
+	"pmon3/pmond/output"
 )
 
 // process failed auto restart
@@ -62,7 +62,7 @@ func cmdRun(args []string, flags string) {
 	}
 
 	if err != nil {
-		if len(os.Getenv("PMON2_DEBUG")) > 0 {
+		if len(os.Getenv("PMON3_DEBUG")) > 0 {
 			pmond.Log.Fatalf("%+v", err)
 		} else {
 			pmond.Log.Fatalf(err.Error())
