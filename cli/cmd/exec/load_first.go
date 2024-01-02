@@ -7,8 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"pmon3/cli/proxy"
-	"pmon3/pmond"
-	"pmon3/pmond/model"
 )
 
 func loadFirst(execPath string, flags string) ([]string, error) {
@@ -21,17 +19,6 @@ func loadFirst(execPath string, flags string) ([]string, error) {
 	_ = json.Unmarshal(data, &tbData)
 
 	return tbData, nil
-}
-
-// check the process already have
-func processExist(execPath string, name string) (*model.Process, bool) {
-	var process model.Process
-	err := pmond.Db().First(&process, "process_file = ? AND name = ?", execPath, name).Error
-	if err != nil {
-		return nil, false
-	}
-
-	return &process, true
 }
 
 func getExecFile(args []string) (string, error) {

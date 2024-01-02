@@ -1,12 +1,13 @@
 package exec
 
 import (
-	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/output"
+
+	"github.com/spf13/cobra"
 )
 
 // process failed auto restart
@@ -51,11 +52,11 @@ func cmdRun(args []string, flags string) {
 	if len(name) <= 0 {
 		name = filepath.Base(args[0])
 	}
-	m, exist := processExist(execPath, name)
+	err, process := model.FindByProcessFileAndName(pmond.Db(), execPath, name)
 	var rel []string
-	if exist {
+	if err == nil {
 		pmond.Log.Debugf("restart process: %v", flags)
-		rel, err = restart(m, flags)
+		rel, err = restart(process, flags)
 	} else {
 		pmond.Log.Debugf("load first process: %v", flags)
 		rel, err = loadFirst(execPath, flags)

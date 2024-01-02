@@ -6,6 +6,8 @@ import (
 	"pmon3/pmond/utils/cpu"
 	"strconv"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -23,7 +25,7 @@ type Process struct {
 	DeletedAt   *time.Time  `sql:"index" json:"deleted_at"`
 	Pid         int         `gorm:"column:pid" json:"pid"`
 	Log         string      `gorm:"column:log" json:"log"`
-	Name        string      `json:"name"`
+	Name        string      `gorm:"unique" json:"name"`
 	ProcessFile string      `json:"process_file"`
 	Args        string      `json:"args"`
 	Status      string      `json:"status"`
@@ -68,4 +70,14 @@ func (p Process) RenderTable() []string {
 		memVal,
 		p.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
+}
+
+func FindByProcessFileAndName(db *gorm.DB, process_file string, name string) (error, *Process) {
+	var process Process
+	err := db.First(&process, "process_file = ? AND name = ?", process_file, name).Error
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, &process
 }

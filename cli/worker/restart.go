@@ -10,9 +10,9 @@ import (
 )
 
 func Restart(pFile string, flags *model.ExecFlags) (string, error) {
-	m := FindProcess(pFile, flags.Name)
-	if m == nil {
-		return "", errors.New("try to get process data error")
+	err, m := model.FindByProcessFileAndName(pmond.Db(), pFile, flags.Name)
+	if err != nil {
+		return "", errors.New("Could not find process")
 	}
 
 	cstLog := flags.Log
@@ -54,14 +54,4 @@ func Restart(pFile string, flags *model.ExecFlags) (string, error) {
 	waitData := service.NewProcStat(process).Wait()
 
 	return service.AddData(waitData)
-}
-
-func FindProcess(pFile string, name string) *model.Process {
-	var rel model.Process
-	err := pmond.Db().First(&rel, "process_file = ? AND name = ?", pFile, name).Error
-	if err != nil {
-		return nil
-	}
-
-	return &rel
 }
