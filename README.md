@@ -206,6 +206,14 @@ If there is a path in the parameters you pass, please use the absolute path. The
 sudo yum install -y bash-completion
 ```
 
+#### Using ZSH instead of Bash
+```shell
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+sudo sh -c "pmon3 completion zsh > /etc/profile.d/pmon3.sh"
+source /etc/profile.d/pmon3.sh
+```
+
 ### 4. FATAL stat /var/run/pmon3/pmon3.sock: no such file or directory
 
 If you encounter the error above, make sure the pmond service has started sucessfully.
