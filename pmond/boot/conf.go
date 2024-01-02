@@ -1,10 +1,11 @@
 package boot
 
 import (
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"pmon3/pmond/conf"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 func Conf(confFile string) (*conf.Tpl, error) {
