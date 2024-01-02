@@ -2,8 +2,8 @@ package output
 
 import (
 	"github.com/olekukonko/tablewriter"
-	"os"
 	"log"
+	"os"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -71,35 +71,35 @@ type Model struct {
 }
 
 const (
-	columnKeyID          = "id"
-	columnKeyName        = "name"
-  columnKeyPid         = "pid"
-  columnKeyStatus      = "status"
-  columnKeyUser        = "user"
-  columnKeyCpu         = "cpu"
-  columnKeyMem         = "mem"
-  columnKeyDate        = "date"
+	columnKeyID     = "id"
+	columnKeyName   = "name"
+	columnKeyPid    = "pid"
+	columnKeyStatus = "status"
+	columnKeyUser   = "user"
+	columnKeyCpu    = "cpu"
+	columnKeyMem    = "mem"
+	columnKeyDate   = "date"
 )
 
-func getStatusColor(status string) (string) {
-  switch status {
-    case "running":
-      return "#16ff16"
-    case "stopped":
-      return "#ffff00"
-    case "failed":
-      return "#ff0000"
-    case "init":
-      return "#808080"
-  }
-  return "#ffffff"
+func getStatusColor(status string) string {
+	switch status {
+	case "running":
+		return "#16ff16"
+	case "stopped":
+		return "#ffff00"
+	case "failed":
+		return "#ff0000"
+	case "init":
+		return "#808080"
+	}
+	return "#ffffff"
 }
 
 func NewModel(tbData [][]string) Model {
 	columns := []table.Column{
 		table.NewColumn(columnKeyID, columnKeyID, 5).WithStyle(
 			lipgloss.NewStyle().
-        Foreground(lipgloss.Color("#afaf00")).
+				Foreground(lipgloss.Color("#afaf00")).
 				Align(lipgloss.Center)),
 		table.NewColumn(columnKeyName, "Name", 15),
 		table.NewColumn(columnKeyPid, "PID", 10),
@@ -110,20 +110,20 @@ func NewModel(tbData [][]string) Model {
 		table.NewColumn(columnKeyDate, columnKeyDate, 20),
 	}
 
-  var rows []table.Row
+	var rows []table.Row
 
-  for _, row := range tbData {
-    rows = append(rows, table.NewRow(table.RowData{
-      columnKeyID: row[0],
-      columnKeyName: row[1],
-      columnKeyPid: row[2],
-      columnKeyStatus: table.NewStyledCell(row[3], lipgloss.NewStyle().Foreground(lipgloss.Color(getStatusColor(row[3])))),
-      columnKeyUser: row[4],
-      columnKeyCpu: row[5],
-      columnKeyMem: row[6],
-      columnKeyDate: row[7],
-    }))
-  }
+	for _, row := range tbData {
+		rows = append(rows, table.NewRow(table.RowData{
+			columnKeyID:     row[0],
+			columnKeyName:   row[1],
+			columnKeyPid:    row[2],
+			columnKeyStatus: table.NewStyledCell(row[3], lipgloss.NewStyle().Foreground(lipgloss.Color(getStatusColor(row[3])))),
+			columnKeyUser:   row[4],
+			columnKeyCpu:    row[5],
+			columnKeyMem:    row[6],
+			columnKeyDate:   row[7],
+		}))
+	}
 
 	model := Model{
 		// Throw features in... the point is not to look good, it's just reference!
@@ -136,7 +136,7 @@ func NewModel(tbData [][]string) Model {
 			WithBaseStyle(
 				lipgloss.NewStyle().
 					Align(lipgloss.Left).
-          Bold(true),
+					Bold(true),
 			).
 			SortByAsc(columnKeyID),
 	}
@@ -145,7 +145,7 @@ func NewModel(tbData [][]string) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-  //non-interactive
+	//non-interactive
 	return tea.Quit
 }
 
@@ -170,7 +170,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-  body := strings.Builder{}
+	body := strings.Builder{}
 	body.WriteString(m.tableModel.View())
 	body.WriteString("\n")
 	return body.String()
@@ -182,6 +182,6 @@ func Table(tbData [][]string) {
 
 	if err := p.Start(); err != nil {
 		log.Fatal(err)
-    os.Exit(1)
+		os.Exit(1)
 	}
 }
