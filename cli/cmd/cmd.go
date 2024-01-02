@@ -5,13 +5,13 @@ import (
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
+	"pmon3/cli/cmd/drop"
 	"pmon3/cli/cmd/exec"
+	"pmon3/cli/cmd/kill"
 	"pmon3/cli/cmd/list"
 	"pmon3/cli/cmd/log"
 	"pmon3/cli/cmd/logf"
-	"pmon3/cli/cmd/reload"
 	"pmon3/cli/cmd/restart"
-	"pmon3/cli/cmd/start"
 	"pmon3/cli/cmd/stop"
 	"pmon3/pmond/conf"
 
@@ -19,8 +19,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pmon3",
-	Short: "pmon3 cli",
+	Use: "pmon3",
 }
 
 var verCmd = &cobra.Command{
@@ -37,12 +36,12 @@ func Exec() error {
 		list.Cmd,
 		exec.Cmd,
 		stop.Cmd,
-		reload.Cmd,
-		start.Cmd,
 		restart.Cmd,
 		completion.Cmd,
 		log.Cmd,
 		logf.Cmd,
+		kill.Cmd,
+		drop.Cmd,
 		verCmd,
 	)
 

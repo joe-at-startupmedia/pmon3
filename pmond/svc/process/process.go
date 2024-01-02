@@ -20,7 +20,7 @@ func IsRunning(pid int) bool {
 	return true
 }
 
-func TryStop(forced bool, p *model.Process) error {
+func TryStop(p *model.Process, status model.ProcessStatus, forced bool) error {
 	var cmd *exec.Cmd
 	if forced {
 		cmd = exec.Command("kill", "-9", strconv.Itoa(p.Pid))
@@ -33,12 +33,20 @@ func TryStop(forced bool, p *model.Process) error {
 		pmond.Log.Fatal(err)
 	}
 
-	p.Status = model.StatusStopped
+	p.Status = status
 
 	return pmond.Db().Save(p).Error
 }
 
 func TryStart(m model.Process, flags string) ([]string, error) {
+	return tryRun(m, flags, "start")
+}
+
+func TryRestart(m model.Process, flags string) ([]string, error) {
+	return tryRun(m, flags, "restart")
+}
+
+func tryRun(m model.Process, flags string, cmd string) ([]string, error) {
 	var flagsModel = model.ExecFlags{
 		User:          m.Username,
 		Log:           m.Log,
@@ -47,7 +55,7 @@ func TryStart(m model.Process, flags string) ([]string, error) {
 		Name:          m.Name,
 	}
 
-	pmond.Log.Debugf("starting process: %s %s\n", m.Name, m.ProcessFile)
+	pmond.Log.Debugf("%sing process: %s %s\n", cmd, m.Name, m.ProcessFile)
 	if len(flags) > 0 {
 		pmond.Log.Debugf("with flags: %s \n", flags)
 		execFlags := model.ExecFlags{}
@@ -67,7 +75,7 @@ func TryStart(m model.Process, flags string) ([]string, error) {
 		}
 	}
 
-	data, err := proxy.RunProcess([]string{"restart", m.ProcessFile, flagsModel.Json()})
+	data, err := proxy.RunProcess([]string{cmd, m.ProcessFile, flagsModel.Json()})
 	if err != nil {
 		return nil, err
 	}

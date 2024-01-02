@@ -1,41 +1,46 @@
 package exec
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path"
-	"path/filepath"
-	"pmon3/cli/proxy"
+	"pmon3/cli/worker"
+	"pmon3/pmond"
+	"pmon3/pmond/executor"
+	"pmon3/pmond/model"
+	"pmon3/pmond/utils/crypto"
+	"strings"
 )
 
-func loadFirst(execPath string, flags string) ([]string, error) {
-	data, err := proxy.RunProcess([]string{"start", execPath, flags})
+func loadFirst(processFile string, flags *model.ExecFlags) error {
+
+	logPath, err := executor.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var tbData []string
-	_ = json.Unmarshal(data, &tbData)
-
-	return tbData, nil
-}
-
-func getExecFile(args []string) (string, error) {
-	execFile := args[0]
-	_, err := os.Stat(execFile)
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s does not exist", execFile)
+	var processParams = []string{flags.Name}
+	if len(flags.Args) > 0 {
+		processParams = append(processParams, strings.Split(flags.Args, " ")...)
 	}
 
-	if path.IsAbs(execFile) {
-		return execFile, nil
-	}
-
-	absPath, err := filepath.Abs(execFile)
+	user, err := worker.GetProcUser(flags)
 	if err != nil {
-		return "", fmt.Errorf("get file path error: %v", err.Error())
+		return err
 	}
 
-	return absPath, nil
+	process := model.Process{
+		Pid:         0,
+		Log:         logPath,
+		Name:        flags.Name,
+		ProcessFile: processFile,
+		Args:        strings.Join(processParams[1:], " "),
+		Pointer:     nil,
+		Status:      model.StatusQueued,
+		Uid:         user.Uid,
+		Gid:         user.Gid,
+		Username:    user.Username,
+		AutoRestart: !flags.NoAutoRestart,
+	}
+
+	err = pmond.Db().Save(&process).Error
+
+	return err
 }

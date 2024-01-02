@@ -1,23 +1,34 @@
 package del
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
 	"os"
+	"pmon3/cli/cmd/stop"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+
+	"github.com/spf13/cobra"
+)
+
+var (
+	forceKill bool
 )
 
 var Cmd = &cobra.Command{
 	Use:   "del",
-	Short: "del process by id or name",
+	Short: "Delete process by id or name",
 	Run: func(cmd *cobra.Command, args []string) {
 		runCmd(args)
 	},
 }
 
+func init() {
+	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "kill the process before deletion")
+}
+
 func runCmd(args []string) {
 	if len(args) == 0 {
-		pmond.Log.Fatalf("missing del process id or name \n")
+		pmond.Log.Fatalf("missing process id or name \n")
 	}
 
 	val := args[0]
@@ -27,15 +38,19 @@ func runCmd(args []string) {
 		pmond.Log.Fatalf("del process err:%s \n", err.Error())
 	}
 
-	if m.Status == model.StatusRunning {
-		pmond.Log.Fatalf("the process %s is running, must stop it firstly \n", val)
-	}
-
-	clearData(m)
+	DelProcess(&m, forceKill)
 	pmond.Log.Info("del process")
 }
 
-func clearData(m model.Process) {
-	pmond.Db().Delete(&m)
-	_ = os.Remove(m.Log)
+// show all process list
+func DelProcess(process *model.Process, forceKill bool) {
+	if process.Status == model.StatusRunning && !forceKill {
+		pmond.Log.Fatalf(fmt.Sprintf("The process %s is running, you must must stop it first or pass the --force flag\n", process.Stringify()))
+	}
+	if forceKill {
+		stop.StopProcess(process, model.StatusStopped, forceKill)
+	}
+	pmond.Db().Delete(process)
+	_ = os.Remove(process.Log)
+	pmond.Log.Info(fmt.Sprintf("Process %s successfully deleted", process.Stringify()))
 }

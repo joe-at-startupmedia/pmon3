@@ -1,23 +1,24 @@
 package list
 
 import (
-	"github.com/spf13/cobra"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/output"
+
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
 	Use:     "ls",
 	Aliases: []string{"list"},
-	Short:   "list all processes",
+	Short:   "List all processes",
 	Run: func(cmd *cobra.Command, args []string) {
-		runCmd(nil)
+		Show()
 	},
 }
 
 // show all process list
-func runCmd(_ []string) {
+func Show() {
 	var all []model.Process
 	err := pmond.Db().Find(&all).Error
 	if err != nil {

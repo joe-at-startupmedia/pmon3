@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"pmon3/cli/service"
@@ -9,6 +8,8 @@ import (
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 func Start(processFile string, flags *model.ExecFlags) (string, error) {
@@ -30,7 +31,7 @@ func Start(processFile string, flags *model.ExecFlags) (string, error) {
 		name = filepath.Base(processFile)
 	}
 	// checkout process name whether exist
-	if pmond.Db().First(&model.Process{}, "name = ?", name).Error == nil {
+	if pmond.Db().First(&model.Process{}, "name = ? AND status != ?", name, model.StatusQueued).Error == nil {
 		return "", errors.Errorf("process name: %s already exist, please set other name by --name", name)
 	}
 	// start process

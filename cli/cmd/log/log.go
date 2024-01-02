@@ -2,15 +2,16 @@ package log
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os/exec"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "log",
-	Short: "display process log by id or name",
+	Short: "Display process logs by id or name",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cmdRun(args)

@@ -5,4 +5,8 @@
 # data dir, such as db data
 data: "/etc/pmon3/data"
 # logs dir
-logs: "/var/log/pmon3/"
+logs: "/var/log/pmond"
+# kill processes on termintation
+handle_interrupts: true
+# wait [n] milliseconds before outputing list after exec cmd
+cmd_exec_response_wait: 1500

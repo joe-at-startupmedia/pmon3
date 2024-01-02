@@ -3,7 +3,7 @@ package conf
 import "os"
 
 // current app version
-var Version = "1.10.0"
+var Version = "1.13.0"
 
 func GetDefaultConf() string {
 	conf := os.Getenv("PMON3_CONF")
@@ -11,5 +11,4 @@ func GetDefaultConf() string {
 		conf = "/etc/pmon3/config/config.yml"
 	}
 	return conf
-
 }

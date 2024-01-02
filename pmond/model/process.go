@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"pmon3/pmond/utils/cpu"
 	"strconv"
@@ -10,27 +11,47 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type ProcessStatus int64
+
 const (
-	StatusInit    = "init"    // init process
-	StatusRunning = "running" // success running
-	StatusStopped = "stopped" // success finished or run stop success
-	StatusReload  = "reload"  //
-	StatusFailed  = "failed"  // run error
+	StatusQueued ProcessStatus = iota
+	StatusInit
+	StatusRunning
+	StatusStopped
+	StatusFailed
+	StatusClosed
 )
 
+func (s ProcessStatus) String() string {
+	switch s {
+	case StatusQueued:
+		return "queued"
+	case StatusInit:
+		return "init"
+	case StatusRunning:
+		return "running"
+	case StatusStopped:
+		return "stopped"
+	case StatusFailed:
+		return "failed"
+	case StatusClosed:
+		return "closed"
+	}
+	return "unknown"
+}
+
 type Process struct {
-	ID          uint        `gorm:"primary_key" json:"id"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
-	DeletedAt   *time.Time  `sql:"index" json:"deleted_at"`
-	Pid         int         `gorm:"column:pid" json:"pid"`
-	Log         string      `gorm:"column:log" json:"log"`
-	Name        string      `gorm:"unique" json:"name"`
-	ProcessFile string      `json:"process_file"`
-	Args        string      `json:"args"`
-	Status      string      `json:"status"`
-	Pointer     *os.Process `gorm:"-" json:"-"`
-	AutoRestart bool        `json:"auto_restart"`
+	ID          uint          `gorm:"primary_key" json:"id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	Pid         int           `gorm:"column:pid" json:"pid"`
+	Log         string        `gorm:"column:log" json:"log"`
+	Name        string        `gorm:"unique" json:"name"`
+	ProcessFile string        `json:"process_file"`
+	Args        string        `json:"args"`
+	Status      ProcessStatus `json:"status"`
+	Pointer     *os.Process   `gorm:"-" json:"-"`
+	AutoRestart bool          `json:"auto_restart"`
 	Uid         string
 	Username    string
 	Gid         string
@@ -64,7 +85,7 @@ func (p Process) RenderTable() []string {
 		strconv.Itoa(int(p.ID)),
 		p.Name,
 		strconv.Itoa(p.Pid),
-		p.Status,
+		p.Status.String(),
 		p.Username,
 		cpuVal,
 		memVal,
@@ -80,4 +101,8 @@ func FindByProcessFileAndName(db *gorm.DB, process_file string, name string) (er
 	}
 
 	return nil, &process
+}
+
+func (p Process) Stringify() string {
+	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }

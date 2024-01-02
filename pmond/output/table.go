@@ -1,10 +1,11 @@
 package output
 
 import (
-	"github.com/olekukonko/tablewriter"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/olekukonko/tablewriter"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -92,7 +93,7 @@ func getStatusColor(status string) string {
 	case "init":
 		return "#808080"
 	}
-	return "#ffffff"
+	return "#646464"
 }
 
 func NewModel(tbData [][]string) Model {

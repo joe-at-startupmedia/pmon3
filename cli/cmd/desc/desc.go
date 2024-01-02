@@ -2,21 +2,22 @@ package desc
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
-	"github.com/spf13/cobra"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/output"
 	"strconv"
+
+	"github.com/jinzhu/gorm"
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
 	Use:     "desc",
 	Aliases: []string{"show"},
-	Short:   "print the process detail message",
+	Short:   "Show process extended details",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			pmond.Log.Fatalf("The command need process name or id, Example: sudo pmon3 show test")
+			pmond.Log.Fatalf("process name or id required")
 			return
 		}
 
@@ -40,7 +41,7 @@ func cmdRun(args []string) {
 	}
 
 	rel := [][]string{
-		{"status", process.Status},
+		{"status", process.Status.String()},
 		{"id", strconv.Itoa(int(process.ID))},
 		{"name", process.Name},
 		{"pid", strconv.Itoa(process.Pid)},

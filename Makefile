@@ -4,6 +4,7 @@ GO_VERSION=$(shell $(GO) version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
 PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
+WHOAMI=$(shell whoami)
 TEST_DIR_LOGS="$(ROOTDIR)/tmp/logs"
 TEST_DIR_DATA="$(ROOTDIR)/tmp/data"
 TEST_FILE_CONFIG=$(ROOTDIR)/tmp/config-test.yml
@@ -44,8 +45,7 @@ tools:
 	fi
 test: build_test
 	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
-	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec bin/test_server
-	pidof pmond
+	PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec bin/test_server
 build_test: build
 	sudo rm -rf "$(ROOTDIR)/tmp" 
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
@@ -63,11 +63,19 @@ systemd_install: systemd_uninstall install
 	sudo systemctl enable pmond
 	sudo systemctl start pmond
 	sudo sh -c "$(ROOTDIR)/bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
-	sudo "$(ROOTDIR)/bin/pmon3" ls
-	sudo "$(ROOTDIR)/bin/pmon3" --help
+	$(MAKE) systemd_permissions
+	$(ROOTDIR)/bin/pmon3 ls
+	$(ROOTDIR)/bin/pmon3 --help
 systemd_uninstall: 
 	sudo rm -rf /var/log/pmond /etc/pmon3/config /etc/pmon3/data /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
 	sudo systemctl stop pmond
 	sudo systemctl disable pmond
+systemd_permissions:
+	sleep 2
+	sudo chown -R root:$(WHOAMI) /etc/pmon3/data/
+	sudo chmod 775 /etc/pmon3/data/
+	sudo chmod 660 /etc/pmon3/data/*
+	sudo chown -R root:$(WHOAMI) /var/log/pmond
+	sudo chmod 660 "/var/log/pmond/*" || true
 install:
 	sudo cp -R bin/pmon* /usr/local/bin/

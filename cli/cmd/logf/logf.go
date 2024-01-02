@@ -3,17 +3,18 @@ package logf
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"os/exec"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"sync"
+
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "logf",
-	Short: "display process log dynamic by id or name",
+	Short: "Tail process logs by id or name",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},

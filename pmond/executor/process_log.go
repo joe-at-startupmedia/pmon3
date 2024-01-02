@@ -1,16 +1,17 @@
 package executor
 
 import (
-	"github.com/pkg/errors"
 	"os"
 	"pmon3/pmond"
 	"strings"
 	"syscall"
+
+	"github.com/pkg/errors"
 )
 
 const logSuffix = ".log"
 
-func getLogPath(customLogFile string, hash string, logDir string) (string, error) {
+func GetLogPath(customLogFile string, hash string, logDir string) (string, error) {
 	if len(logDir) <= 0 {
 		pmond.Log.Debugf("custom log dir: %s \n", logDir)
 		logDir = pmond.Config.GetLogsDir()
@@ -33,7 +34,7 @@ func getLogPath(customLogFile string, hash string, logDir string) (string, error
 	return customLogFile, nil
 }
 
-func getLogFile(customLogFile string) (*os.File, error) {
+func GetLogFile(customLogFile string) (*os.File, error) {
 	// 创建进程日志文件
 	logFile, err := os.OpenFile(customLogFile, syscall.O_CREAT|syscall.O_APPEND|syscall.O_WRONLY, 0755)
 	if err != nil {

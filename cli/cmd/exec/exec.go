@@ -1,11 +1,14 @@
 package exec
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"pmon3/cli/cmd/list"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
-	"pmon3/pmond/output"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -16,7 +19,7 @@ var flag model.ExecFlags
 var Cmd = &cobra.Command{
 	Use:     "exec",
 	Aliases: []string{"run"},
-	Short:   "run one binary golang process file",
+	Short:   "Spawn a new process",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) <= 0 {
 			pmond.Log.Fatal("porcess params is empty")
@@ -42,26 +45,30 @@ func cmdRun(args []string, flags string) {
 		return
 	}
 	execflags := model.ExecFlags{}
-	flagModel, err := execflags.Parse(flags)
+	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
 		pmond.Log.Fatalf("could not parse flags: %+v", err)
 		return
 	}
-	name := flagModel.Name
+	name := parsedFlags.Name
 	// get process file name
 	if len(name) <= 0 {
 		name = filepath.Base(args[0])
+		parsedFlags.Name = name
 	}
 	err, process := model.FindByProcessFileAndName(pmond.Db(), execPath, name)
-	var rel []string
 	if err == nil {
 		pmond.Log.Debugf("restart process: %v", flags)
-		rel, err = restart(process, flags)
+		err = Restart(process, execPath, parsedFlags)
+		HandleStart(err)
 	} else {
 		pmond.Log.Debugf("load first process: %v", flags)
-		rel, err = loadFirst(execPath, flags)
+		err = loadFirst(execPath, parsedFlags)
+		HandleStart(err)
 	}
+}
 
+func HandleStart(err error) {
 	if err != nil {
 		if len(os.Getenv("PMON3_DEBUG")) > 0 {
 			pmond.Log.Fatalf("%+v", err)
@@ -69,6 +76,25 @@ func cmdRun(args []string, flags string) {
 			pmond.Log.Fatalf(err.Error())
 		}
 	}
+	time.Sleep(pmond.Config.GetCmdExecResponseWait())
+	list.Show()
+}
 
-	output.TableOne(rel)
+func getExecFile(args []string) (string, error) {
+	execFile := args[0]
+	_, err := os.Stat(execFile)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("%s does not exist", execFile)
+	}
+
+	if path.IsAbs(execFile) {
+		return execFile, nil
+	}
+
+	absPath, err := filepath.Abs(execFile)
+	if err != nil {
+		return "", fmt.Errorf("get file path error: %v", err.Error())
+	}
+
+	return absPath, nil
 }

@@ -1,38 +1,51 @@
 package exec
 
 import (
-	"encoding/json"
 	"fmt"
-	"pmon3/cli/proxy"
+	"pmon3/cli/worker"
+	"pmon3/pmond"
+	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
+	"pmon3/pmond/utils/crypto"
+	"strings"
 )
 
-func restart(m *model.Process, flags string) ([]string, error) {
-	// only stopped process or failed process allow run start
+func Restart(m *model.Process, processFile string, flags *model.ExecFlags) error {
+	// only stopped and failed process can be restart
 	if m.Status == model.StatusStopped || m.Status == model.StatusFailed {
-		newData, err := reloadProcess(m, flags)
-		if err != nil {
-			return nil, err
+		if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
+			logPath, err := executor.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
+			if err != nil {
+				return err
+			}
+			m.Log = logPath
 		}
 
-		return newData, nil
+		if len(flags.Args) > 0 {
+			var processParams = []string{flags.Name}
+			processParams = append(processParams, strings.Split(flags.Args, " ")...)
+			m.Args = strings.Join(processParams[1:], " ")
+		}
+
+		if len(flags.User) > 0 {
+			user, err := worker.GetProcUser(flags)
+			if err != nil {
+				return err
+			}
+			m.Uid = user.Uid
+			m.Gid = user.Gid
+			m.Username = user.Username
+		}
+
+		if flags.NoAutoRestart {
+			m.AutoRestart = !flags.NoAutoRestart
+		}
+
+		m.Status = model.StatusQueued
+		m.ProcessFile = processFile
+
+		return pmond.Db().Save(&m).Error
 	}
 
-	return nil, fmt.Errorf("process already running with the name provided: %s", m.Name)
-}
-
-func reloadProcess(m *model.Process, flags string) ([]string, error) {
-	data, err := proxy.RunProcess([]string{"restart", m.ProcessFile, flags})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var rel []string
-	err = json.Unmarshal(data, &rel)
-	if err != nil {
-		return nil, err
-	}
-
-	return rel, nil
+	return fmt.Errorf("process already running with the name provided: %s", m.Name)
 }

@@ -6,7 +6,7 @@
 ## Start Process
 
 ```go
-sudo pmon3 run [./application binary] [arg1]  ...
+pmon3 run [./application binary] [arg1]  ...
 ```
 
 ## Introduction
@@ -18,7 +18,6 @@ Each method has certain advantages and disadvantages. We hope to inherit the con
 Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmon3` process itself. This is currently achieved by seperating the `pmond` deamon process from the `pmon3` agent.
 
 By default, if the `pmon3` agent abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
-
 
 ## How To Install
 
@@ -62,36 +61,36 @@ sudo /usr/local/pmon3/bin/pmond &
 
 ```shell
 # View global help documentation
-sudo pmon3 help
+pmon3 help
 
-# View a specific command help
-sudo pmon3 [command] help
-```
-
-global help documentation provides the following output:
-
-```
 Usage:
   pmon3 [command]
 
 Available Commands:
-  del         del process by id or name
-  desc        print the process detail message
-  exec        run one binary golang process file
+  completion  Generate completion script
+  del         Delete process by id or name
+  desc        Show process extended details
+  drop        Delete all processes
+  exec        Spawn a new process
   help        Help about any command
-  ls          list all processes
-  reload      reload some process
-  start       start some process by id or name
-  stop        stop running process
-  log         display process log by id or name
-  logf        display process log dynamic by id or name
-  version     show `pmon3` version
+  kill        Terminate all processes
+  log         Display process logs by id or name
+  logf        Tail process logs by id or name
+  ls          List all processes
+  restart     Restart a process by id or name
+  stop        Stop a process by id or name
+  version
+
+Flags:
+  -h, --help   help for pmon3
+
+Use "pmon3 [command] --help" for more information about a command.
 ```
 
 #### Running process [run/exec]
 
 ```shell
-sudo pmon3 run [./application binary] [arg1] [arg2] ...
+pmon3 run [./application binary] [arg1] [arg2] ...
 ```
 The starting process accepts several parameters. The parameter descriptions are as follows:
 
@@ -118,7 +117,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 #### Example：
 
 ```shell
-sudo pmon3 run ./bin/gin --args "-prjHome=`pwd`" --user ntt360
+pmon3 run ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -128,57 +127,53 @@ Parameter arguments need to use the absolute path。
 #### View List  [ list/ls ]
 
 ```shell
-sudo pmon3 ls
+pmon3 ls
 ```
 
-#### Start the process [ start ]
+#### (re)tart the process [ restart ]
 
 ```shell
-sudo pmon3 start [id or name]
+pmon3 restart [id or name]
 ```
 
 #### Stop the process  [ stop ]
 
 ```shell
-sudo pmon3 stop [id or name]
-```
-
-#### Reload the process [ reload ]
-
-```shell
-sudo pmon3 reload [id or name]
+pmon3 stop [id or name]
 ```
 
 #### Process logging
 
 ```shell
 # view logs of the process specified
-sudo pmon3 log [id or name]
+pmon3 log [id or name]
 
 # Similar to using `tail -f xxx.log`
-sudo pmon3 logf [id or name]
-```
-
-After editing the configuration file, the command needs to be used in conjunction with the startup process, the `reload` command defaults to only send the `SIGUSR2` signal to the startup process
-
-If you want to customize the signal when you want to recoad, then use the `--sig` parameter:
-
-```shell
-// currently supported signals：HUP, USR1, USR2
-sudo pmon3 reload --sig HUP [id or name]
+pmon3 logf [id or name]
 ```
 
 #### Delete the process  [ del/delete ]
 
 ```shell
-sudo pmon3 del [id or name]
+pmon3 del [id or name]
 ```
 
 #### View details [ show/desc ]
 
 ```shell
-sudo pmon3 show [id or name]
+pmon3 show [id or name]
 ```
+
+#### Terminate all running process [ kill ]
+```shell
+pmon3 kill [--force]
+```
+
+#### Terminate and delete all processes [drop]
+```shell
+pmon3 drop [--force]
+```
+
 ![](https://jscssimg-img.oss-cn-beijing.aliyuncs.com/89c3f649a583a852.png?t=1506950494)
 
 ## Development
@@ -190,9 +185,9 @@ make test
 
 ## Common Problems
 
-### 1. Log Cutting?
+### 1. Log Rotation?
 
-`pmon3` comes with a logrotate configuration file, which by default utilizes the `/var/log/pmon3` directory. If you require a custom log path, please implement the log rotation by yourself.
+`pmon3` comes with a logrotate configuration file, which by default utilizes the `/var/log/pmond` directory. If you require a custom log path, you can customize `config.yml` and `rpm/pmond.logrotate`
 
 ### 2. The process startup parameter must pass the absolute path?
 
@@ -200,7 +195,7 @@ If there is a path in the parameters you pass, please use the absolute path. The
 
 ### 3. Command line automation
 
-`pmon3` provides Bash automation. If you find that the command cannot be automatically provided in the sudo mode, please install `bash-completion` and exit the terminal to re-enter:
+`pmon3` provides Bash automation. If you find that the command cannot be automatically provided, please install `bash-completion` and exit the terminal to re-enter:
 
 ```bash
 sudo yum install -y bash-completion
@@ -214,10 +209,18 @@ sudo sh -c "pmon3 completion zsh > /etc/profile.d/pmon3.sh"
 source /etc/profile.d/pmon3.sh
 ```
 
-### 4. FATAL stat /var/run/pmon3/pmon3.sock: no such file or directory
+### 4. FATA stat /var/run/pmon3/pmon3.sock: no such file or directory
 
 If you encounter the error above, make sure the pmond service has started sucessfully.
 
 ```bash
 sudo systemctl start pmond
+```
+
+### 5. Should I use `sudo` commands?
+
+You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files and the database file:
+
+```shell
+make systemctl_permissions
 ```

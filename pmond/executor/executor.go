@@ -1,7 +1,6 @@
 package executor
 
 import (
-	"github.com/pkg/errors"
 	"os"
 	"os/user"
 	"pmon3/pmond/model"
@@ -9,14 +8,16 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/pkg/errors"
 )
 
 func Exec(processFile, customLogFile, name, extArgs string, user *user.User, autoRestart bool, logDir string) (*model.Process, error) {
-	logPath, err := getLogPath(customLogFile, crypto.Crc32Hash(processFile), logDir)
+	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile), logDir)
 	if err != nil {
 		return nil, err
 	}
-	logOutput, err := getLogFile(logPath)
+	logOutput, err := GetLogFile(logPath)
 	if err != nil {
 		return nil, err
 	}
