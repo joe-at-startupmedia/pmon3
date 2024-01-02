@@ -11,11 +11,11 @@ pmon3 run [./application binary] [arg1]  ...
 
 ## Introduction
 
-Golang currently has no officially support process management tools. For the deployment of `Go` services we use the Linux built-in command `nohup [process] &`  combination, or use the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
+Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
 
-Each method has certain advantages and disadvantages. We hope to inherit the convenient and easy-to-use ideas of the GO language deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
+Each method has certain advantages and disadvantages. We hope to provide a convenient and easy-to-use tool for Golang process deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
 
-Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmon3` process itself. This is currently achieved by seperating the `pmond` deamon process from the `pmon3` agent.
+Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by seperating the `pmond` deamon process from the `pmon3` agent.
 
 By default, if the `pmon3` agent abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
@@ -222,5 +222,6 @@ sudo systemctl start pmond
 You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files and the database file:
 
 ```shell
-make systemctl_permissions
+#This is automatically called by make systemd_install
+make systemd_permissions
 ```
