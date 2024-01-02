@@ -18,4 +18,4 @@
 .idea
 bin
 
-config.dev.yml
+tmp/
