@@ -2,7 +2,6 @@ package worker
 
 import (
 	"errors"
-	"fmt"
 	"pmon3/cli/service"
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
@@ -29,11 +28,6 @@ func Restart(pFile string, flags *model.ExecFlags) (string, error) {
 	cstName := flags.Name
 	if len(cstName) > 0 && cstName != m.Name {
 		m.Name = cstName
-	}
-
-	// checkout process name whether exist except itself
-	if pmond.Db().First(&model.Process{}, "name = ? AND id != ?", cstName, m.ID).Error == nil {
-		return "", fmt.Errorf("process name: %s already used, please set other name by --name", cstName)
 	}
 
 	extArgs := flags.Args
