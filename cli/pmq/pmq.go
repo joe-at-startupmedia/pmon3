@@ -68,11 +68,11 @@ func GetResponse() *protos.CmdResp {
 }
 
 func Close() {
-	err := mq_send.Close()
+	err := mq_send.Unlink()
 	if err != nil {
 		pmond.Log.Println(err)
 	}
-	err = mq_resp.Close()
+	err = mq_resp.Unlink()
 	if err != nil {
 		pmond.Log.Println(err)
 	}

@@ -2,7 +2,6 @@ package pmq
 
 import (
 	"fmt"
-	"log"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
 	"pmon3/pmond/protos"
@@ -70,20 +69,20 @@ func HandleRequest() {
 	}
 	data, err := proto.Marshal(newCmdResp)
 	if err != nil {
-		log.Fatal("marshaling error: ", err)
+		pmond.Log.Fatal("marshaling error: ", err)
 	}
 	err = mq_resp.Send(data, 0)
 	if err != nil {
-		log.Fatal(err)
+		pmond.Log.Fatal(err)
 	}
 }
 
 func Close() {
-	err := mq_send.Close()
+	err := mq_send.Unlink()
 	if err != nil {
 		pmond.Log.Println(err)
 	}
-	err = mq_resp.Close()
+	err = mq_resp.Unlink()
 	if err != nil {
 		pmond.Log.Println(err)
 	}

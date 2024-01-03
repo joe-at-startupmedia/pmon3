@@ -13,8 +13,12 @@ import (
 	"pmon3/cli/cmd/logf"
 	"pmon3/cli/cmd/restart"
 	"pmon3/cli/cmd/stop"
+	"pmon3/pmond"
 	"pmon3/pmond/conf"
+	"pmon3/pmond/utils/iconv"
+	"strings"
 
+	"github.com/goinbox/shell"
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +34,9 @@ var verCmd = &cobra.Command{
 }
 
 func Exec() error {
+	if !IsPmondRunning() {
+		pmond.Log.Fatal("pmond must be running")
+	}
 	rootCmd.AddCommand(
 		del.Cmd,
 		desc.Cmd,
@@ -46,4 +53,14 @@ func Exec() error {
 	)
 
 	return rootCmd.Execute()
+}
+
+func IsPmondRunning() bool {
+	rel := shell.RunCmd("ps -ef | grep ' pmond$' | grep -v grep | head -n 1 | awk '{print $2}'")
+	if rel.Ok {
+		newPidStr := strings.TrimSpace(string(rel.Output))
+		newPid := iconv.MustInt(newPidStr)
+		return newPid != 0
+	}
+	return false
 }

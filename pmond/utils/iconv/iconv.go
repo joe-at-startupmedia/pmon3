@@ -1,8 +1,14 @@
 package iconv
 
-import "strconv"
+import (
+	"pmon3/pmond"
+	"strconv"
+)
 
 func MustInt(val string) int {
-	valInt, _ := strconv.Atoi(val)
+	valInt, err := strconv.Atoi(val)
+	if err != nil {
+		pmond.Log.Debug(err)
+	}
 	return valInt
 }
