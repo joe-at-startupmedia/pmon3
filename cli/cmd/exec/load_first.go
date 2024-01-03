@@ -1,11 +1,11 @@
 package exec
 
 import (
-	"pmon3/cli/worker"
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/crypto"
+	"pmon3/pmond/worker"
 	"strings"
 )
 

@@ -1,0 +1,14 @@
+syntax="proto3";
+
+package exec_flags;
+
+option go_package = "pmond/protos";
+
+message ExecFlags {
+      string user = 1;
+      string log = 2;
+      string log_dir = 3;
+      bool no_auto_restart = 4;
+      string args = 5;
+      string name = 6;
+}

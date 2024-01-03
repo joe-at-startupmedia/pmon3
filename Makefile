@@ -79,3 +79,5 @@ systemd_permissions:
 	sudo chmod 660 "/var/log/pmond/*" || true
 install:
 	sudo cp -R bin/pmon* /usr/local/bin/
+protogen:
+	protoc pmond/protos/*.proto  --go_out=.

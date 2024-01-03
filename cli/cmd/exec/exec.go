@@ -56,7 +56,7 @@ func cmdRun(args []string, flags string) {
 		name = filepath.Base(args[0])
 		parsedFlags.Name = name
 	}
-	err, process := model.FindByProcessFileAndName(pmond.Db(), execPath, name)
+	err, process := model.FindProcessByFileAndName(pmond.Db(), execPath, name)
 	if err == nil {
 		pmond.Log.Debugf("restart process: %v", flags)
 		err = Restart(process, execPath, parsedFlags)

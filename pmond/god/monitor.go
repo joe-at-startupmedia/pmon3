@@ -1,21 +1,17 @@
 package god
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"pmon3/cli/cmd/kill"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
-	process2 "pmon3/pmond/svc/process"
-	"pmon3/pmond/utils/iconv"
+	"pmon3/pmond/pmq"
+	"pmon3/pmond/svc/process"
 	"strconv"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
-
-	"github.com/goinbox/shell"
 )
 
 func NewMonitor() {
@@ -23,8 +19,11 @@ func NewMonitor() {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler()
 	}
+	pmq.New()
 	runMonitor()
 }
+
+var uninterrupted bool = true
 
 func interruptHandler() {
 	sigc := make(chan os.Signal)
@@ -36,18 +35,29 @@ func interruptHandler() {
 	go func() {
 		s := <-sigc
 		pmond.Log.Debugf("Captured interrupt: %s \n", s)
+		uninterrupted = false
+		//wait for the inifity loop to break
+		time.Sleep(1 * time.Second)
 		kill.Kill(model.StatusClosed)
-		time.Sleep(2 * time.Second)
+		pmq.Close()
+		time.Sleep(1 * time.Second)
 		os.Exit(0)
 	}()
 }
 
 func runMonitor() {
+
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C
 		runningTask()
+		pmq.HandleRequest()
+		if !uninterrupted {
+			break
+		}
 	}
+	//wait for the interrupt handler to complete
+	time.Sleep(5 * time.Second)
 }
 
 var pendingTask sync.Map
@@ -64,10 +74,9 @@ func runningTask() {
 		return
 	}
 
-	for _, process := range all {
-		// just check failed process
-		key := "process_id:" + strconv.Itoa(int(process.ID))
-		_, ok := pendingTask.LoadOrStore(key, process.ID)
+	for _, p := range all {
+		key := "process_id:" + strconv.Itoa(int(p.ID))
+		_, ok := pendingTask.LoadOrStore(key, p.ID)
 		if ok {
 			return
 		}
@@ -83,97 +92,27 @@ func runningTask() {
 			}
 
 			if cur.Status == model.StatusRunning || cur.Status == model.StatusFailed || cur.Status == model.StatusClosed {
-				//only process older than 5 seconds can be restarted
+				//only processes older than 5 seconds can be restarted
 				if time.Since(cur.UpdatedAt).Seconds() <= 5 {
 					return
 				}
 
-				err = restartProcess(p)
+				err = process.RestartProcess(&p)
 				if err != nil {
 					pmond.Log.Error(err)
 				}
 			} else if cur.Status == model.StatusQueued {
-				//only process older than 1 seconds can be enqueued
+				//only processes older than 1 seconds can be enqueued
 				if time.Since(cur.UpdatedAt).Seconds() <= 1 {
 					return
 				}
 
-				err = enqueueProcess(p)
+				err = process.EnqueueProcess(&p)
 				if err != nil {
 					pmond.Log.Error(err)
 				}
 			}
 
-		}(process, key)
+		}(p, key)
 	}
-}
-
-// Detects whether a new process is created
-// @TODO this probably wont work when process contain substrings of other process names
-func checkFork(process model.Process) bool {
-	// try to get process new pid
-	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep '%s ' | grep -v grep | awk '{print $2}'", process.Name))
-	if rel.Ok {
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := iconv.MustInt(newPidStr)
-		if newPid != 0 && newPid != process.Pid {
-			process.Pid = newPid
-			process.Status = model.StatusRunning
-			return pmond.Db().Save(&process).Error == nil
-		}
-	}
-
-	return false
-}
-
-func enqueueProcess(p model.Process) error {
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-	if err == nil { // process already running
-		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
-		return nil
-	}
-
-	if os.IsNotExist(err) && p.Status == model.StatusQueued {
-		if checkFork(p) {
-			return nil
-		}
-
-		_, err := process2.TryStart(p, "")
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func restartProcess(p model.Process) error {
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-	if err == nil { // process already running
-		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
-		return nil
-	}
-
-	// proc status file not exit
-	if os.IsNotExist(err) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
-		if checkFork(p) {
-			return nil
-		}
-
-		// check whether set auto restart
-		if !p.AutoRestart {
-			if p.Status == model.StatusRunning { // but process is dead, update db state
-				p.Status = model.StatusFailed
-				pmond.Db().Save(&p)
-			}
-			return nil
-		}
-
-		_, err := process2.TryRestart(p, "")
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

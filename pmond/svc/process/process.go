@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"pmon3/cli/proxy"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/proxy"
+	"pmon3/pmond/utils/iconv"
 	"strconv"
+	"strings"
+
+	"github.com/goinbox/shell"
 )
 
 func IsRunning(pid int) bool {
@@ -38,15 +42,59 @@ func TryStop(p *model.Process, status model.ProcessStatus, forced bool) error {
 	return pmond.Db().Save(p).Error
 }
 
-func TryStart(m model.Process, flags string) ([]string, error) {
-	return tryRun(m, flags, "start")
+func EnqueueProcess(p *model.Process) error {
+	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
+	if err == nil { // process already running
+		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
+		return nil
+	}
+
+	if os.IsNotExist(err) && p.Status == model.StatusQueued {
+		if checkFork(p) {
+			return nil
+		}
+
+		_, err := tryRun(p, "", "start")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func TryRestart(m model.Process, flags string) ([]string, error) {
-	return tryRun(m, flags, "restart")
+func RestartProcess(p *model.Process) error {
+	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
+	if err == nil { // process already running
+		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
+		return nil
+	}
+
+	// proc status file not exit
+	if os.IsNotExist(err) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
+		if checkFork(p) {
+			return nil
+		}
+
+		// check whether set auto restart
+		if !p.AutoRestart {
+			if p.Status == model.StatusRunning { // but process is dead, update db state
+				p.Status = model.StatusFailed
+				pmond.Db().Save(&p)
+			}
+			return nil
+		}
+
+		_, err := tryRun(p, "", "restart")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func tryRun(m model.Process, flags string, cmd string) ([]string, error) {
+func tryRun(m *model.Process, flags string, cmd string) ([]string, error) {
 	var flagsModel = model.ExecFlags{
 		User:          m.Username,
 		Log:           m.Log,
@@ -84,4 +132,22 @@ func tryRun(m model.Process, flags string, cmd string) ([]string, error) {
 	_ = json.Unmarshal(data, &tb)
 
 	return tb, nil
+}
+
+// Detects whether a new process is created
+// @TODO this probably wont work when process contain substrings of other process names
+func checkFork(process *model.Process) bool {
+	// try to get process new pid
+	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep '%s ' | grep -v grep | awk '{print $2}'", process.Name))
+	if rel.Ok {
+		newPidStr := strings.TrimSpace(string(rel.Output))
+		newPid := iconv.MustInt(newPidStr)
+		if newPid != 0 && newPid != process.Pid {
+			process.Pid = newPid
+			process.Status = model.StatusRunning
+			return pmond.Db().Save(&process).Error == nil
+		}
+	}
+
+	return false
 }

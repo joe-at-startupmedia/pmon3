@@ -2,15 +2,15 @@ package worker
 
 import (
 	"errors"
-	"pmon3/cli/service"
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
+	"pmon3/pmond/service"
 	"time"
 )
 
 func Restart(pFile string, flags *model.ExecFlags) (string, error) {
-	err, m := model.FindByProcessFileAndName(pmond.Db(), pFile, flags.Name)
+	err, m := model.FindProcessByFileAndName(pmond.Db(), pFile, flags.Name)
 	if err != nil {
 		return "", errors.New("Could not find process")
 	}

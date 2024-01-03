@@ -8,7 +8,7 @@ import (
 )
 
 func AddData(process *model.Process) (string, error) {
-	err, originOne := model.FindByProcessFileAndName(pmond.Db(), process.ProcessFile, process.Name)
+	err, originOne := model.FindProcessByFileAndName(pmond.Db(), process.ProcessFile, process.Name)
 	if err == nil && originOne.ID > 0 { // process already exist
 		process.ID = originOne.ID
 	}

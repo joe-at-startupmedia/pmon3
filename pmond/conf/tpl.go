@@ -3,11 +3,12 @@ package conf
 import "time"
 
 type Tpl struct {
-	Data                string `yaml:"data"`
-	Logs                string `yaml:"logs"`
-	HandleInterrupts    bool   `yaml:"handle_interrupts"`
-	CmdExecResponseWait int64  `yaml:"cmd_exec_response_wait"`
-	Conf                string
+	Data                 string `yaml:"data"`
+	Logs                 string `yaml:"logs"`
+	HandleInterrupts     bool   `yaml:"handle_interrupts"`
+	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait"`
+	PosixMessageQueueDir string `yaml:"posix_mq_dir"`
+	Conf                 string
 }
 
 func (c *Tpl) GetDataDir() string {
@@ -27,5 +28,13 @@ func (c *Tpl) GetCmdExecResponseWait() time.Duration {
 		return time.Duration(c.CmdExecResponseWait) * time.Millisecond
 	} else {
 		return 2000 * time.Millisecond
+	}
+}
+
+func (c *Tpl) GetPosixMessageQueueDir() string {
+	if len(c.PosixMessageQueueDir) > 0 {
+		return c.PosixMessageQueueDir
+	} else {
+		return "/dev/mqueue/"
 	}
 }

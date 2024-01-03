@@ -3,10 +3,10 @@ package worker
 import (
 	"os"
 	"path/filepath"
-	"pmon3/cli/service"
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
+	"pmon3/pmond/service"
 	"time"
 
 	"github.com/pkg/errors"

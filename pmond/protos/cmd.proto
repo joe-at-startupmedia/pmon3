@@ -1,0 +1,14 @@
+syntax="proto3";
+
+package cmd;
+
+option go_package = "pmond/protos";
+
+import "pmond/protos/exec_flags.proto";
+
+message Cmd {
+      string id  = 1;
+      string name = 2;
+      string arg1  = 3;
+      exec_flags.ExecFlags exec_flags = 4;
+}

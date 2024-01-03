@@ -93,9 +93,19 @@ func (p Process) RenderTable() []string {
 	}
 }
 
-func FindByProcessFileAndName(db *gorm.DB, process_file string, name string) (error, *Process) {
+func FindProcessByFileAndName(db *gorm.DB, process_file string, name string) (error, *Process) {
 	var process Process
 	err := db.First(&process, "process_file = ? AND name = ?", process_file, name).Error
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, &process
+}
+
+func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
+	var process Process
+	err := db.First(&process, "id = ? or name = ?", idOrName, idOrName).Error
 	if err != nil {
 		return err, nil
 	}
