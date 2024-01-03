@@ -57,11 +57,16 @@ func HandleRequest() {
 		pmond.Log.Fatal("unmarshaling error: ", err)
 	}
 
-	fmt.Println(newCmd.GetId())
-	fmt.Println(newCmd.GetName())
-	fmt.Println(newCmd.GetArg1())
+	pmond.Log.Debug(newCmd.String())
 
-	newCmdResp := controller.Log(newCmd)
+	var newCmdResp *protos.CmdResp
+	switch newCmd.GetName() {
+	case "log":
+	case "logf":
+		newCmdResp = controller.Log(newCmd)
+	case "list":
+		newCmdResp = controller.List(newCmd)
+	}
 	data, err := proto.Marshal(newCmdResp)
 	if err != nil {
 		log.Fatal("marshaling error: ", err)

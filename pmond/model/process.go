@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/cpu"
 	"strconv"
 	"time"
@@ -12,6 +13,8 @@ import (
 )
 
 type ProcessStatus int64
+
+const dateTimeFormat = "2006-01-02 15:04:05"
 
 const (
 	StatusQueued ProcessStatus = iota
@@ -38,6 +41,24 @@ func (s ProcessStatus) String() string {
 		return "closed"
 	}
 	return "unknown"
+}
+
+func StringToProcessStatus(s string) ProcessStatus {
+	switch s {
+	case "queued":
+		return StatusQueued
+	case "init":
+		return StatusInit
+	case "running":
+		return StatusRunning
+	case "stopped":
+		return StatusStopped
+	case "failed":
+		return StatusFailed
+	case "closed":
+		return StatusClosed
+	}
+	return StatusFailed
 }
 
 type Process struct {
@@ -89,7 +110,7 @@ func (p Process) RenderTable() []string {
 		p.Username,
 		cpuVal,
 		memVal,
-		p.UpdatedAt.Format("2006-01-02 15:04:05"),
+		p.UpdatedAt.Format(dateTimeFormat),
 	}
 }
 
@@ -115,4 +136,51 @@ func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
 
 func (p Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
+}
+
+func (p *Process) ToProtobuf() *protos.Process {
+	newProcess := protos.Process{
+		Id:          uint32(p.ID),
+		CreatedAt:   p.CreatedAt.String(),
+		UpdatedAt:   p.UpdatedAt.String(),
+		Pid:         uint32(p.Pid),
+		Log:         p.Log,
+		Name:        p.Name,
+		ProcessFile: p.ProcessFile,
+		Args:        p.Args,
+		Status:      p.Status.String(),
+		AutoRestart: p.AutoRestart,
+		Uid:         p.Uid,
+		Username:    p.Username,
+		Gid:         p.Gid,
+	}
+	return &newProcess
+}
+
+func FromProtobuf(p *protos.Process) *Process {
+	dtf := dateTimeFormat + " +0000 UTC"
+	createdAt, error := time.Parse(dtf, p.GetCreatedAt())
+	if error != nil {
+		fmt.Println(error)
+	}
+	updatedAt, error := time.Parse(dtf, p.GetUpdatedAt())
+	if error != nil {
+		fmt.Println(error)
+	}
+	newProcess := Process{
+		ID:          uint(p.GetId()),
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+		Pid:         int(p.GetPid()),
+		Log:         p.GetLog(),
+		Name:        p.GetName(),
+		ProcessFile: p.GetProcessFile(),
+		Args:        p.GetArgs(),
+		Status:      StringToProcessStatus(p.GetStatus()),
+		AutoRestart: p.GetAutoRestart(),
+		Uid:         p.GetUid(),
+		Username:    p.GetUsername(),
+		Gid:         p.GetGid(),
+	}
+	return &newProcess
 }
