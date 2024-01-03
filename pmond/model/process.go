@@ -79,11 +79,7 @@ type Process struct {
 }
 
 func (p Process) NoAutoRestartStr() string {
-	if !p.AutoRestart {
-		return "true"
-	} else {
-		return "false"
-	}
+	return strconv.FormatBool(!p.AutoRestart)
 }
 
 func (Process) TableName() string {

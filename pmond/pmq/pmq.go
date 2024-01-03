@@ -63,7 +63,8 @@ func HandleRequest() {
 	switch newCmd.GetName() {
 	case "log":
 	case "logf":
-		newCmdResp = controller.Log(newCmd)
+	case "desc":
+		newCmdResp = controller.Desc(newCmd)
 	case "list":
 		newCmdResp = controller.List(newCmd)
 	}

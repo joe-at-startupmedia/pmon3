@@ -7,10 +7,7 @@ import (
 	"pmon3/pmond/protos"
 )
 
-func Log(cmd *protos.Cmd) *protos.CmdResp {
-	if len(cmd.GetArg1()) == 0 {
-		pmond.Log.Fatal("please input start process id or name")
-	}
+func Desc(cmd *protos.Cmd) *protos.CmdResp {
 	val := cmd.GetArg1()
 	err, process := model.FindProcessByIdOrName(pmond.Db(), val)
 	if err != nil {
