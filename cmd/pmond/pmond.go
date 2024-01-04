@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"pmon3/pmond"
 	"pmon3/pmond/conf"
 	"pmon3/pmond/god"
@@ -10,10 +9,7 @@ import (
 func main() {
 	err := pmond.Instance(conf.GetConfigFile())
 	if err != nil {
-		log.Fatal(err)
+		pmond.Log.Fatal(err)
 	}
-
-	log.Printf("pmon3 daemon is running! \n")
-
-	god.NewMonitor()
+	god.New()
 }

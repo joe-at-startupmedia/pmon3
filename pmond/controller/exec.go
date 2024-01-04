@@ -8,10 +8,10 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
+	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
-	"pmon3/pmond/worker"
 	"strings"
 )
 
@@ -84,12 +84,12 @@ func loadFirst(processFile string, flags *model.ExecFlags) error {
 		processParams = append(processParams, strings.Split(flags.Args, " ")...)
 	}
 
-	user, err := worker.GetProcUser(flags)
+	user, err := process.GetProcUser(flags)
 	if err != nil {
 		return err
 	}
 
-	process := model.Process{
+	p := model.Process{
 		Pid:         0,
 		Log:         logPath,
 		Name:        flags.Name,
@@ -103,7 +103,7 @@ func loadFirst(processFile string, flags *model.ExecFlags) error {
 		AutoRestart: !flags.NoAutoRestart,
 	}
 
-	err = pmond.Db().Save(&process).Error
+	err = pmond.Db().Save(&p).Error
 
 	return err
 }

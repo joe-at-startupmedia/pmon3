@@ -5,11 +5,10 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
+	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/svc/process"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
-	"pmon3/pmond/worker"
 	"strings"
 )
 
@@ -71,7 +70,7 @@ func ExecRestart(m *model.Process, processFile string, flags *model.ExecFlags) e
 	}
 
 	if len(flags.User) > 0 {
-		user, err := worker.GetProcUser(flags)
+		user, err := process.GetProcUser(flags)
 		if err != nil {
 			return err
 		}

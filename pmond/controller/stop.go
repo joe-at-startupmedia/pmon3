@@ -5,8 +5,8 @@ import (
 	"os"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/svc/process"
 )
 
 func Stop(cmd *protos.Cmd) *protos.CmdResp {

@@ -7,14 +7,14 @@ import (
 	"pmon3/pmond/controller"
 	"pmon3/pmond/model"
 	"pmon3/pmond/pmq"
+	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/svc/process"
 	"sync"
 	"syscall"
 	"time"
 )
 
-func NewMonitor() {
+func New() {
 	if pmond.Config.ShouldHandleInterrupts() {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler()

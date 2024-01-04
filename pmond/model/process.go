@@ -131,6 +131,25 @@ func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
 	return nil, &process
 }
 
+func (process *Process) Save(db *gorm.DB) (string, error) {
+	err, originOne := FindProcessByFileAndName(db, process.ProcessFile, process.Name)
+	if err == nil && originOne.ID > 0 { // process already exist
+		process.ID = originOne.ID
+	}
+
+	err = db.Save(&process).Error
+	if err != nil {
+		return "", fmt.Errorf("pmon3 run err: %w", err)
+	}
+
+	output, err := json.Marshal(process.RenderTable())
+	if err != nil {
+		return "", err
+	}
+
+	return string(output), nil
+}
+
 func (p Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }
