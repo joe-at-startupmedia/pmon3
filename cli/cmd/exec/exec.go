@@ -56,10 +56,12 @@ func cmdRun(args []string, flags string) {
 		name = filepath.Base(args[0])
 		parsedFlags.Name = name
 	}
-	err, process := model.FindProcessByFileAndName(pmond.Db(), execPath, name)
+	err, _ = model.FindProcessByFileAndName(pmond.Db(), execPath, name)
 	if err == nil {
 		pmond.Log.Debugf("restart process: %v", flags)
-		err = Restart(process, execPath, parsedFlags)
+		//@TODO moved to Restart controller
+		//err = Restart(process, execPath, parsedFlags)
+		err = loadFirst(execPath, parsedFlags)
 		HandleStart(err)
 	} else {
 		pmond.Log.Debugf("load first process: %v", flags)
@@ -80,6 +82,7 @@ func HandleStart(err error) {
 	list.Show()
 }
 
+// @TODO move to controller
 func getExecFile(args []string) (string, error) {
 	execFile := args[0]
 	_, err := os.Stat(execFile)

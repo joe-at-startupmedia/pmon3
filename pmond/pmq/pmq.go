@@ -18,11 +18,11 @@ var (
 )
 
 func New() {
-	mq_send = open("send")
-	mq_resp = open("resp")
+	mq_send = openQueue("send")
+	mq_resp = openQueue("resp")
 }
 
-func open(postfix string) *posix_mq.MessageQueue {
+func openQueue(postfix string) *posix_mq.MessageQueue {
 	//mq_open checks that the name starts with a slash (/), giving the EINVAL error if it does not
 	oflag := posix_mq.O_RDWR | posix_mq.O_CREAT | posix_mq.O_NONBLOCK
 	posixMQDir := pmond.Config.GetPosixMessageQueueDir()
@@ -45,7 +45,6 @@ func HandleRequest() {
 	if err != nil {
 		//EAGAIN simply means the queue is empty
 		if strings.Contains(err.Error(), "resource temporarily unavailable") {
-			pmond.Log.Debug("queue is empty")
 			return
 		}
 		pmond.Log.Fatal(err)
@@ -66,6 +65,8 @@ func HandleRequest() {
 		newCmdResp = controller.Desc(newCmd)
 	case "list":
 		newCmdResp = controller.List(newCmd)
+	case "restart":
+		newCmdResp = controller.Restart(newCmd)
 	}
 	data, err := proto.Marshal(newCmdResp)
 	if err != nil {
@@ -77,13 +78,14 @@ func HandleRequest() {
 	}
 }
 
+func closeQueue(mq *posix_mq.MessageQueue) {
+	err := mq.Unlink()
+	if err != nil {
+		pmond.Log.Println(err)
+	}
+}
+
 func Close() {
-	err := mq_send.Unlink()
-	if err != nil {
-		pmond.Log.Println(err)
-	}
-	err = mq_resp.Unlink()
-	if err != nil {
-		pmond.Log.Println(err)
-	}
+	closeQueue(mq_send)
+	closeQueue(mq_resp)
 }

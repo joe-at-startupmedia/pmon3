@@ -16,11 +16,11 @@ var (
 )
 
 func New() {
-	mq_send = open("send")
-	mq_resp = open("resp")
+	mq_send = openQueue("send")
+	mq_resp = openQueue("resp")
 }
 
-func open(postfix string) *posix_mq.MessageQueue {
+func openQueue(postfix string) *posix_mq.MessageQueue {
 	oflag := posix_mq.O_RDWR
 	posixMQFile := "pmon3_mq_" + postfix
 	msgQueue, err := posix_mq.NewMessageQueue("/"+posixMQFile, oflag, 0666, nil)
@@ -37,6 +37,21 @@ func SendCmd(cmdName string, arg1 string) {
 		Arg1: arg1,
 	}
 
+	sendCmd(cmd)
+}
+
+func SendCmdArg2(cmdName string, arg1 string, arg2 string) {
+	cmd := &protos.Cmd{
+		Id:   uuid.NewString(),
+		Name: cmdName,
+		Arg1: arg1,
+		Arg2: arg2,
+	}
+
+	sendCmd(cmd)
+}
+
+func sendCmd(cmd *protos.Cmd) {
 	data, err := proto.Marshal(cmd)
 	if err != nil {
 		pmond.Log.Fatal("marshaling error: ", err)
@@ -67,13 +82,14 @@ func GetResponse() *protos.CmdResp {
 	return newCmdResp
 }
 
+func closeQueue(mq *posix_mq.MessageQueue) {
+	err := mq.Close()
+	if err != nil {
+		pmond.Log.Println(err)
+	}
+}
+
 func Close() {
-	err := mq_send.Unlink()
-	if err != nil {
-		pmond.Log.Println(err)
-	}
-	err = mq_resp.Unlink()
-	if err != nil {
-		pmond.Log.Println(err)
-	}
+	closeQueue(mq_send)
+	closeQueue(mq_resp)
 }
