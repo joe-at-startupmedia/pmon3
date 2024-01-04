@@ -30,7 +30,6 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 			if err := pmond.Db().Save(&p).Error; err != nil {
 				return ErroredCmdResp(cmd, fmt.Sprintf("stop process error: %+v", err))
 			}
-			pmond.Log.Infof("stop process %s success \n", p.Stringify())
 		}
 	}
 
@@ -39,6 +38,8 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Sprintf("stop process error: %+v", err))
 	}
+
+	pmond.Log.Infof("stop process %s success \n", p.Stringify())
 
 	newCmdResp := protos.CmdResp{
 		Id:      cmd.GetId(),

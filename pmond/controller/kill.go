@@ -21,7 +21,9 @@ func KillByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 	var all []model.Process
 	err := pmond.Db().Find(&all, "status = ?", model.StatusRunning).Error
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("could not find running processes: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Sprintf("Error finding running processes: %+v", err))
+	} else if len(all) == 0 {
+		return ErroredCmdResp(cmd, "Could not find running processes")
 	}
 
 	for _, process := range all {

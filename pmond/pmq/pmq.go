@@ -36,7 +36,7 @@ func openQueue(postfix string) *posix_mq.MessageQueue {
 	if err != nil {
 		pmond.Log.Fatal(err)
 	}
-	pmond.Log.Debug("Start receiving messages")
+	pmond.Log.Infof("Start receiving messages: %s", posixMQFile)
 	return messageQueue
 }
 

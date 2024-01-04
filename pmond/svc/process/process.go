@@ -102,7 +102,7 @@ func tryRun(m *model.Process, flags string, cmd string) ([]string, error) {
 		Name:          m.Name,
 	}
 
-	pmond.Log.Debugf("%sing process: %s %s\n", cmd, m.Name, m.ProcessFile)
+	pmond.Log.Infof("%sing process: %s %s\n", cmd, m.Name, m.ProcessFile)
 	if len(flags) > 0 {
 		pmond.Log.Debugf("with flags: %s \n", flags)
 		execFlags := model.ExecFlags{}
