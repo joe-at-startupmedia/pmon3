@@ -16,6 +16,10 @@ import (
 func Restart(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
 	flags := cmd.GetArg2()
+	return RestartByParams(cmd, idOrName, flags)
+}
+
+func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.CmdResp {
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))

@@ -3,10 +3,11 @@ package god
 import (
 	"os"
 	"os/signal"
-	"pmon3/cli/cmd/kill"
 	"pmon3/pmond"
+	"pmon3/pmond/controller"
 	"pmon3/pmond/model"
 	"pmon3/pmond/pmq"
+	"pmon3/pmond/protos"
 	"pmon3/pmond/svc/process"
 	"sync"
 	"syscall"
@@ -37,7 +38,8 @@ func interruptHandler() {
 		uninterrupted = false
 		//wait for the inifity loop to break
 		time.Sleep(1 * time.Second)
-		kill.Kill(model.StatusClosed)
+		emptyCmd := protos.Cmd{}
+		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
 		pmq.Close()
 		time.Sleep(1 * time.Second)
 		os.Exit(0)

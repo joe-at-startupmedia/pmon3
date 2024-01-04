@@ -7,6 +7,7 @@ import (
 	"pmon3/cli/cmd/desc"
 	"pmon3/cli/cmd/drop"
 	"pmon3/cli/cmd/exec"
+	initialize "pmon3/cli/cmd/init"
 	"pmon3/cli/cmd/kill"
 	"pmon3/cli/cmd/list"
 	"pmon3/cli/cmd/log"
@@ -48,6 +49,7 @@ func Exec() error {
 		log.Cmd,
 		logf.Cmd,
 		kill.Cmd,
+		initialize.Cmd,
 		drop.Cmd,
 		verCmd,
 	)

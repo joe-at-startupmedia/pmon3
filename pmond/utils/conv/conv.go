@@ -6,6 +6,9 @@ import (
 )
 
 func StrToUint32(val string) uint32 {
+	if len(val) == 0 {
+		return uint32(0)
+	}
 	valInt, err := strconv.Atoi(val)
 	if err != nil {
 		fmt.Println(err)
