@@ -8,13 +8,16 @@ require (
 	github.com/evertras/bubble-table v0.15.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/goinbox/shell v1.0.1
+	github.com/google/uuid v1.5.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/struCoder/pidusage v0.2.1
+	github.com/syucream/posix_mq v0.0.2-0.20230111144604-95db522cb445
 	github.com/tabalt/gracehttp v1.3.0
+	google.golang.org/protobuf v1.32.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -62,5 +65,4 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
 )

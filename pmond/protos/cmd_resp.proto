@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package cmd_resp;
+
+option go_package = "pmond/protos";
+
+import "pmond/protos/process.proto";
+
+message CmdResp {
+      string id  = 1;
+      string name = 2;
+      string value_str  = 3;
+      process.Process process = 4;
+      process.ProcessList process_list = 5;
+      string error = 6;
+}

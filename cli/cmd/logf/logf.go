@@ -5,31 +5,29 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"pmon3/cli/pmq"
 	"pmon3/pmond"
-	"pmon3/pmond/model"
 	"sync"
 
 	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
-	Use:   "logf",
+	Use:   "logf [id or name]",
 	Short: "Tail process logs by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
 }
 
 func cmdRun(args []string) {
-	if len(args) == 0 {
-		pmond.Log.Fatal("please input start process id or name")
-	}
-	val := args[0]
-	var m model.Process
-	if err := pmond.Db().First(&m, "id = ? or name = ?", val, val).Error; err != nil {
-		pmond.Log.Fatal(fmt.Sprintf("the process %s not exist", val))
-	}
-	displayLog(m.Log)
+	pmq.New()
+	pmq.SendCmd("log", args[0])
+	newCmdResp := pmq.GetResponse()
+	logFile := newCmdResp.GetProcess().GetLog()
+	displayLog(logFile)
+	pmq.Close()
 }
 
 func displayLog(log string) {

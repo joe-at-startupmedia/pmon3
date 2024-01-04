@@ -25,7 +25,7 @@ func NewProcStat(p *model.Process) *ProcStat {
 
 func (r *ProcStat) Run() {
 	go r.ProcessWait(r.Process)
-	go r.ProcessExistCheck(r.Process.Pid)
+	go r.ProcessExistCheck(int(r.Process.Pid))
 }
 
 func (r *ProcStat) Wait() *model.Process {

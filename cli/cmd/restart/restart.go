@@ -1,11 +1,11 @@
 package restart
 
 import (
-	"fmt"
-	"pmon3/cli/cmd/exec"
+	"pmon3/cli/cmd/list"
+	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
-	"pmon3/pmond/svc/process"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -13,8 +13,9 @@ import (
 var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
-	Use:   "restart",
+	Use:   "restart [id or name]",
 	Short: "Restart a process by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args, flag.Json())
 	},
@@ -29,32 +30,13 @@ func init() {
 }
 
 func cmdRun(args []string, flags string) {
-	if len(args) == 0 {
-		pmond.Log.Fatal("please input restart process id or name")
+	pmq.New()
+	pmq.SendCmdArg2("restart", args[0], flags)
+	newCmdResp := pmq.GetResponse()
+	if len(newCmdResp.GetError()) > 0 {
+		pmond.Log.Fatalf(newCmdResp.GetError())
 	}
-
-	idOrName := args[0]
-	var m model.Process
-	if err := pmond.Db().First(&m, "id = ? or name = ?", idOrName, idOrName).Error; err != nil {
-		pmond.Log.Fatal(fmt.Sprintf("the process %s not exist", idOrName))
-	}
-
-	// checkout process state
-	if process.IsRunning(m.Pid) {
-		if err := process.TryStop(&m, model.StatusStopped, false); err != nil {
-			pmond.Log.Fatalf("restart error: %s", err.Error())
-		}
-	}
-
-	execflags := model.ExecFlags{}
-	parsedFlags, err := execflags.Parse(flags)
-	if err != nil {
-		pmond.Log.Fatalf("could not parse flags: %+v", err)
-		return
-	}
-	if err == nil {
-		pmond.Log.Debugf("restart process: %v", flags)
-		err = exec.Restart(&m, m.ProcessFile, parsedFlags)
-		exec.HandleStart(err)
-	}
+	time.Sleep(pmond.Config.GetCmdExecResponseWait())
+	//list command will call pmq.Close
+	list.Show()
 }
