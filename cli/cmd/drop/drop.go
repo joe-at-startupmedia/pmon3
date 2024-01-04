@@ -1,8 +1,10 @@
 package drop
 
 import (
+	"pmon3/cli/cmd/list"
+	"pmon3/cli/pmq"
 	"pmon3/pmond"
-	"pmon3/pmond/model"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -25,15 +27,17 @@ func init() {
 
 // show all process list
 func Drop() {
-	var all []model.Process
-	err := pmond.Db().Find(&all).Error
-	if err != nil {
-		pmond.Log.Fatalf("pmon3 find process err: %v", err)
+	pmq.New()
+	if forceKill {
+		pmq.SendCmd("drop", "force")
+	} else {
+		pmq.SendCmd("drop", "")
 	}
-
-	/*
-		for _, process := range all {
-			del.DelProcess(&process, forceKill)
-		}
-	*/
+	newCmdResp := pmq.GetResponse()
+	if len(newCmdResp.GetError()) > 0 {
+		pmond.Log.Fatalf(newCmdResp.GetError())
+	}
+	time.Sleep(pmond.Config.GetCmdExecResponseWait())
+	//list command will call pmq.Close
+	list.Show()
 }
