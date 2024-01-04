@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"pmon3/pmond"
-	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -56,7 +55,7 @@ func ExecRestart(m *model.Process, processFile string, flags *model.ExecFlags) e
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
-		logPath, err := executor.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
+		logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
 		if err != nil {
 			return err
 		}

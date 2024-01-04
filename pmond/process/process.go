@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"pmon3/pmond"
 	"pmon3/pmond/conf"
-	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/array"
 	"pmon3/pmond/utils/conv"
@@ -254,7 +253,7 @@ func WorkerRestart(pFile string, flags *model.ExecFlags) (string, error) {
 	}
 
 	//returns an instance of the process model
-	p, err := executor.Exec(m.ProcessFile, m.Log, m.Name, m.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
+	p, err := Exec(m.ProcessFile, m.Log, m.Name, m.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
 	if err != nil {
 		return "", err
 	}
@@ -292,7 +291,7 @@ func WorkerStart(processFile string, flags *model.ExecFlags) (string, error) {
 		return "", errors.Errorf("process name: %s already exist, please set other name by --name", name)
 	}
 	// start process
-	process, err := executor.Exec(processFile, flags.Log, name, flags.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
+	process, err := Exec(processFile, flags.Log, name, flags.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
 	if err != nil {
 		return "", err
 	}

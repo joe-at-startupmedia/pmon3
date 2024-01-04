@@ -6,7 +6,6 @@ import (
 	"path"
 	"path/filepath"
 	"pmon3/pmond"
-	"pmon3/pmond/executor"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -74,7 +73,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 
 func loadFirst(processFile string, flags *model.ExecFlags) error {
 
-	logPath, err := executor.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
+	logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
 	if err != nil {
 		return err
 	}
