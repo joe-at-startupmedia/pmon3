@@ -22,14 +22,72 @@ import (
 
 func IsRunning(pid uint32) bool {
 	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", pid))
+
+	//if it doesnt exist in proc/n/status ask the OS
 	if err != nil {
+		//return that its exist
 		return !os.IsNotExist(err)
 	}
 
 	return true
 }
 
-func TryStop(p *model.Process, status model.ProcessStatus, forced bool) error {
+// used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
+func updatedFromPsCmd(p *model.Process) bool {
+	// try to get process new pid
+	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s ' | grep -v grep | awk '{print $2}'", p.Name))
+	if rel.Ok {
+		newPidStr := strings.TrimSpace(string(rel.Output))
+		newPid := conv.StrToUint32(newPidStr)
+		if newPid != 0 && newPid != p.Pid {
+			p.Pid = newPid
+			p.Status = model.StatusRunning
+			return pmond.Db().Save(&p).Error == nil
+		}
+	}
+
+	return false
+}
+
+func EnqueueProcess(p *model.Process) error {
+	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
+		if updatedFromPsCmd(p) {
+			return nil
+		}
+
+		_, err := tryRun(p, "", "start")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func RestartProcess(p *model.Process) error {
+	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
+		if updatedFromPsCmd(p) {
+			return nil
+		}
+
+		if !p.AutoRestart {
+			if p.Status == model.StatusRunning { // but process is dead, update db state
+				p.Status = model.StatusFailed
+				pmond.Db().Save(&p)
+			}
+			return nil
+		}
+
+		_, err := tryRun(p, "", "restart")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool) error {
 	var cmd *exec.Cmd
 	if forced {
 		cmd = exec.Command("kill", "-9", p.GetPidStr())
@@ -47,56 +105,22 @@ func TryStop(p *model.Process, status model.ProcessStatus, forced bool) error {
 	return pmond.Db().Save(p).Error
 }
 
-func EnqueueProcess(p *model.Process) error {
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-	if err == nil { // process already running
-		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
-		return nil
+func GetProcUser(a *model.ExecFlags) (*user.User, error) {
+	runUser := a.User
+	var curUser *user.User
+	var err error
+
+	if len(runUser) <= 0 {
+		curUser, err = user.LookupId(strconv.Itoa(os.Getuid()))
+	} else {
+		curUser, err = user.Lookup(runUser)
 	}
 
-	if os.IsNotExist(err) && p.Status == model.StatusQueued {
-		if checkFork(p) {
-			return nil
-		}
-
-		_, err := tryRun(p, "", "start")
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
-}
-
-func RestartProcess(p *model.Process) error {
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-	if err == nil { // process already running
-		//fmt.Printf("Monitor: process (%d) already running \n", p.Pid)
-		return nil
-	}
-
-	// proc status file not exit
-	if os.IsNotExist(err) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
-		if checkFork(p) {
-			return nil
-		}
-
-		// check whether set auto restart
-		if !p.AutoRestart {
-			if p.Status == model.StatusRunning { // but process is dead, update db state
-				p.Status = model.StatusFailed
-				pmond.Db().Save(&p)
-			}
-			return nil
-		}
-
-		_, err := tryRun(p, "", "restart")
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return curUser, nil
 }
 
 func tryRun(m *model.Process, flags string, cmd string) ([]string, error) {
@@ -139,24 +163,6 @@ func tryRun(m *model.Process, flags string, cmd string) ([]string, error) {
 	return tb, nil
 }
 
-// Detects whether a new process is created
-// @TODO this probably wont work when process contain substrings of other process names
-func checkFork(p *model.Process) bool {
-	// try to get process new pid
-	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep '%s ' | grep -v grep | awk '{print $2}'", p.Name))
-	if rel.Ok {
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := conv.StrToUint32(newPidStr)
-		if newPid != 0 && newPid != p.Pid {
-			p.Pid = newPid
-			p.Status = model.StatusRunning
-			return pmond.Db().Save(&p).Error == nil
-		}
-	}
-
-	return false
-}
-
 var cmdTypes = []string{"start", "restart"}
 
 func runProcess(args []string) ([]byte, error) {
@@ -190,9 +196,9 @@ func runProcess(args []string) ([]byte, error) {
 
 	switch typeCli {
 	case "start":
-		output, err = WorkerStart(args[1], flagModel)
+		output, err = workerStart(args[1], flagModel)
 	case "restart":
-		output, err = WorkerRestart(args[1], flagModel)
+		output, err = workerRestart(args[1], flagModel)
 	}
 
 	if err != nil {
@@ -202,25 +208,7 @@ func runProcess(args []string) ([]byte, error) {
 	return []byte(output), nil
 }
 
-func GetProcUser(a *model.ExecFlags) (*user.User, error) {
-	runUser := a.User
-	var curUser *user.User
-	var err error
-
-	if len(runUser) <= 0 {
-		curUser, err = user.LookupId(strconv.Itoa(os.Getuid()))
-	} else {
-		curUser, err = user.Lookup(runUser)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return curUser, nil
-}
-
-func WorkerRestart(pFile string, flags *model.ExecFlags) (string, error) {
+func workerRestart(pFile string, flags *model.ExecFlags) (string, error) {
 	err, m := model.FindProcessByFileAndName(pmond.Db(), pFile, flags.Name)
 	if err != nil {
 		return "", errors.New("Could not find process")
@@ -268,7 +256,7 @@ func WorkerRestart(pFile string, flags *model.ExecFlags) (string, error) {
 	return waitData.Save(pmond.Db())
 }
 
-func WorkerStart(processFile string, flags *model.ExecFlags) (string, error) {
+func workerStart(processFile string, flags *model.ExecFlags) (string, error) {
 	// prepare params
 	file, err := os.Stat(processFile)
 	if os.IsNotExist(err) || file.IsDir() {

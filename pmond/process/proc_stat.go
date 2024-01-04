@@ -18,14 +18,9 @@ func NewProcStat(p *model.Process) *ProcStat {
 		Process: p,
 	}
 
-	stat.Run()
+	stat.run()
 
 	return stat
-}
-
-func (r *ProcStat) Run() {
-	go r.ProcessWait(r.Process)
-	go r.ProcessExistCheck(int(r.Process.Pid))
 }
 
 func (r *ProcStat) Wait() *model.Process {
@@ -41,7 +36,12 @@ func (r *ProcStat) Wait() *model.Process {
 	return r.Process
 }
 
-func (r *ProcStat) ProcessWait(process *model.Process) {
+func (r *ProcStat) run() {
+	go r.processWait(r.Process)
+	go r.processExistCheck(int(r.Process.Pid))
+}
+
+func (r *ProcStat) processWait(process *model.Process) {
 	processState, err := process.Pointer.Wait()
 	if err != nil {
 		r.Done <- 1
@@ -53,7 +53,7 @@ func (r *ProcStat) ProcessWait(process *model.Process) {
 	}
 }
 
-func (r *ProcStat) ProcessExistCheck(pid int) {
+func (r *ProcStat) processExistCheck(pid int) {
 	timer := time.NewTicker(time.Millisecond * 200)
 	defer timer.Stop()
 	for {

@@ -55,11 +55,11 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	err, p := model.FindProcessByFileAndName(pmond.Db(), execPath, name)
 	//if process exists
 	if err == nil {
-		pmond.Log.Debugf("restart process: %v", flags)
-		err = ExecRestart(p, execPath, parsedFlags)
+		pmond.Log.Debugf("updating as queued with flags: %v", flags)
+		err = UpdateAsQueued(p, execPath, parsedFlags)
 	} else {
-		pmond.Log.Debugf("load first process: %v", flags)
-		err = loadFirst(execPath, parsedFlags)
+		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
+		err = insertAsQueued(execPath, parsedFlags)
 	}
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
@@ -71,7 +71,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	return &newCmdResp
 }
 
-func loadFirst(processFile string, flags *model.ExecFlags) error {
+func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 
 	logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
 	if err != nil {

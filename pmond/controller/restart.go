@@ -23,7 +23,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.Cmd
 		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
 	}
 	if process.IsRunning(p.Pid) {
-		if err := process.TryStop(p, model.StatusStopped, false); err != nil {
+		if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
 			return ErroredCmdResp(cmd, fmt.Sprintf("restart error: %s", err.Error()))
 		}
 	}
@@ -32,8 +32,8 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.Cmd
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Sprintf("could not parse flags: %+v", err))
 	} else {
-		pmond.Log.Debugf("restart process: %v", flags)
-		err = ExecRestart(p, p.ProcessFile, parsedFlags)
+		pmond.Log.Debugf("update as queued: %v", flags)
+		err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)
 		newProcess := protos.Process{
 			Log: p.Log,
 		}
@@ -49,7 +49,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.Cmd
 	}
 }
 
-func ExecRestart(m *model.Process, processFile string, flags *model.ExecFlags) error {
+func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags) error {
 	// only stopped and failed process can be restarted
 	if m.Status != model.StatusStopped && m.Status != model.StatusFailed {
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)

@@ -34,7 +34,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	}
 
 	// try to kill the process
-	err = process.TryStop(p, status, forced)
+	err = process.SendOsKillSignal(p, status, forced)
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Sprintf("stop process error: %+v", err))
 	}
