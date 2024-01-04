@@ -3,7 +3,6 @@ package del
 import (
 	"fmt"
 	"os"
-	"pmon3/cli/cmd/stop"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 
@@ -44,9 +43,11 @@ func DelProcess(process *model.Process, forceKill bool) {
 	if process.Status == model.StatusRunning && !forceKill {
 		pmond.Log.Fatalf(fmt.Sprintf("The process %s is running, you must must stop it first or pass the --force flag\n", process.Stringify()))
 	}
-	if forceKill {
-		stop.StopProcess(process, model.StatusStopped, forceKill)
-	}
+	/*
+		if forceKill {
+			stop.StopProcess(process, model.StatusStopped, forceKill)
+		}
+	*/
 	pmond.Db().Delete(process)
 	_ = os.Remove(process.Log)
 	pmond.Log.Info(fmt.Sprintf("Process %s successfully deleted", process.Stringify()))

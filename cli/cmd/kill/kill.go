@@ -1,7 +1,6 @@
 package kill
 
 import (
-	"pmon3/cli/cmd/stop"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 
@@ -31,8 +30,9 @@ func Kill(processStatus model.ProcessStatus) {
 	if err != nil {
 		pmond.Log.Fatalf("pmon3 run err: %v", err)
 	}
-
-	for _, process := range all {
-		stop.StopProcess(&process, processStatus, forceKill)
-	}
+	/*
+		for _, process := range all {
+			stop.StopProcess(&process, processStatus, forceKill)
+		}
+	*/
 }

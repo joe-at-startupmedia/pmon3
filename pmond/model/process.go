@@ -163,7 +163,6 @@ func (p *Process) ToProtobuf() *protos.Process {
 }
 
 func FromProtobuf(p *protos.Process) *Process {
-	//dtf := dateTimeFormat + " +0000 UTC"
 	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
 	if error != nil {
 		fmt.Println(error)
