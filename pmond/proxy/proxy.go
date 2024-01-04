@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"pmon3/pmond"
-	conf2 "pmon3/pmond/conf"
+	"pmon3/pmond/conf"
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/array"
 	"pmon3/pmond/worker"
@@ -21,8 +21,7 @@ func RunProcess(args []string) ([]byte, error) {
 	if len(args) <= 2 {
 		return nil, errors.New("process params not valid")
 	}
-	conf := conf2.GetDefaultConf()
-	err := pmond.Instance(conf)
+	err := pmond.Instance(conf.GetConfigFile())
 
 	if err != nil {
 		return nil, err

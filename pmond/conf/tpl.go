@@ -1,6 +1,8 @@
 package conf
 
-import "time"
+import (
+	"time"
+)
 
 type Tpl struct {
 	Data                 string `yaml:"data"`
@@ -8,7 +10,7 @@ type Tpl struct {
 	HandleInterrupts     bool   `yaml:"handle_interrupts"`
 	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait"`
 	PosixMessageQueueDir string `yaml:"posix_mq_dir"`
-	Conf                 string
+	ConfigFile           string
 }
 
 func (c *Tpl) GetDataDir() string {

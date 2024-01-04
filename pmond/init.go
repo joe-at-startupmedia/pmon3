@@ -2,7 +2,6 @@ package pmond
 
 import (
 	"os"
-	"pmon3/pmond/boot"
 	"pmon3/pmond/conf"
 	"pmon3/pmond/model"
 	"sync"
@@ -32,7 +31,7 @@ func init() {
 }
 
 func Instance(confDir string) error {
-	tpl, err := boot.Conf(confDir)
+	tpl, err := conf.Load(confDir)
 	if err != nil {
 		return err
 	}

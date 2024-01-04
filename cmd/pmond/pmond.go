@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	config := conf.GetDefaultConf()
-	err := pmond.Instance(config)
+	err := pmond.Instance(conf.GetConfigFile())
 	if err != nil {
 		log.Fatal(err)
 	}
