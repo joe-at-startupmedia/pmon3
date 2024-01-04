@@ -1,10 +1,10 @@
 package del
 
 import (
-	"fmt"
-	"os"
+	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/output"
 
 	"github.com/spf13/cobra"
 )
@@ -27,28 +27,17 @@ func init() {
 }
 
 func runCmd(args []string) {
-	val := args[0]
-	var m model.Process
-	err := pmond.Db().First(&m, "id = ? or name = ?", val, val).Error
-	if err != nil {
-		pmond.Log.Fatalf("del process err:%s \n", err.Error())
+	pmq.New()
+	if forceKill {
+		pmq.SendCmdArg2("del", args[0], "force")
+	} else {
+		pmq.SendCmd("del", args[0])
 	}
-
-	DelProcess(&m, forceKill)
-	pmond.Log.Info("del process")
-}
-
-// show all process list
-func DelProcess(process *model.Process, forceKill bool) {
-	if process.Status == model.StatusRunning && !forceKill {
-		pmond.Log.Fatalf(fmt.Sprintf("The process %s is running, you must must stop it first or pass the --force flag\n", process.Stringify()))
+	newCmdResp := pmq.GetResponse()
+	if len(newCmdResp.GetError()) > 0 {
+		pmond.Log.Fatalf(newCmdResp.GetError())
 	}
-	/*
-		if forceKill {
-			stop.StopProcess(process, model.StatusStopped, forceKill)
-		}
-	*/
-	pmond.Db().Delete(process)
-	_ = os.Remove(process.Log)
-	pmond.Log.Info(fmt.Sprintf("Process %s successfully deleted", process.Stringify()))
+	p := model.FromProtobuf(newCmdResp.GetProcess())
+	output.TableOne(p.RenderTable())
+	pmq.Close()
 }

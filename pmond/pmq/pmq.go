@@ -75,6 +75,8 @@ func HandleRequest() {
 		newCmdResp = controller.Kill(newCmd)
 	case "init":
 		newCmdResp = controller.Initialize(newCmd)
+	case "del":
+		newCmdResp = controller.Delete(newCmd)
 	}
 	data, err := proto.Marshal(newCmdResp)
 	if err != nil {

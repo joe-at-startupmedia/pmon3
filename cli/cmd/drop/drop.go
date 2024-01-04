@@ -1,7 +1,6 @@
 package drop
 
 import (
-	"pmon3/cli/cmd/del"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 
@@ -32,7 +31,9 @@ func Drop() {
 		pmond.Log.Fatalf("pmon3 find process err: %v", err)
 	}
 
-	for _, process := range all {
-		del.DelProcess(&process, forceKill)
-	}
+	/*
+		for _, process := range all {
+			del.DelProcess(&process, forceKill)
+		}
+	*/
 }
