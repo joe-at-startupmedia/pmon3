@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"os/user"
+)
 
 type ExecFlags struct {
 	User          string `json:"user"`
@@ -19,6 +22,15 @@ func (e *ExecFlags) Parse(jsonStr string) (*ExecFlags, error) {
 	}
 
 	return &m, nil
+}
+
+func (e *ExecFlags) SetCurrentUser() {
+	if e.User == "" {
+		user, err := user.Current()
+		if err == nil {
+			e.User = user.Username
+		}
+	}
 }
 
 func (e *ExecFlags) Json() string {

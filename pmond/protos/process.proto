@@ -15,9 +15,9 @@ message Process {
       string args = 8;
       string status = 9;
       bool auto_restart = 10;
-      string uid = 11;
+      uint32 uid = 11;
       string username = 12;
-      string gid = 13;
+      uint32 gid = 13;
 }
 
 message ProcessList {

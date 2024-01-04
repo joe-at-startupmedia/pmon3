@@ -67,6 +67,8 @@ func HandleRequest() {
 		newCmdResp = controller.List(newCmd)
 	case "restart":
 		newCmdResp = controller.Restart(newCmd)
+	case "exec":
+		newCmdResp = controller.Exec(newCmd)
 	}
 	data, err := proto.Marshal(newCmdResp)
 	if err != nil {

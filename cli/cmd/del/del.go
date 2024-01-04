@@ -15,8 +15,9 @@ var (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "del",
+	Use:   "del [id or name]",
 	Short: "Delete process by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		runCmd(args)
 	},
@@ -27,10 +28,6 @@ func init() {
 }
 
 func runCmd(args []string) {
-	if len(args) == 0 {
-		pmond.Log.Fatalf("missing process id or name \n")
-	}
-
 	val := args[0]
 	var m model.Process
 	err := pmond.Db().First(&m, "id = ? or name = ?", val, val).Error

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/cpu"
 	"strconv"
 	"time"
@@ -62,10 +63,10 @@ func StringToProcessStatus(s string) ProcessStatus {
 }
 
 type Process struct {
-	ID          uint          `gorm:"primary_key" json:"id"`
+	ID          uint32        `gorm:"primary_key" json:"id"`
 	CreatedAt   time.Time     `json:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at"`
-	Pid         int           `gorm:"column:pid" json:"pid"`
+	Pid         uint32        `gorm:"column:pid" json:"pid"`
 	Log         string        `gorm:"column:log" json:"log"`
 	Name        string        `gorm:"unique" json:"name"`
 	ProcessFile string        `json:"process_file"`
@@ -73,9 +74,9 @@ type Process struct {
 	Status      ProcessStatus `json:"status"`
 	Pointer     *os.Process   `gorm:"-" json:"-"`
 	AutoRestart bool          `json:"auto_restart"`
-	Uid         string
+	Uid         uint32
 	Username    string
-	Gid         string
+	Gid         uint32
 }
 
 func (p Process) NoAutoRestartStr() string {
@@ -95,13 +96,13 @@ func (p Process) MustJson() string {
 func (p Process) RenderTable() []string {
 	cpuVal, memVal := "0", "0"
 	if p.Status == StatusRunning {
-		cpuVal, memVal = cpu.GetExtraInfo(p.Pid)
+		cpuVal, memVal = cpu.GetExtraInfo(int(p.Pid))
 	}
 
 	return []string{
-		strconv.Itoa(int(p.ID)),
+		p.GetIdStr(),
 		p.Name,
-		strconv.Itoa(p.Pid),
+		p.GetPidStr(),
 		p.Status.String(),
 		p.Username,
 		cpuVal,
@@ -134,12 +135,20 @@ func (p Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }
 
+func (p *Process) GetIdStr() string {
+	return conv.Uint32ToStr(p.ID)
+}
+
+func (p *Process) GetPidStr() string {
+	return conv.Uint32ToStr(p.Pid)
+}
+
 func (p *Process) ToProtobuf() *protos.Process {
 	newProcess := protos.Process{
-		Id:          uint32(p.ID),
-		CreatedAt:   p.CreatedAt.String(),
-		UpdatedAt:   p.UpdatedAt.String(),
-		Pid:         uint32(p.Pid),
+		Id:          p.ID,
+		CreatedAt:   p.CreatedAt.Format(dateTimeFormat),
+		UpdatedAt:   p.UpdatedAt.Format(dateTimeFormat),
+		Pid:         p.Pid,
 		Log:         p.Log,
 		Name:        p.Name,
 		ProcessFile: p.ProcessFile,
@@ -154,20 +163,20 @@ func (p *Process) ToProtobuf() *protos.Process {
 }
 
 func FromProtobuf(p *protos.Process) *Process {
-	dtf := dateTimeFormat + " +0000 UTC"
-	createdAt, error := time.Parse(dtf, p.GetCreatedAt())
+	//dtf := dateTimeFormat + " +0000 UTC"
+	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
 	if error != nil {
 		fmt.Println(error)
 	}
-	updatedAt, error := time.Parse(dtf, p.GetUpdatedAt())
+	updatedAt, error := time.Parse(dateTimeFormat, p.GetUpdatedAt())
 	if error != nil {
 		fmt.Println(error)
 	}
 	newProcess := Process{
-		ID:          uint(p.GetId()),
+		ID:          p.GetId(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
-		Pid:         int(p.GetPid()),
+		Pid:         p.GetPid(),
 		Log:         p.GetLog(),
 		Name:        p.GetName(),
 		ProcessFile: p.GetProcessFile(),

@@ -8,7 +8,6 @@ import (
 	"pmon3/pmond/model"
 	"pmon3/pmond/pmq"
 	"pmon3/pmond/svc/process"
-	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -75,7 +74,7 @@ func runningTask() {
 	}
 
 	for _, p := range all {
-		key := "process_id:" + strconv.Itoa(int(p.ID))
+		key := "process_id:" + p.GetIdStr()
 		_, ok := pendingTask.LoadOrStore(key, p.ID)
 		if ok {
 			return

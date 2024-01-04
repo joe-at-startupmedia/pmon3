@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/user"
 	"pmon3/pmond/model"
+	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
-	"strconv"
 	"strings"
 	"syscall"
 
@@ -22,9 +22,6 @@ func Exec(processFile, customLogFile, name, extArgs string, user *user.User, aut
 		return nil, err
 	}
 
-	uid, _ := strconv.Atoi(user.Uid)
-	gid, _ := strconv.Atoi(user.Gid)
-
 	lastSepIdx := strings.LastIndex(processFile, string(os.PathSeparator))
 	attr := &os.ProcAttr{
 		Dir:   processFile[0 : lastSepIdx+1],
@@ -32,8 +29,8 @@ func Exec(processFile, customLogFile, name, extArgs string, user *user.User, aut
 		Files: []*os.File{nil, logOutput, logOutput},
 		Sys: &syscall.SysProcAttr{
 			Credential: &syscall.Credential{
-				Uid: uint32(uid),
-				Gid: uint32(gid),
+				Uid: conv.StrToUint32(user.Uid),
+				Gid: conv.StrToUint32(user.Gid),
 			},
 			Setsid: true,
 		},
@@ -50,15 +47,15 @@ func Exec(processFile, customLogFile, name, extArgs string, user *user.User, aut
 	}
 
 	pModel := model.Process{
-		Pid:         process.Pid,
+		Pid:         uint32(process.Pid),
 		Log:         logPath,
 		Name:        name,
 		ProcessFile: processFile,
 		Args:        strings.Join(processParams[1:], " "),
 		Pointer:     process,
 		Status:      model.StatusInit,
-		Uid:         user.Uid,
-		Gid:         user.Gid,
+		Uid:         conv.StrToUint32(user.Uid),
+		Gid:         conv.StrToUint32(user.Gid),
 		Username:    user.Username,
 		AutoRestart: autoRestart,
 	}

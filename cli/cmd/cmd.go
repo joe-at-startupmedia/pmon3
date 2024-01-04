@@ -15,7 +15,7 @@ import (
 	"pmon3/cli/cmd/stop"
 	"pmon3/pmond"
 	"pmon3/pmond/conf"
-	"pmon3/pmond/utils/iconv"
+	"pmon3/pmond/utils/conv"
 	"strings"
 
 	"github.com/goinbox/shell"
@@ -59,7 +59,7 @@ func IsPmondRunning() bool {
 	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
 	if rel.Ok {
 		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := iconv.MustInt(newPidStr)
+		newPid := conv.StrToUint32(newPidStr)
 		return newPid != 0
 	}
 	return false

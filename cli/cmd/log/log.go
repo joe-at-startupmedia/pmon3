@@ -4,24 +4,20 @@ import (
 	"fmt"
 	"os/exec"
 	"pmon3/cli/pmq"
-	"pmon3/pmond"
 
 	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
-	Use:   "log",
+	Use:   "log [id or name]",
 	Short: "Display process logs by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
 		cmdRun(args)
 	},
 }
 
 func cmdRun(args []string) {
-	if len(args) == 0 {
-		pmond.Log.Fatal("missing process id or name")
-	}
 	pmq.New()
 	pmq.SendCmd("log", args[0])
 	newCmdResp := pmq.GetResponse()

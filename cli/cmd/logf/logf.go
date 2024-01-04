@@ -13,17 +13,15 @@ import (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "logf",
+	Use:   "logf [id or name]",
 	Short: "Tail process logs by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
 }
 
 func cmdRun(args []string) {
-	if len(args) == 0 {
-		pmond.Log.Fatal("missing process id or name")
-	}
 	pmq.New()
 	pmq.SendCmd("log", args[0])
 	newCmdResp := pmq.GetResponse()

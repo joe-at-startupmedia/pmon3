@@ -13,8 +13,9 @@ import (
 var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
-	Use:   "restart",
+	Use:   "restart [id or name]",
 	Short: "Restart a process by id or name",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args, flag.Json())
 	},
@@ -29,9 +30,6 @@ func init() {
 }
 
 func cmdRun(args []string, flags string) {
-	if len(args) == 0 {
-		pmond.Log.Fatal("missing process id or name")
-	}
 	pmq.New()
 	pmq.SendCmdArg2("restart", args[0], flags)
 	newCmdResp := pmq.GetResponse()

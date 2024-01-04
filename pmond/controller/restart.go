@@ -7,35 +7,28 @@ import (
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/svc/process"
+	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
 	"pmon3/pmond/worker"
 	"strings"
 )
-
-func erroredCmdResp(cmd *protos.Cmd, err string) *protos.CmdResp {
-	return &protos.CmdResp{
-		Id:    cmd.GetId(),
-		Name:  cmd.GetName(),
-		Error: err,
-	}
-}
 
 func Restart(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
 	flags := cmd.GetArg2()
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
-		return erroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
 	}
 	if process.IsRunning(p.Pid) {
 		if err := process.TryStop(p, model.StatusStopped, false); err != nil {
-			return erroredCmdResp(cmd, fmt.Sprintf("restart error: %s", err.Error()))
+			return ErroredCmdResp(cmd, fmt.Sprintf("restart error: %s", err.Error()))
 		}
 	}
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
-		return erroredCmdResp(cmd, fmt.Sprintf("could not parse flags: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Sprintf("could not parse flags: %+v", err))
 	} else {
 		pmond.Log.Debugf("restart process: %v", flags)
 		err = ExecRestart(p, p.ProcessFile, parsedFlags)
@@ -78,8 +71,8 @@ func ExecRestart(m *model.Process, processFile string, flags *model.ExecFlags) e
 		if err != nil {
 			return err
 		}
-		m.Uid = user.Uid
-		m.Gid = user.Gid
+		m.Uid = conv.StrToUint32(user.Uid)
+		m.Gid = conv.StrToUint32(user.Gid)
 		m.Username = user.Username
 	}
 

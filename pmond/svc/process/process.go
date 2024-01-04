@@ -8,14 +8,13 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/proxy"
-	"pmon3/pmond/utils/iconv"
-	"strconv"
+	"pmon3/pmond/utils/conv"
 	"strings"
 
 	"github.com/goinbox/shell"
 )
 
-func IsRunning(pid int) bool {
+func IsRunning(pid uint32) bool {
 	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", pid))
 	if err != nil {
 		return !os.IsNotExist(err)
@@ -27,9 +26,9 @@ func IsRunning(pid int) bool {
 func TryStop(p *model.Process, status model.ProcessStatus, forced bool) error {
 	var cmd *exec.Cmd
 	if forced {
-		cmd = exec.Command("kill", "-9", strconv.Itoa(p.Pid))
+		cmd = exec.Command("kill", "-9", p.GetPidStr())
 	} else {
-		cmd = exec.Command("kill", strconv.Itoa(p.Pid))
+		cmd = exec.Command("kill", p.GetPidStr())
 	}
 
 	err := cmd.Run()
@@ -141,7 +140,7 @@ func checkFork(process *model.Process) bool {
 	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep '%s ' | grep -v grep | awk '{print $2}'", process.Name))
 	if rel.Ok {
 		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := iconv.MustInt(newPidStr)
+		newPid := conv.StrToUint32(newPidStr)
 		if newPid != 0 && newPid != process.Pid {
 			process.Pid = newPid
 			process.Status = model.StatusRunning
