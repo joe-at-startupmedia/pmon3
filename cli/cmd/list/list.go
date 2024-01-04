@@ -1,9 +1,9 @@
 package list
 
 import (
+	"pmon3/cli/output"
 	"pmon3/cli/pmq"
 	"pmon3/pmond/model"
-	"pmon3/pmond/output"
 
 	"github.com/spf13/cobra"
 )

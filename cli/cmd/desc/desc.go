@@ -1,8 +1,8 @@
 package desc
 
 import (
+	"pmon3/cli/output"
 	"pmon3/cli/pmq"
-	"pmon3/pmond/output"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 
