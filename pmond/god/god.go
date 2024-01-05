@@ -98,7 +98,7 @@ func runningTask() {
 					return
 				}
 
-				err = process.RestartProcess(&p)
+				err = process.Restart(&p)
 				if err != nil {
 					pmond.Log.Error(err)
 				}
@@ -108,7 +108,7 @@ func runningTask() {
 					return
 				}
 
-				err = process.EnqueueProcess(&p)
+				err = process.Enqueue(&p)
 				if err != nil {
 					pmond.Log.Error(err)
 				}
