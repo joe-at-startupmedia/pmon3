@@ -17,6 +17,7 @@ func Restart(cmd *protos.Cmd) *protos.CmdResp {
 	return RestartByParams(cmd, idOrName, flags)
 }
 
+//this will kill the process and insert a new record with "queued" status
 func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.CmdResp {
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
@@ -69,7 +70,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 	}
 
 	if len(flags.User) > 0 {
-		user, err := process.SetUser(flags)
+		user, err := process.SetUser(flags.User)
 		if err != nil {
 			return err
 		}

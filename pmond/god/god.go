@@ -82,12 +82,12 @@ func runningTask() {
 			return
 		}
 
-		go func(p model.Process, key string) {
+		go func(q model.Process, key string) {
 			var cur model.Process
 			defer func() {
 				pendingTask.Delete(key)
 			}()
-			err = pmond.Db().First(&cur, p.ID).Error
+			err = pmond.Db().First(&cur, q.ID).Error
 			if err != nil {
 				return
 			}
@@ -98,7 +98,7 @@ func runningTask() {
 					return
 				}
 
-				err = process.Restart(&p)
+				err = process.Restart(&cur)
 				if err != nil {
 					pmond.Log.Error(err)
 				}
@@ -108,7 +108,7 @@ func runningTask() {
 					return
 				}
 
-				err = process.Enqueue(&p)
+				err = process.Enqueue(&cur)
 				if err != nil {
 					pmond.Log.Error(err)
 				}

@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
-	"path/filepath"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/conv"
@@ -15,7 +14,6 @@ import (
 	"time"
 
 	"github.com/goinbox/shell"
-	"github.com/pkg/errors"
 )
 
 func IsRunning(pid uint32) bool {
@@ -46,6 +44,7 @@ func updatedFromPsCmd(p *model.Process) bool {
 	return false
 }
 
+//currently only invoked by God
 func Enqueue(p *model.Process) error {
 	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
 		if updatedFromPsCmd(p) {
@@ -61,6 +60,7 @@ func Enqueue(p *model.Process) error {
 	return nil
 }
 
+//currently only invoked by God
 func Restart(p *model.Process) error {
 	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
@@ -102,8 +102,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 	return pmond.Db().Save(p).Error
 }
 
-func SetUser(a *model.ExecFlags) (*user.User, error) {
-	runUser := a.User
+func SetUser(runUser string) (*user.User, error) {
 	var curUser *user.User
 	var err error
 
@@ -121,13 +120,6 @@ func SetUser(a *model.ExecFlags) (*user.User, error) {
 }
 
 func proxyWorker(m *model.Process, cmd string) ([]string, error) {
-	var flagsModel = model.ExecFlags{
-		User:          m.Username,
-		Log:           m.Log,
-		NoAutoRestart: !m.AutoRestart,
-		Args:          m.Args,
-		Name:          m.Name,
-	}
 
 	pmond.Log.Infof("%sing process: %s %s\n", cmd, m.Name, m.ProcessFile)
 
@@ -139,9 +131,9 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 	switch cmd {
 	case "start":
-		output, err = workerStart(m.ProcessFile, &flagsModel)
+		output, err = workerStart(m)
 	case "restart":
-		output, err = workerRestart(m.ProcessFile, &flagsModel)
+		output, err = workerRestart(m)
 	}
 	if err != nil {
 		return nil, err
@@ -151,85 +143,31 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 	return tb, nil
 }
 
-func workerRestart(pFile string, flags *model.ExecFlags) (string, error) {
-	err, m := model.FindProcessByFileAndName(pmond.Db(), pFile, flags.Name)
-	if err != nil {
-		return "", errors.New("Could not find process")
-	}
-
-	cstLog := flags.Log
-	if len(cstLog) > 0 && cstLog != m.Log {
-		m.Log = cstLog
-	}
-
-	// if reset log dir
-	if len(flags.LogDir) > 0 && len(flags.Log) == 0 {
-		m.Log = ""
-	}
-
-	cstName := flags.Name
-	if len(cstName) > 0 && cstName != m.Name {
-		m.Name = cstName
-	}
-
-	extArgs := flags.Args
-	if len(extArgs) > 0 {
-		m.Args = extArgs
-	}
-
-	// get run process user
-	runUser, err := SetUser(flags)
-	if err != nil {
-		return "", err
-	}
-
+func workerRestart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	p, err := Exec(m.ProcessFile, m.Log, m.Name, m.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.Username, p.AutoRestart)
 	if err != nil {
 		return "", err
 	}
 
-	// update process extra data
-	p.ID = m.ID
-	p.CreatedAt = m.CreatedAt
-	p.UpdatedAt = time.Now()
+	execP.ID = p.ID
+	execP.CreatedAt = p.CreatedAt
+	execP.UpdatedAt = time.Now()
 
-	waitData := NewProcStat(p).Wait()
-
+	waitData := NewProcStat(execP).Wait()
 	return waitData.Save(pmond.Db())
 }
 
-func workerStart(processFile string, flags *model.ExecFlags) (string, error) {
-	// prepare params
-	file, err := os.Stat(processFile)
-	if os.IsNotExist(err) || file.IsDir() {
-		return "", errors.Errorf("%s not exist", processFile)
-	}
-
-	// get run process user
-	runUser, err := SetUser(flags)
+func workerStart(p *model.Process) (string, error) {
+	//returns an instance of the process model
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.Username, p.AutoRestart)
 	if err != nil {
 		return "", err
 	}
 
-	name := flags.Name
-	// get process file name
-	if len(name) <= 0 {
-		name = filepath.Base(processFile)
-	}
-	// checkout process name whether exist
-	if pmond.Db().First(&model.Process{}, "name = ? AND status != ?", name, model.StatusQueued).Error == nil {
-		return "", errors.Errorf("process name: %s already exist, please set other name by --name", name)
-	}
-	// start process
-	process, err := Exec(processFile, flags.Log, name, flags.Args, runUser, !flags.NoAutoRestart, flags.LogDir)
-	if err != nil {
-		return "", err
-	}
-	process.CreatedAt = time.Now()
-	process.UpdatedAt = time.Now()
-	// waiting process state
-	stat := NewProcStat(process).Wait()
-	// return process data
-	return stat.Save(pmond.Db())
+	execP.CreatedAt = time.Now()
+	execP.UpdatedAt = time.Now()
+
+	waitData := NewProcStat(execP).Wait()
+	return waitData.Save(pmond.Db())
 }

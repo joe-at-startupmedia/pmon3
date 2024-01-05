@@ -2,7 +2,6 @@ package process
 
 import (
 	"os"
-	"os/user"
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
@@ -12,8 +11,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Exec(processFile, customLogFile, name, extArgs string, user *user.User, autoRestart bool, logDir string) (*model.Process, error) {
-	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile), logDir)
+func Exec(processFile, customLogFile, name, extArgs string, username string, autoRestart bool) (*model.Process, error) {
+	user, err := SetUser(username)
+	if err != nil {
+		return nil, err
+	}
+	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile), "")
 	if err != nil {
 		return nil, err
 	}
