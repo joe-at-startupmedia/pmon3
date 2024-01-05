@@ -1,15 +1,15 @@
 package pmq
 
 import (
+	"errors"
 	"fmt"
+	"github.com/goinbox/shell"
+	"github.com/joe-at-startupmedia/posix_mq"
+	"google.golang.org/protobuf/proto"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
 	"pmon3/pmond/protos"
-	"strings"
-
-	"github.com/goinbox/shell"
-	"github.com/syucream/posix_mq"
-	"google.golang.org/protobuf/proto"
+	"syscall"
 )
 
 var (
@@ -44,7 +44,7 @@ func HandleRequest() {
 	msg, _, err := mq_send.Receive()
 	if err != nil {
 		//EAGAIN simply means the queue is empty
-		if strings.Contains(err.Error(), "resource temporarily unavailable") {
+		if errors.Is(err, syscall.EAGAIN) {
 			return
 		}
 		pmond.Log.Fatal(err)

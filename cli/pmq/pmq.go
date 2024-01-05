@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/syucream/posix_mq"
+	"github.com/joe-at-startupmedia/posix_mq"
 	"google.golang.org/protobuf/proto"
 )
 
