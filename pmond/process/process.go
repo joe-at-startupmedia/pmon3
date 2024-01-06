@@ -44,7 +44,7 @@ func updatedFromPsCmd(p *model.Process) bool {
 	return false
 }
 
-//currently only invoked by God
+// currently only invoked by God
 func Enqueue(p *model.Process) error {
 	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
 		if updatedFromPsCmd(p) {
@@ -60,7 +60,7 @@ func Enqueue(p *model.Process) error {
 	return nil
 }
 
-//currently only invoked by God
+// currently only invoked by God
 func Restart(p *model.Process) error {
 	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
@@ -94,7 +94,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 
 	err := cmd.Run()
 	if err != nil {
-		pmond.Log.Fatal(err)
+		pmond.Log.Warn(err)
 	}
 
 	p.Status = status

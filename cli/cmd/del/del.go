@@ -1,7 +1,7 @@
 package del
 
 import (
-	"pmon3/cli/output"
+	table_one "pmon3/cli/output/one"
 	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
@@ -38,6 +38,6 @@ func runCmd(args []string) {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}
 	p := model.FromProtobuf(newCmdResp.GetProcess())
-	output.TableOne(p.RenderTable())
+	table_one.Render(p.RenderTable())
 	pmq.Close()
 }

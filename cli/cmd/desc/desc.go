@@ -1,7 +1,7 @@
 package desc
 
 import (
-	"pmon3/cli/output"
+	table_desc "pmon3/cli/output/desc"
 	"pmon3/cli/pmq"
 	"pmon3/pmond/utils/conv"
 	"strconv"
@@ -37,6 +37,6 @@ func cmdRun(args []string) {
 		{"created_at", process.CreatedAt},
 		{"updated_at", process.UpdatedAt},
 	}
-	output.DescTable(rel)
+	table_desc.Render(rel)
 	pmq.Close()
 }

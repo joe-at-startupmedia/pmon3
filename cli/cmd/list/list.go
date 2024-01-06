@@ -1,7 +1,7 @@
 package list
 
 import (
-	"pmon3/cli/output"
+	table_list "pmon3/cli/output/list"
 	"pmon3/cli/pmq"
 	"pmon3/pmond/model"
 
@@ -29,5 +29,5 @@ func Show() {
 		allProcess = append(allProcess, process.RenderTable())
 	}
 	pmq.Close()
-	output.Table(allProcess)
+	table_list.Render(allProcess)
 }

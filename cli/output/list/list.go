@@ -1,52 +1,17 @@
-package output
+package table_list
 
 import (
 	"log"
 	"os"
 	"strings"
 
-	"github.com/olekukonko/tablewriter"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertras/bubble-table/table"
 )
 
-func DescTable(tbData [][]string) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"--", "Desc"})
-	hColor := tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiCyanColor}
-	table.SetHeaderColor(hColor, hColor)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	for index, row := range tbData {
-		if index == 0 {
-			switch row[1] {
-			case "running":
-				table.Rich(row, []tablewriter.Colors{{}, {tablewriter.Bold, tablewriter.FgHiGreenColor}})
-			case "stopped":
-				table.Rich(row, []tablewriter.Colors{{}, {tablewriter.Bold, tablewriter.FgHiYellowColor}})
-			case "failed":
-				table.Rich(row, []tablewriter.Colors{{}, {tablewriter.Bold, tablewriter.FgRedColor}})
-			default:
-				table.Append(row)
-			}
-		} else {
-			table.Append(row)
-		}
-	}
-
-	//table.SetRowLine(true)
-	table.SetColumnAlignment([]int{tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT})
-	table.Render()
-}
-
-// render single one table row
-func TableOne(data []string) {
-	Table([][]string{data})
-}
-
 var (
-	customBorder = table.Border{
+	CustomBorder = table.Border{
 		Top:    "─",
 		Left:   "│",
 		Right:  "│",
@@ -82,7 +47,7 @@ const (
 	columnKeyDate   = "date"
 )
 
-func getStatusColor(status string) string {
+func GetStatusColor(status string) string {
 	switch status {
 	case "running":
 		return "#16ff16"
@@ -118,7 +83,7 @@ func NewModel(tbData [][]string) Model {
 			columnKeyID:     row[0],
 			columnKeyName:   row[1],
 			columnKeyPid:    row[2],
-			columnKeyStatus: table.NewStyledCell(row[3], lipgloss.NewStyle().Foreground(lipgloss.Color(getStatusColor(row[3])))),
+			columnKeyStatus: table.NewStyledCell(row[3], lipgloss.NewStyle().Foreground(lipgloss.Color(GetStatusColor(row[3])))),
 			columnKeyUser:   row[4],
 			columnKeyCpu:    row[5],
 			columnKeyMem:    row[6],
@@ -133,7 +98,7 @@ func NewModel(tbData [][]string) Model {
 			HeaderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00FFFF"))).
 			SelectableRows(false).
 			Focused(false).
-			Border(customBorder).
+			Border(CustomBorder).
 			WithBaseStyle(
 				lipgloss.NewStyle().
 					Align(lipgloss.Left).
@@ -177,7 +142,7 @@ func (m Model) View() string {
 	return body.String()
 }
 
-func Table(tbData [][]string) {
+func Render(tbData [][]string) {
 
 	p := tea.NewProgram(NewModel(tbData))
 
