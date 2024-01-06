@@ -10,3 +10,9 @@ logs: "/var/log/pmond"
 handle_interrupts: true
 # wait [n] milliseconds before outputing list after exec cmd
 cmd_exec_response_wait: 1500
+# specify a custom posix_mq directory in order to apply the appropriate permissions
+posix_mq_dir: /dev/mqueue/ #default value when empty
+# specify a custom user to access files in posix_mq_dir
+posix_mq_user: vagrant
+# specify a custom group to access files in posix_mq_dir (must also provide a user)
+posix_mq_group: null

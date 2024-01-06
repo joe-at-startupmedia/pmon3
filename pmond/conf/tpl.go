@@ -5,12 +5,14 @@ import (
 )
 
 type Tpl struct {
-	Data                 string `yaml:"data"`
-	Logs                 string `yaml:"logs"`
-	HandleInterrupts     bool   `yaml:"handle_interrupts"`
-	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait"`
-	PosixMessageQueueDir string `yaml:"posix_mq_dir"`
-	ConfigFile           string
+	Data                   string `yaml:"data"`
+	Logs                   string `yaml:"logs"`
+	HandleInterrupts       bool   `yaml:"handle_interrupts"`
+	CmdExecResponseWait    int64  `yaml:"cmd_exec_response_wait"`
+	PosixMessageQueueDir   string `yaml:"posix_mq_dir"`
+	PosixMessageQueueUser  string `yaml:"posix_mq_user"`
+	PosixMessageQueueGroup string `yaml:"posix_mq_group"`
+	ConfigFile             string
 }
 
 func (c *Tpl) GetDataDir() string {

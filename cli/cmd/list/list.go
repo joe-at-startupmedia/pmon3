@@ -1,8 +1,8 @@
 package list
 
 import (
+	"pmon3/cli/cmd/base"
 	table_list "pmon3/cli/output/list"
-	"pmon3/cli/pmq"
 	"pmon3/pmond/model"
 
 	"github.com/spf13/cobra"
@@ -17,17 +17,16 @@ var Cmd = &cobra.Command{
 	},
 }
 
-// show all process list
 func Show() {
-	pmq.New()
-	pmq.SendCmd("list", "")
-	newCmdResp := pmq.GetResponse()
+	base.OpenSender()
+	base.SendCmd("list", "")
+	newCmdResp := base.GetResponse()
 	all := newCmdResp.GetProcessList().GetProcesses()
 	var allProcess [][]string
 	for _, p := range all {
 		process := model.FromProtobuf(p)
 		allProcess = append(allProcess, process.RenderTable())
 	}
-	pmq.Close()
+	base.CloseSender()
 	table_list.Render(allProcess)
 }

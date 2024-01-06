@@ -1,8 +1,9 @@
 package del
 
 import (
+	"pmon3/cli/cmd/base"
 	table_one "pmon3/cli/output/one"
-	"pmon3/cli/pmq"
+
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 
@@ -27,17 +28,17 @@ func init() {
 }
 
 func runCmd(args []string) {
-	pmq.New()
+	base.OpenSender()
 	if forceKill {
-		pmq.SendCmdArg2("del", args[0], "force")
+		base.SendCmdArg2("del", args[0], "force")
 	} else {
-		pmq.SendCmd("del", args[0])
+		base.SendCmd("del", args[0])
 	}
-	newCmdResp := pmq.GetResponse()
+	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}
 	p := model.FromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
-	pmq.Close()
+	base.CloseSender()
 }

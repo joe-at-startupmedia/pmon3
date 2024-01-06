@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/goinbox/shell"
+	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
@@ -18,9 +20,6 @@ import (
 	"pmon3/pmond/conf"
 	"pmon3/pmond/utils/conv"
 	"strings"
-
-	"github.com/goinbox/shell"
-	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{

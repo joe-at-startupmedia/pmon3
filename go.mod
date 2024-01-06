@@ -10,7 +10,7 @@ require (
 	github.com/goinbox/shell v1.0.1
 	github.com/google/uuid v1.5.0
 	github.com/jinzhu/gorm v1.9.16
-	github.com/joe-at-startupmedia/posix_mq v0.0.4
+	github.com/joe-at-startupmedia/posix_mq v0.0.9
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0

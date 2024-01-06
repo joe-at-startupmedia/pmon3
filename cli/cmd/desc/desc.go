@@ -1,8 +1,8 @@
 package desc
 
 import (
+	"pmon3/cli/cmd/base"
 	table_desc "pmon3/cli/output/desc"
-	"pmon3/cli/pmq"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 
@@ -20,9 +20,9 @@ var Cmd = &cobra.Command{
 }
 
 func cmdRun(args []string) {
-	pmq.New()
-	pmq.SendCmd("desc", args[0])
-	newCmdResp := pmq.GetResponse()
+	base.OpenSender()
+	base.SendCmd("desc", args[0])
+	newCmdResp := base.GetResponse()
 	process := newCmdResp.GetProcess()
 	rel := [][]string{
 		{"status", process.Status},
@@ -38,5 +38,5 @@ func cmdRun(args []string) {
 		{"updated_at", process.UpdatedAt},
 	}
 	table_desc.Render(rel)
-	pmq.Close()
+	base.CloseSender()
 }

@@ -1,8 +1,8 @@
 package exec
 
 import (
+	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"time"
@@ -36,9 +36,9 @@ func init() {
 }
 
 func cmdRun(args []string, flags string) {
-	pmq.New()
-	pmq.SendCmdArg2("exec", args[0], flags)
-	newCmdResp := pmq.GetResponse()
+	base.OpenSender()
+	base.SendCmdArg2("exec", args[0], flags)
+	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}

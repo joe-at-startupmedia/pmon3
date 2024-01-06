@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
-	"pmon3/cli/pmq"
+	"pmon3/cli/cmd/base"
 	"pmon3/pmond"
 	"sync"
 
@@ -22,12 +22,12 @@ var Cmd = &cobra.Command{
 }
 
 func cmdRun(args []string) {
-	pmq.New()
-	pmq.SendCmd("log", args[0])
-	newCmdResp := pmq.GetResponse()
+	base.OpenSender()
+	base.SendCmd("log", args[0])
+	newCmdResp := base.GetResponse()
 	logFile := newCmdResp.GetProcess().GetLog()
 	displayLog(logFile)
-	pmq.Close()
+	base.CloseSender()
 }
 
 func displayLog(log string) {

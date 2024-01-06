@@ -1,8 +1,8 @@
 package initialize
 
 import (
+	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"time"
 
@@ -19,9 +19,9 @@ var Cmd = &cobra.Command{
 }
 
 func Initialize() {
-	pmq.New()
-	pmq.SendCmd("init", "")
-	newCmdResp := pmq.GetResponse()
+	base.OpenSender()
+	base.SendCmd("init", "")
+	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}

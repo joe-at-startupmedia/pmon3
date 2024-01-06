@@ -1,12 +1,13 @@
 package god
 
 import (
+	"github.com/joe-at-startupmedia/posix_mq"
+	pmq_responder "github.com/joe-at-startupmedia/posix_mq/duplex/responder"
 	"os"
 	"os/signal"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
 	"pmon3/pmond/model"
-	"pmon3/pmond/pmq"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
 	"sync"
@@ -19,7 +20,13 @@ func New() {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler()
 	}
-	pmq.New()
+	err := pmq_responder.New("pmon3_mq", pmond.Config.GetPosixMessageQueueDir(), posix_mq.Ownership{
+		Username: pmond.Config.PosixMessageQueueUser,
+		Group:    pmond.Config.PosixMessageQueueGroup,
+	})
+	if err != nil {
+		pmond.Log.Fatal(err)
+	}
 	runMonitor()
 }
 
@@ -40,7 +47,10 @@ func interruptHandler() {
 		time.Sleep(1 * time.Second)
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		pmq.Close()
+		err := pmq_responder.Close()
+		if err != nil {
+			pmond.Log.Warnf("Error closing queues: %-v", err)
+		}
 		time.Sleep(1 * time.Second)
 		os.Exit(0)
 	}()
@@ -52,7 +62,10 @@ func runMonitor() {
 	for {
 		<-timer.C
 		runningTask()
-		pmq.HandleRequest()
+		err := pmq_responder.HandleRequest(controller.HandleMessage)
+		if err != nil {
+			pmond.Log.Warnf("Error handling request: %-v", err)
+		}
 		if !uninterrupted {
 			break
 		}

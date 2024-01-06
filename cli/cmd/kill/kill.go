@@ -1,8 +1,8 @@
 package kill
 
 import (
+	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"time"
@@ -28,13 +28,13 @@ func init() {
 }
 
 func Kill(processStatus model.ProcessStatus) {
-	pmq.New()
+	base.OpenSender()
 	if forceKill {
-		pmq.SendCmd("kill", "force")
+		base.SendCmd("kill", "force")
 	} else {
-		pmq.SendCmd("kill", "")
+		base.SendCmd("kill", "")
 	}
-	newCmdResp := pmq.GetResponse()
+	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}

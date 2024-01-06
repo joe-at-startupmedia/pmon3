@@ -1,8 +1,8 @@
 package drop
 
 import (
+	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/cli/pmq"
 	"pmon3/pmond"
 	"time"
 
@@ -27,13 +27,13 @@ func init() {
 
 // show all process list
 func Drop() {
-	pmq.New()
+	base.OpenSender()
 	if forceKill {
-		pmq.SendCmd("drop", "force")
+		base.SendCmd("drop", "force")
 	} else {
-		pmq.SendCmd("drop", "")
+		base.SendCmd("drop", "")
 	}
-	newCmdResp := pmq.GetResponse()
+	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		pmond.Log.Fatalf(newCmdResp.GetError())
 	}
