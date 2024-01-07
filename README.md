@@ -5,7 +5,7 @@
 
 ## Start Process
 
-```shell
+```
 Usage:
   pmon3 exec [application_binary] [flags]
 
@@ -72,7 +72,7 @@ sudo /usr/local/pmon3/bin/pmond &
 
 #### Help
 
-```shell
+```
 Usage:
   pmon3 [command]
 
@@ -98,12 +98,12 @@ Flags:
 
 #### Running process [run/exec]
 
-```shell
+```
 pmon3 exec [application_binary] [flags]
 ```
 The starting process accepts several parameters. The parameter descriptions are as follows:
 
-```shell
+```
 // The process name. It will use the file name of the binary as the default name if not provided 
 --name
 
@@ -125,7 +125,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 
 #### Example：
 
-```shell
+```
 pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 ```
 
@@ -135,25 +135,25 @@ Parameter arguments need to use the absolute path。
 
 #### View List  [ list/ls ]
 
-```shell
+```
 pmon3 ls
 ```
 
 #### (re)tart the process [ restart ]
 
-```shell
+```
 pmon3 restart [id or name]
 ```
 
 #### Stop the process  [ stop ]
 
-```shell
+```
 pmon3 stop [id or name]
 ```
 
 #### Process logging
 
-```shell
+```
 # view logs of the process specified
 pmon3 log [id or name]
 
@@ -163,37 +163,37 @@ pmon3 logf [id or name]
 
 #### Delete the process  [ del/delete ]
 
-```shell
+```
 pmon3 del [id or name]
 ```
 
 #### View details [ show/desc ]
 
-```shell
+```
 pmon3 show [id or name]
 ```
 
 <img width="516" alt="pmon3 desc" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/881af535-9a83-472c-b2a5-b0caff5596f3">
 
 #### Terminate all running process [ kill ]
-```shell
+```
 pmon3 kill [--force]
 ```
 
 #### Restart all steopped process [ init ]
-```shell
+```
 pmon3 init
 ```
 
 #### Terminate and delete all processes [drop]
-```shell
+```
 pmon3 drop [--force]
 ```
 
 ## Development
 
 ### Testing
-```
+```shell
 make test
 ```
 
@@ -211,7 +211,7 @@ If there is a path in the parameters you pass, please use the absolute path. The
 
 `pmon3` provides Bash automation. If you find that the command cannot be automatically provided, please install `bash-completion` and exit the terminal to re-enter:
 
-```bash
+```shell
 sudo yum install -y bash-completion
 ```
 
@@ -227,15 +227,22 @@ source /etc/profile.d/pmon3.sh
 
 If you encounter the error above, make sure the pmond service has started sucessfully.
 
-```bash
+```shell
 sudo systemctl start pmond
 ```
 
 ### 5. Should I use `sudo` commands?
 
-You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files and the database file:
+You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files.
 
+#### Applying permissions
 ```shell
 #This is automatically called by make systemd_install
 make systemd_permissions
 ```
+
+#### Spawn a new process as the root user without using `sudo`
+```
+pmon3 exec /usr/local/bin/happac --user root
+```
+
