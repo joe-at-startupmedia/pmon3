@@ -41,6 +41,8 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 
 	pmond.Log.Infof("stop process %s success \n", p.Stringify())
 
+	p.ResetRestartCount()
+
 	newCmdResp := protos.CmdResp{
 		Id:      cmd.GetId(),
 		Name:    cmd.GetName(),

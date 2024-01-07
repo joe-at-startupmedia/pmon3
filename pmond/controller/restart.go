@@ -14,11 +14,11 @@ import (
 func Restart(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
 	flags := cmd.GetArg2()
-	return RestartByParams(cmd, idOrName, flags)
+	return RestartByParams(cmd, idOrName, flags, true)
 }
 
 // this will kill the process and insert a new record with "queued" status
-func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.CmdResp {
+func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCounter bool) *protos.CmdResp {
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
@@ -45,6 +45,8 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string) *protos.Cmd
 		}
 		if err != nil {
 			newCmdResp.Error = err.Error()
+		} else if incrementCounter {
+			p.IncrRestartCount()
 		}
 		return &newCmdResp
 	}
@@ -56,7 +58,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
-		logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
+		logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile+m.Name), flags.LogDir)
 		if err != nil {
 			return err
 		}

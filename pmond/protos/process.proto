@@ -18,6 +18,7 @@ message Process {
       uint32 uid = 11;
       string username = 12;
       uint32 gid = 13;
+      uint32 restart_count = 14;
 }
 
 message ProcessList {

@@ -16,7 +16,7 @@ func Exec(processFile, customLogFile, name, extArgs string, username string, aut
 	if err != nil {
 		return nil, err
 	}
-	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile), "")
+	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile+name), "")
 	if err != nil {
 		return nil, err
 	}

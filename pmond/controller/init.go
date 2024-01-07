@@ -23,7 +23,7 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 
 	for _, process := range all {
 		pmond.Log.Debugf("restart: %s", process.GetIdStr())
-		cr := RestartByParams(cmd, process.GetIdStr(), "{}")
+		cr := RestartByParams(cmd, process.GetIdStr(), "{}", false)
 		if len(cr.GetError()) > 0 {
 			pmond.Log.Debugf("encountered error attempting to restart: %s", cr.GetError())
 			hasError = true
