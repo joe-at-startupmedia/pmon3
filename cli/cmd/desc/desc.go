@@ -29,6 +29,7 @@ func cmdRun(args []string) {
 		{"id", conv.Uint32ToStr(process.Id)},
 		{"name", process.Name},
 		{"pid", conv.Uint32ToStr(process.Pid)},
+		{"restarted", conv.Uint32ToStr(process.RestartCount)},
 		{"process", process.ProcessFile},
 		{"args", process.Args},
 		{"user", process.Username},

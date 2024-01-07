@@ -37,14 +37,15 @@ type Model struct {
 }
 
 const (
-	columnKeyID     = "id"
-	columnKeyName   = "name"
-	columnKeyPid    = "pid"
-	columnKeyStatus = "status"
-	columnKeyUser   = "user"
-	columnKeyCpu    = "cpu"
-	columnKeyMem    = "mem"
-	columnKeyDate   = "date"
+	columnKeyID           = "id"
+	columnKeyName         = "name"
+	columnKeyPid          = "pid"
+	columnKeyRestartCount = "restart_count"
+	columnKeyStatus       = "status"
+	columnKeyUser         = "user"
+	columnKeyCpu          = "cpu"
+	columnKeyMem          = "mem"
+	columnKeyDate         = "date"
 )
 
 func GetStatusColor(status string) string {
@@ -69,6 +70,7 @@ func NewModel(tbData [][]string) Model {
 				Align(lipgloss.Center)),
 		table.NewColumn(columnKeyName, "Name", 15),
 		table.NewColumn(columnKeyPid, "PID", 10),
+		table.NewColumn(columnKeyRestartCount, "⟳", 3),
 		table.NewColumn(columnKeyStatus, columnKeyStatus, 10),
 		table.NewColumn(columnKeyUser, columnKeyUser, 15),
 		table.NewColumn(columnKeyCpu, "CPU", 5),
@@ -80,14 +82,15 @@ func NewModel(tbData [][]string) Model {
 
 	for _, row := range tbData {
 		rows = append(rows, table.NewRow(table.RowData{
-			columnKeyID:     row[0],
-			columnKeyName:   row[1],
-			columnKeyPid:    row[2],
-			columnKeyStatus: table.NewStyledCell(row[3], lipgloss.NewStyle().Foreground(lipgloss.Color(GetStatusColor(row[3])))),
-			columnKeyUser:   row[4],
-			columnKeyCpu:    row[5],
-			columnKeyMem:    row[6],
-			columnKeyDate:   row[7],
+			columnKeyID:           row[0],
+			columnKeyName:         row[1],
+			columnKeyPid:          row[2],
+			columnKeyRestartCount: row[3],
+			columnKeyStatus:       table.NewStyledCell(row[4], lipgloss.NewStyle().Foreground(lipgloss.Color(GetStatusColor(row[4])))),
+			columnKeyUser:         row[5],
+			columnKeyCpu:          row[6],
+			columnKeyMem:          row[7],
+			columnKeyDate:         row[8],
 		}))
 	}
 

@@ -63,20 +63,21 @@ func StringToProcessStatus(s string) ProcessStatus {
 }
 
 type Process struct {
-	ID          uint32        `gorm:"primary_key" json:"id"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
-	Pid         uint32        `gorm:"column:pid" json:"pid"`
-	Log         string        `gorm:"column:log" json:"log"`
-	Name        string        `gorm:"unique" json:"name"`
-	ProcessFile string        `json:"process_file"`
-	Args        string        `json:"args"`
-	Status      ProcessStatus `json:"status"`
-	Pointer     *os.Process   `gorm:"-" json:"-"`
-	AutoRestart bool          `json:"auto_restart"`
-	Uid         uint32
-	Username    string
-	Gid         uint32
+	ID           uint32        `gorm:"primary_key" json:"id"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
+	Pid          uint32        `gorm:"column:pid" json:"pid"`
+	Log          string        `gorm:"column:log" json:"log"`
+	Name         string        `gorm:"unique" json:"name"`
+	ProcessFile  string        `json:"process_file"`
+	Args         string        `json:"args"`
+	Status       ProcessStatus `json:"status"`
+	Pointer      *os.Process   `gorm:"-" json:"-"`
+	AutoRestart  bool          `json:"auto_restart"`
+	Uid          uint32
+	Username     string
+	Gid          uint32
+	RestartCount uint32
 }
 
 func (p Process) NoAutoRestartStr() string {
@@ -87,13 +88,7 @@ func (Process) TableName() string {
 	return "process"
 }
 
-func (p Process) MustJson() string {
-	data, _ := json.Marshal(&p)
-
-	return string(data)
-}
-
-func (p Process) RenderTable() []string {
+func (p *Process) RenderTable() []string {
 	cpuVal, memVal := "0", "0"
 	if p.Status == StatusRunning {
 		cpuVal, memVal = cpu.GetExtraInfo(int(p.Pid))
@@ -103,6 +98,7 @@ func (p Process) RenderTable() []string {
 		p.GetIdStr(),
 		p.Name,
 		p.GetPidStr(),
+		p.GetRestartCountStr(),
 		p.Status.String(),
 		p.Username,
 		cpuVal,
@@ -133,7 +129,7 @@ func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
 
 func (process *Process) Save(db *gorm.DB) (string, error) {
 	err, originOne := FindProcessByFileAndName(db, process.ProcessFile, process.Name)
-	if err == nil && originOne.ID > 0 { // process already exist
+	if err == nil && originOne.ID > 0 { // process already exists
 		process.ID = originOne.ID
 	}
 
@@ -162,21 +158,40 @@ func (p *Process) GetPidStr() string {
 	return conv.Uint32ToStr(p.Pid)
 }
 
+var restartCount = make(map[uint32]uint32)
+
+func (p *Process) GetRestartCount() uint32 {
+	return restartCount[p.ID]
+}
+
+func (p *Process) GetRestartCountStr() string {
+	return conv.Uint32ToStr(p.RestartCount)
+}
+
+func (p *Process) ResetRestartCount() {
+	restartCount[p.ID] = 0
+}
+
+func (p *Process) IncrRestartCount() {
+	restartCount[p.ID] += 1
+}
+
 func (p *Process) ToProtobuf() *protos.Process {
 	newProcess := protos.Process{
-		Id:          p.ID,
-		CreatedAt:   p.CreatedAt.Format(dateTimeFormat),
-		UpdatedAt:   p.UpdatedAt.Format(dateTimeFormat),
-		Pid:         p.Pid,
-		Log:         p.Log,
-		Name:        p.Name,
-		ProcessFile: p.ProcessFile,
-		Args:        p.Args,
-		Status:      p.Status.String(),
-		AutoRestart: p.AutoRestart,
-		Uid:         p.Uid,
-		Username:    p.Username,
-		Gid:         p.Gid,
+		Id:           p.ID,
+		CreatedAt:    p.CreatedAt.Format(dateTimeFormat),
+		UpdatedAt:    p.UpdatedAt.Format(dateTimeFormat),
+		Pid:          p.Pid,
+		Log:          p.Log,
+		Name:         p.Name,
+		ProcessFile:  p.ProcessFile,
+		Args:         p.Args,
+		Status:       p.Status.String(),
+		AutoRestart:  p.AutoRestart,
+		Uid:          p.Uid,
+		Username:     p.Username,
+		Gid:          p.Gid,
+		RestartCount: p.GetRestartCount(),
 	}
 	return &newProcess
 }
@@ -191,19 +206,20 @@ func FromProtobuf(p *protos.Process) *Process {
 		fmt.Println(error)
 	}
 	newProcess := Process{
-		ID:          p.GetId(),
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
-		Pid:         p.GetPid(),
-		Log:         p.GetLog(),
-		Name:        p.GetName(),
-		ProcessFile: p.GetProcessFile(),
-		Args:        p.GetArgs(),
-		Status:      StringToProcessStatus(p.GetStatus()),
-		AutoRestart: p.GetAutoRestart(),
-		Uid:         p.GetUid(),
-		Username:    p.GetUsername(),
-		Gid:         p.GetGid(),
+		ID:           p.GetId(),
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
+		Pid:          p.GetPid(),
+		Log:          p.GetLog(),
+		Name:         p.GetName(),
+		ProcessFile:  p.GetProcessFile(),
+		Args:         p.GetArgs(),
+		Status:       StringToProcessStatus(p.GetStatus()),
+		AutoRestart:  p.GetAutoRestart(),
+		Uid:          p.GetUid(),
+		Username:     p.GetUsername(),
+		Gid:          p.GetGid(),
+		RestartCount: p.GetRestartCount(),
 	}
 	return &newProcess
 }

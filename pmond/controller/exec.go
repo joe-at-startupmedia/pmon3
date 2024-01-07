@@ -73,14 +73,14 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 
 func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 
-	logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile), flags.LogDir)
-	if err != nil {
-		return err
-	}
-
 	var processParams = []string{flags.Name}
 	if len(flags.Args) > 0 {
 		processParams = append(processParams, strings.Split(flags.Args, " ")...)
+	}
+
+	logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile+flags.Name), flags.LogDir)
+	if err != nil {
+		return err
 	}
 
 	user, err := process.SetUser(flags.User)

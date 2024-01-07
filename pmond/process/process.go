@@ -78,6 +78,10 @@ func Restart(p *model.Process) error {
 		_, err := proxyWorker(p, "restart")
 		if err != nil {
 			return err
+		} else {
+			if p.Status != model.StatusClosed {
+				p.IncrRestartCount()
+			}
 		}
 	}
 
