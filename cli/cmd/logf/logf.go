@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/pmond"
 	"sync"
 
 	"github.com/spf13/cobra"
@@ -47,7 +47,7 @@ func displayLog(log string) {
 		}
 	}()
 	if err := c.Start(); err != nil {
-		pmond.Log.Error(err)
+		cli.Log.Error(err)
 	}
 	wg.Wait()
 }

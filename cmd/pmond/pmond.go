@@ -1,8 +1,8 @@
 package main
 
 import (
+	"pmon3/conf"
 	"pmon3/pmond"
-	"pmon3/pmond/conf"
 	"pmon3/pmond/god"
 )
 

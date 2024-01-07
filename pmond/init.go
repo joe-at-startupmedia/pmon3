@@ -2,7 +2,7 @@ package pmond
 
 import (
 	"os"
-	"pmon3/pmond/conf"
+	"pmon3/conf"
 	"pmon3/pmond/model"
 	"sync"
 

@@ -1,9 +1,9 @@
 package kill
 
 import (
+	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"time"
 
@@ -36,9 +36,9 @@ func Kill(processStatus model.ProcessStatus) {
 	}
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
-		pmond.Log.Fatalf(newCmdResp.GetError())
+		cli.Log.Fatalf(newCmdResp.GetError())
 	}
-	time.Sleep(pmond.Config.GetCmdExecResponseWait())
+	time.Sleep(cli.Config.GetCmdExecResponseWait())
 	//list command will call pmq.Close
 	list.Show()
 }

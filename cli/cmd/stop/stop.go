@@ -1,9 +1,9 @@
 package stop
 
 import (
+	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	table_one "pmon3/cli/output/one"
-	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"time"
 
@@ -36,9 +36,9 @@ func cmdRun(args []string) {
 	}
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
-		pmond.Log.Fatalf(newCmdResp.GetError())
+		cli.Log.Fatalf(newCmdResp.GetError())
 	}
-	time.Sleep(pmond.Config.GetCmdExecResponseWait())
+	time.Sleep(cli.Config.GetCmdExecResponseWait())
 	p := model.FromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
 	base.CloseSender()

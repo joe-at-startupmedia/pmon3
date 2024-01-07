@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/goinbox/shell"
-	"github.com/spf13/cobra"
+	"pmon3/cli"
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
@@ -16,10 +15,12 @@ import (
 	"pmon3/cli/cmd/logf"
 	"pmon3/cli/cmd/restart"
 	"pmon3/cli/cmd/stop"
-	"pmon3/pmond"
-	"pmon3/pmond/conf"
+	"pmon3/conf"
 	"pmon3/pmond/utils/conv"
 	"strings"
+
+	"github.com/goinbox/shell"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -35,7 +36,7 @@ var verCmd = &cobra.Command{
 
 func Exec() error {
 	if !IsPmondRunning() {
-		pmond.Log.Fatal("pmond must be running")
+		cli.Log.Fatal("pmond must be running")
 	}
 	rootCmd.AddCommand(
 		del.Cmd,
