@@ -89,7 +89,7 @@ func (Process) TableName() string {
 }
 
 func (p *Process) RenderTable() []string {
-	cpuVal, memVal := "0", "0"
+	cpuVal, memVal := "0%", "0.0 MB"
 	if p.Status == StatusRunning {
 		cpuVal, memVal = cpu.GetExtraInfo(int(p.Pid))
 	}
