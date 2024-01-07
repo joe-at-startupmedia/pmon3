@@ -23,7 +23,7 @@ func New() {
 	err := pmq_responder.New("pmon3_mq", pmond.Config.GetPosixMessageQueueDir(), posix_mq.Ownership{
 		Username: pmond.Config.PosixMessageQueueUser,
 		Group:    pmond.Config.PosixMessageQueueGroup,
-	})
+	}, posix_mq.O_RDWR|posix_mq.O_CREAT|posix_mq.O_NONBLOCK)
 	if err != nil {
 		pmond.Log.Fatal(err)
 	}
