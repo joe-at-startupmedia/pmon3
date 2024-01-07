@@ -72,9 +72,6 @@ systemd_uninstall:
 	sudo systemctl disable pmond
 systemd_permissions:
 	sleep 2
-	sudo chown -R root:$(WHOAMI) /etc/pmon3/data/
-	sudo chmod 775 /etc/pmon3/data/
-	sudo chmod 660 /etc/pmon3/data/*
 	sudo chown -R root:$(WHOAMI) /var/log/pmond
 	sudo chmod 660 "/var/log/pmond/*" || true
 install:
