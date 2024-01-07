@@ -1,12 +1,25 @@
 # `pmon3`
-`pmon3` is a process manager for Golang applications with a built-in load balancer. It allows you to keep applications alive forever and to reload them without downtime.
+`pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
 
-<img width="699" alt="Screen Shot 2024-01-02 at 8 25 43 AM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5ffb2aa4-17eb-4a21-b7f8-c3631740b198">
+<img width="726" alt="pmon3 help" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/ffef6d7c-813f-467c-ba3a-daddda56383d">
 
 ## Start Process
 
-```go
-pmon3 run [./application binary] [arg1]  ...
+```shell
+Usage:
+  pmon3 exec [application_binary] [flags]
+
+Aliases:
+  exec, run
+
+Flags:
+  -a, --args string      the processes extra arguments
+  -h, --help             help for exec
+  -l, --log string       the processes stdout log
+  -d, --log_dir string   the processes stdout log dir
+      --name string      the processes name
+  -n, --no-autorestart   do not restart upon process failure
+  -u, --user string      the processes run user
 ```
 
 ## Introduction
@@ -17,7 +30,7 @@ Each method has certain advantages and disadvantages. We hope to provide a conve
 
 Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by seperating the `pmond` deamon process from the `pmon3` agent.
 
-By default, if the `pmon3` agent abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
+By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
 ## How To Install
 
@@ -60,9 +73,6 @@ sudo /usr/local/pmon3/bin/pmond &
 #### Help
 
 ```shell
-# View global help documentation
-pmon3 help
-
 Usage:
   pmon3 [command]
 
@@ -73,6 +83,7 @@ Available Commands:
   drop        Delete all processes
   exec        Spawn a new process
   help        Help about any command
+  init        Restart all stopped processes
   kill        Terminate all processes
   log         Display process logs by id or name
   logf        Tail process logs by id or name
@@ -83,14 +94,12 @@ Available Commands:
 
 Flags:
   -h, --help   help for pmon3
-
-Use "pmon3 [command] --help" for more information about a command.
 ```
 
 #### Running process [run/exec]
 
 ```shell
-pmon3 run [./application binary] [arg1] [arg2] ...
+pmon3 exec [application_binary] [flags]
 ```
 The starting process accepts several parameters. The parameter descriptions are as follows:
 
@@ -117,7 +126,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 #### Example：
 
 ```shell
-pmon3 run ./bin/gin --args "-prjHome=`pwd`" --user ntt360
+pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -164,17 +173,22 @@ pmon3 del [id or name]
 pmon3 show [id or name]
 ```
 
+<img width="516" alt="pmon3 desc" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/881af535-9a83-472c-b2a5-b0caff5596f3">
+
 #### Terminate all running process [ kill ]
 ```shell
 pmon3 kill [--force]
+```
+
+#### Restart all steopped process [ init ]
+```shell
+pmon3 init
 ```
 
 #### Terminate and delete all processes [drop]
 ```shell
 pmon3 drop [--force]
 ```
-
-<img width="366" alt="Screen Shot 2024-01-02 at 8 25 23 AM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/37b689a9-015e-4815-bd6b-f4cc16f0aa55">
 
 ## Development
 
