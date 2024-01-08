@@ -1,0 +1,17 @@
+version: 1
+
+builds:
+  - id: pmon3
+    main: cmd/pmon3/pmon3.go
+    goos:
+      - linux
+    goarch:
+      - amd64
+    binary: pmon3-{{ .Os }}-{{ .Arch }}
+  - id: pmond
+    main: cmd/pmond/pmond.go
+    goos:
+      - linux
+    goarch:
+      - amd64
+    binary: pmond-{{ .Os }}-{{ .Arch }}
