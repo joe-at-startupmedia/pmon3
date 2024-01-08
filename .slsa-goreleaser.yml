@@ -1,4 +1,8 @@
-version: 1
+project_name: pmon3
+
+before:
+  hooks:
+    - go mod tidy
 
 builds:
   - id: pmon3
@@ -8,10 +12,24 @@ builds:
     goarch:
       - amd64
     binary: pmon3-{{ .Os }}-{{ .Arch }}
-  - id: pmond
+
+ - id: pmond
     main: cmd/pmond/pmond.go
     goos:
       - linux
     goarch:
       - amd64
     binary: pmond-{{ .Os }}-{{ .Arch }}
+
+archives:
+  - format: tar.gz
+    replacements:
+      linux: Linux
+      amd64: x86_64
+    name_template: '{{.ProjectName}}-{{.Version}}-{{.Os}}-{{.Arch}}'
+    files:
+      - README.md
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+snapshot:
+  name_template: SNAPSHOT-{{.ShortCommit}}
