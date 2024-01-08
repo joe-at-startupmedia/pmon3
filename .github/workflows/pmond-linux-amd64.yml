@@ -1,0 +1,5 @@
+version: 1
+main: cmd/pmond/pmond.go
+goos: linux
+goarch: amd64
+binary: pmond
