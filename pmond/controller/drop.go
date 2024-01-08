@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
@@ -17,9 +18,9 @@ func DropByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 	var all []model.Process
 	err := pmond.Db().Find(&all).Error
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("Error finding processes: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("Error finding processes: %w", err))
 	} else if len(all) == 0 {
-		return ErroredCmdResp(cmd, "There are no processes")
+		return ErroredCmdResp(cmd, errors.New("There are no processes"))
 	}
 
 	for _, process := range all {

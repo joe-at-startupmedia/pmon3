@@ -11,9 +11,9 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 	var all []model.Process
 	err := pmond.Db().Find(&all, "status = ?", model.StatusStopped).Error
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("Error finding stopped processes: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("Error finding stopped processes: %w", err))
 	} else if len(all) == 0 {
-		return ErroredCmdResp(cmd, "Could not find any stopped processes")
+		return ErroredCmdResp(cmd, fmt.Errorf("Could not find any stopped processes"))
 	}
 
 	var (

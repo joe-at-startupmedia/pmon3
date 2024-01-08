@@ -18,7 +18,7 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
 	}
 
 	// check process is running
@@ -28,7 +28,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 		if p.Status != status {
 			p.Status = status
 			if err := pmond.Db().Save(&p).Error; err != nil {
-				return ErroredCmdResp(cmd, fmt.Sprintf("stop process error: %+v", err))
+				return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 			}
 		}
 	}
@@ -36,7 +36,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	// try to kill the process
 	err = process.SendOsKillSignal(p, status, forced)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("stop process error: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 	}
 
 	pmond.Log.Infof("stop process %s success \n", p.Stringify())

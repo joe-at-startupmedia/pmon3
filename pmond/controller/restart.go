@@ -21,17 +21,17 @@ func Restart(cmd *protos.Cmd) *protos.CmdResp {
 func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCounter bool) *protos.CmdResp {
 	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("could not find process: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
 	}
 	if process.IsRunning(p.Pid) {
 		if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
-			return ErroredCmdResp(cmd, fmt.Sprintf("restart error: %s", err.Error()))
+			return ErroredCmdResp(cmd, fmt.Errorf("restart error: %w", err.Error()))
 		}
 	}
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("could not parse flags: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
 	} else {
 		pmond.Log.Debugf("update as queued: %v", flags)
 		err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)

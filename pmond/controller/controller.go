@@ -1,23 +1,23 @@
 package controller
 
 import (
+	"fmt"
 	"google.golang.org/protobuf/proto"
 	"pmon3/pmond"
 	"pmon3/pmond/protos"
 )
 
-func ErroredCmdResp(cmd *protos.Cmd, err string) *protos.CmdResp {
+func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
 	return &protos.CmdResp{
 		Id:    cmd.GetId(),
 		Name:  cmd.GetName(),
-		Error: err,
+		Error: fmt.Sprintf("%s, %s", cmd.GetName(), err),
 	}
 }
 
 func HandleMessage(msg []byte) ([]byte, error) {
 	newCmd := &protos.Cmd{}
-	err := proto.Unmarshal(msg, newCmd)
-	if err != nil {
+	if err := proto.Unmarshal(msg, newCmd); err != nil {
 		pmond.Log.Fatal("unmarshaling error: ", err)
 	}
 

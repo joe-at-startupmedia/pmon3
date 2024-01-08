@@ -17,7 +17,7 @@ import (
 func getExecFileAbsPath(execFile string) (string, error) {
 	_, err := os.Stat(execFile)
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s does not exist", execFile)
+		return "", fmt.Errorf("%s does not exist: %w", execFile, err)
 	}
 
 	if path.IsAbs(execFile) {
@@ -26,7 +26,7 @@ func getExecFileAbsPath(execFile string) (string, error) {
 
 	absPath, err := filepath.Abs(execFile)
 	if err != nil {
-		return "", fmt.Errorf("get file path error: %v", err.Error())
+		return "", fmt.Errorf("get file path error: %w", err)
 	}
 
 	return absPath, nil
@@ -38,12 +38,12 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	// get exec abs file path
 	execPath, err := getExecFileAbsPath(execFile)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("file arguments error: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("file arguments error: %w", err))
 	}
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Sprintf("could not parse flags: %+v", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
 	}
 	name := parsedFlags.Name
 	// get process file name
