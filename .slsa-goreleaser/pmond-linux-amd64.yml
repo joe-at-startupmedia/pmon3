@@ -2,7 +2,7 @@ version: 1
 
 env:
   - GO111MODULE=on
-  - CGO_ENABLED=1
+  - CGO_ENABLED=0
 
 main: cmd/pmond/pmond.go
 
