@@ -74,10 +74,10 @@ type Process struct {
 	Status       ProcessStatus `json:"status"`
 	Pointer      *os.Process   `gorm:"-" json:"-"`
 	AutoRestart  bool          `json:"auto_restart"`
-	Uid          uint32
-	Username     string
-	Gid          uint32
-	RestartCount uint32
+	Uid          uint32        `gorm:"column:uid" json:"uid"`
+	Username     string        `json:"username"`
+	Gid          uint32        `gorm:"column:gid" json:"gid"`
+	RestartCount uint32        `gorm:"-" json:"-"`
 }
 
 func (p Process) NoAutoRestartStr() string {
