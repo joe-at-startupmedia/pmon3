@@ -58,7 +58,7 @@ wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/rel
 
 :exclamation::exclamation: Note :exclamation::exclamation:
 
-After installing `pmon3` for the first time, the `pmond` service does not start automatically. You need to manually start the service:
+After installing `pmon3` for the first time, both installation methods provided above should automatically enable and start the service. if the `pmond` service does not start automatically, you need to manually start the service.
 
 ```shell
 sudo systemctl start pmond
