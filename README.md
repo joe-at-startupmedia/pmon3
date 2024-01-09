@@ -34,7 +34,7 @@ By default, if a process abnormally terminates, `pmond` will try to restart the 
 
 ## How To Install
 
-[Releases](https://github.com/ntt360/pmon3/releases) 
+[Releases](https://github.com/joe-at-startupmedia/pmon3/releases) 
 
 ### Using Makefile
 The systemd installation process entails the following steps:
@@ -50,11 +50,10 @@ make build
 make systemd_install
 ```
 
-### RPM packages
-These are compatible with systemd-based Linux distributions.
+### Using Release Installer
 
 ```bash
-sudo dnf install -y https://github.com/joe-at-startupmedia/pmon3/releases/download/v1.13.0/pmon3-1.13.0-1.el9.x86_64.rpm
+wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.13.0
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -246,3 +245,5 @@ make systemd_permissions
 pmon3 exec /usr/local/bin/happac --user root
 ```
 
+### 6. /lib64/libc.so.6: version `GLIBC_2.34' not found (required by ./bin/pmon3)
+Due to the `posix_mq` dependency required for IPC, the binary must be compiled with `CGO_ENABLED=1`. If the machine where the binary was built has a different version of GLIBC than the target machine, this error will occur. The only solution is to build from source on the target machine.
