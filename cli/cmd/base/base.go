@@ -3,15 +3,31 @@ package base
 import (
 	"pmon3/cli"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/utils/conv"
+	"strings"
 	"time"
 
+	"github.com/goinbox/shell"
 	"github.com/google/uuid"
 	"github.com/joe-at-startupmedia/posix_mq"
 	pmq_sender "github.com/joe-at-startupmedia/posix_mq/duplex/sender"
 	"google.golang.org/protobuf/proto"
 )
 
+func IsPmondRunning() bool {
+	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
+	if rel.Ok {
+		newPidStr := strings.TrimSpace(string(rel.Output))
+		newPid := conv.StrToUint32(newPidStr)
+		return newPid != 0
+	}
+	return false
+}
+
 func OpenSender() {
+	if !IsPmondRunning() {
+		cli.Log.Fatal("pmond must be running")
+	}
 	err := pmq_sender.New("pmon3_mq", cli.Config.GetPosixMessageQueueDir(), posix_mq.Ownership{
 		Username: cli.Config.PosixMessageQueueUser,
 		Group:    cli.Config.PosixMessageQueueGroup,

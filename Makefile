@@ -68,8 +68,8 @@ systemd_install: systemd_uninstall install
 	$(ROOTDIR)/bin/pmon3 --help
 systemd_uninstall: 
 	sudo rm -rf /var/log/pmond /etc/pmon3/config /etc/pmon3/data /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
-	sudo systemctl stop pmond
-	sudo systemctl disable pmond
+	sudo systemctl stop pmond || true
+	sudo systemctl disable pmond || true
 systemd_permissions:
 	sleep 2
 	sudo chown -R root:$(WHOAMI) /var/log/pmond
