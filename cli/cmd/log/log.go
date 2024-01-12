@@ -19,11 +19,11 @@ var Cmd = &cobra.Command{
 
 func cmdRun(args []string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmd("log", args[0])
 	newCmdResp := base.GetResponse()
 	logFile := newCmdResp.GetProcess().GetLog()
 	c := exec.Command("bash", "-c", "tail "+logFile)
 	output, _ := c.CombinedOutput()
 	fmt.Println(string(output))
-	base.CloseSender()
 }

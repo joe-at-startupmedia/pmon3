@@ -9,10 +9,11 @@ import (
 
 	"github.com/goinbox/shell"
 	"github.com/google/uuid"
-	"github.com/joe-at-startupmedia/posix_mq"
-	pmq_sender "github.com/joe-at-startupmedia/posix_mq/duplex/sender"
+	"github.com/joe-at-startupmedia/pmq_responder"
 	"google.golang.org/protobuf/proto"
 )
+
+var pms *pmq_responder.MqSender
 
 func IsPmondRunning() bool {
 	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
@@ -28,17 +29,23 @@ func OpenSender() {
 	if !IsPmondRunning() {
 		cli.Log.Fatal("pmond must be running")
 	}
-	err := pmq_sender.New("pmon3_mq", cli.Config.GetPosixMessageQueueDir(), posix_mq.Ownership{
-		Username: cli.Config.PosixMessageQueueUser,
+	queueConfig := pmq_responder.QueueConfig{
+		Name: "pmon3_mq",
+		Dir:  cli.Config.GetPosixMessageQueueDir(),
+	}
+	ownership := pmq_responder.Ownership{
 		Group:    cli.Config.PosixMessageQueueGroup,
-	})
+		Username: cli.Config.PosixMessageQueueUser,
+	}
+	pmqSender, err := pmq_responder.NewSender(queueConfig, &ownership)
+	pms = pmqSender
 	if err != nil {
 		cli.Log.Fatal("could not initialize sender: ", err)
 	}
 }
 
 func CloseSender() {
-	pmq_sender.Close()
+	pms.CloseSender()
 }
 
 func sendCmd(cmd *protos.Cmd) {
@@ -47,7 +54,7 @@ func sendCmd(cmd *protos.Cmd) {
 		cli.Log.Fatal("marshaling error: ", err)
 	}
 
-	err = pmq_sender.SendCmd(data, 0)
+	err = pms.Send(data, 0)
 	if err != nil {
 		cli.Log.Fatal(err)
 	}
@@ -56,7 +63,7 @@ func sendCmd(cmd *protos.Cmd) {
 
 func GetResponse() *protos.CmdResp {
 	cli.Log.Debugf("getting response")
-	msg, _, err := pmq_sender.WaitForResponse(time.Second * time.Duration(5))
+	msg, _, err := pms.WaitForResponse(time.Second * time.Duration(5))
 	if err != nil {
 		cli.Log.Fatal(err)
 	}

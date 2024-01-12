@@ -29,6 +29,7 @@ func init() {
 
 func cmdRun(args []string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	if forceKill {
 		base.SendCmdArg2("stop", args[0], "force")
 	} else {
@@ -41,5 +42,4 @@ func cmdRun(args []string) {
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
 	p := model.FromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
-	base.CloseSender()
 }

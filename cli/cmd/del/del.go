@@ -29,6 +29,7 @@ func init() {
 
 func runCmd(args []string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	if forceKill {
 		base.SendCmdArg2("del", args[0], "force")
 	} else {
@@ -40,5 +41,4 @@ func runCmd(args []string) {
 	}
 	p := model.FromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
-	base.CloseSender()
 }

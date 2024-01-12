@@ -1,8 +1,7 @@
 package god
 
 import (
-	"github.com/joe-at-startupmedia/posix_mq"
-	pmq_responder "github.com/joe-at-startupmedia/posix_mq/duplex/responder"
+	"github.com/joe-at-startupmedia/pmq_responder"
 	"os"
 	"os/signal"
 	"pmon3/pmond"
@@ -15,18 +14,27 @@ import (
 	"time"
 )
 
+var pmr *pmq_responder.MqResponder
+
 func New() {
 	if pmond.Config.ShouldHandleInterrupts() {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler()
 	}
-	err := pmq_responder.New("pmon3_mq", pmond.Config.GetPosixMessageQueueDir(), posix_mq.Ownership{
-		Username: pmond.Config.PosixMessageQueueUser,
+	queueConfig := pmq_responder.QueueConfig{
+		Name:  "pmon3_mq",
+		Dir:   pmond.Config.GetPosixMessageQueueDir(),
+		Flags: pmq_responder.O_RDWR | pmq_responder.O_CREAT | pmq_responder.O_NONBLOCK,
+	}
+	ownership := pmq_responder.Ownership{
 		Group:    pmond.Config.PosixMessageQueueGroup,
-	}, posix_mq.O_RDWR|posix_mq.O_CREAT|posix_mq.O_NONBLOCK)
+		Username: pmond.Config.PosixMessageQueueUser,
+	}
+	pmqResponder, err := pmq_responder.NewResponder(queueConfig, &ownership)
 	if err != nil {
 		pmond.Log.Fatal(err)
 	}
+	pmr = pmqResponder
 	runMonitor()
 }
 
@@ -47,7 +55,7 @@ func interruptHandler() {
 		time.Sleep(1 * time.Second)
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		err := pmq_responder.Close()
+		err := pmr.CloseResponder()
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
@@ -62,7 +70,7 @@ func runMonitor() {
 	for {
 		<-timer.C
 		runningTask()
-		err := pmq_responder.HandleRequest(controller.HandleMessage)
+		err := pmr.HandleRequest(controller.HandleMessage)
 		if err != nil {
 			pmond.Log.Warnf("Error handling request: %-v", err)
 		}

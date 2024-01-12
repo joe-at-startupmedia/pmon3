@@ -21,6 +21,7 @@ var Cmd = &cobra.Command{
 
 func cmdRun(args []string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmd("desc", args[0])
 	newCmdResp := base.GetResponse()
 	process := newCmdResp.GetProcess()
@@ -39,5 +40,4 @@ func cmdRun(args []string) {
 		{"updated_at", process.UpdatedAt},
 	}
 	table_desc.Render(rel)
-	base.CloseSender()
 }

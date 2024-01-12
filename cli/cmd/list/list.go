@@ -19,6 +19,7 @@ var Cmd = &cobra.Command{
 
 func Show() {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmd("list", "")
 	newCmdResp := base.GetResponse()
 	all := newCmdResp.GetProcessList().GetProcesses()
@@ -27,6 +28,5 @@ func Show() {
 		process := model.FromProtobuf(p)
 		allProcess = append(allProcess, process.RenderTable())
 	}
-	base.CloseSender()
 	table_list.Render(allProcess)
 }

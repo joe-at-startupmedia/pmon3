@@ -23,11 +23,11 @@ var Cmd = &cobra.Command{
 
 func cmdRun(args []string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmd("log", args[0])
 	newCmdResp := base.GetResponse()
 	logFile := newCmdResp.GetProcess().GetLog()
 	displayLog(logFile)
-	base.CloseSender()
 }
 
 func displayLog(log string) {

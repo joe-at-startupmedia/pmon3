@@ -70,8 +70,10 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.0.1 h1:HjfetcXq097iXP0uoPCdnM4Efp5/9MsM0/M+XOTeR3M=
 github.com/jinzhu/now v1.0.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/joe-at-startupmedia/posix_mq v0.1.0 h1:oAx8COeJq/nyIV1pOjaC24DKxBv8MnBr71PyUGJ2U7k=
-github.com/joe-at-startupmedia/posix_mq v0.1.0/go.mod h1:GophHPEoG4aMbaFcb/2UyXKR7wWyWL4AW+1BoynoIdU=
+github.com/joe-at-startupmedia/pmq_responder v0.0.3 h1:fPdh1ypifbj9mf+9DG6xA0u6xRv3DiWGtrTfItw0/og=
+github.com/joe-at-startupmedia/pmq_responder v0.0.3/go.mod h1:AafJ+TkxsypdNNkMEhz3IHK/xtG4mvy8njXKrqxLfho=
+github.com/joe-at-startupmedia/posix_mq v0.2.0 h1:Heh2WWvNU3P2b7fggZnRBEyJcyG0GSGUhFTBaa9q/YM=
+github.com/joe-at-startupmedia/posix_mq v0.2.0/go.mod h1:GophHPEoG4aMbaFcb/2UyXKR7wWyWL4AW+1BoynoIdU=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
