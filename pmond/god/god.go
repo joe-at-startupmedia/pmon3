@@ -30,7 +30,7 @@ func New() {
 		Group:    pmond.Config.PosixMessageQueueGroup,
 		Username: pmond.Config.PosixMessageQueueUser,
 	}
-	pmqResponder, err := pmq_responder.NewResponder(queueConfig, &ownership)
+	pmqResponder, err := pmq_responder.NewResponder(&queueConfig, &ownership)
 	if err != nil {
 		pmond.Log.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func runMonitor() {
 	for {
 		<-timer.C
 		runningTask()
-		err := pmr.HandleRequest(controller.HandleMessage)
+		err := controller.HandleCmdRequest(pmr)
 		if err != nil {
 			pmond.Log.Warnf("Error handling request: %-v", err)
 		}

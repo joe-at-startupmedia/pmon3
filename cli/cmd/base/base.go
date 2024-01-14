@@ -1,6 +1,7 @@
 package base
 
 import (
+	"fmt"
 	"pmon3/cli"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
@@ -13,7 +14,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var pms *pmq_responder.MqSender
+var pmr *pmq_responder.MqRequester
 
 func IsPmondRunning() bool {
 	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
@@ -37,41 +38,52 @@ func OpenSender() {
 		Group:    cli.Config.PosixMessageQueueGroup,
 		Username: cli.Config.PosixMessageQueueUser,
 	}
-	pmqSender, err := pmq_responder.NewSender(queueConfig, &ownership)
-	pms = pmqSender
+	pmqSender, err := pmq_responder.NewRequester(&queueConfig, &ownership)
+	pmr = pmqSender
 	if err != nil {
 		cli.Log.Fatal("could not initialize sender: ", err)
 	}
 }
 
 func CloseSender() {
-	pms.CloseSender()
+	pmq_responder.CloseRequester(pmr)
 }
 
 func sendCmd(cmd *protos.Cmd) {
-	data, err := proto.Marshal(cmd)
-	if err != nil {
-		cli.Log.Fatal("marshaling error: ", err)
-	}
-
-	err = pms.Send(data, 0)
+	pbm := proto.Message(cmd)
+	err := pmr.RequestUsingProto(&pbm, 0)
 	if err != nil {
 		cli.Log.Fatal(err)
 	}
 	cli.Log.Debugf("Sent a new message: %s", cmd.String())
 }
 
+// protoMessageToCmdResp used to convert a generic protobuf message to a CmdResp
+func protoMessageToCmdResp(pbm *proto.Message) (*protos.CmdResp, error) {
+	msg, err := proto.Marshal(*pbm)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling error: %w", err)
+	}
+	cmdResp := protos.CmdResp{}
+	err = proto.Unmarshal(msg, &cmdResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshaling error: %w", err)
+	}
+	return &cmdResp, nil
+}
+
 func GetResponse() *protos.CmdResp {
 	cli.Log.Debugf("getting response")
-	msg, _, err := pms.WaitForResponse(time.Second * time.Duration(5))
+
+	pbm, _, err := pmr.WaitForProto(&protos.CmdResp{}, time.Second*time.Duration(5))
 	if err != nil {
 		cli.Log.Fatal(err)
 	}
-	newCmdResp := &protos.CmdResp{}
-	err = proto.Unmarshal(msg, newCmdResp)
+	newCmdResp, err := protoMessageToCmdResp(pbm)
 	if err != nil {
-		cli.Log.Fatal("unmarshaling error: ", err)
+		cli.Log.Fatal(err)
 	}
+
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatal(newCmdResp.GetError())
 	}
