@@ -15,29 +15,11 @@ func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
 	}
 }
 
-// protoMessageToCmd used to convert a generic protobuf message to a Cmd protofbuf
-func protoMessageToCmd(pbm *proto.Message) (*protos.Cmd, error) {
-	msg, err := proto.Marshal(*pbm)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling error: %w", err)
-	}
-	cmd := protos.Cmd{}
-	err = proto.Unmarshal(msg, &cmd)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshaling error: %w", err)
-	}
-	return &cmd, nil
-}
-
 // HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type
 func HandleCmdRequest(mqr *pmq_responder.MqResponder) error {
 
-	return mqr.HandleRequestFromProto(&protos.Cmd{}, func(pbm *proto.Message) (processed []byte, err error) {
-
-		cmd, err := protoMessageToCmd(pbm)
-		if err != nil {
-			return nil, err
-		}
+	cmd := &protos.Cmd{}
+	return mqr.HandleRequestFromProto(cmd, func() (processed []byte, err error) {
 
 		var cmdResp *protos.CmdResp
 		switch cmd.GetName() {

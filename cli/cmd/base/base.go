@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"pmon3/cli"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
@@ -58,28 +57,10 @@ func sendCmd(cmd *protos.Cmd) {
 	cli.Log.Debugf("Sent a new message: %s", cmd.String())
 }
 
-// protoMessageToCmdResp used to convert a generic protobuf message to a CmdResp
-func protoMessageToCmdResp(pbm *proto.Message) (*protos.CmdResp, error) {
-	msg, err := proto.Marshal(*pbm)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling error: %w", err)
-	}
-	cmdResp := protos.CmdResp{}
-	err = proto.Unmarshal(msg, &cmdResp)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshaling error: %w", err)
-	}
-	return &cmdResp, nil
-}
-
 func GetResponse() *protos.CmdResp {
 	cli.Log.Debugf("getting response")
-
-	pbm, _, err := pmr.WaitForProto(&protos.CmdResp{}, time.Second*time.Duration(5))
-	if err != nil {
-		cli.Log.Fatal(err)
-	}
-	newCmdResp, err := protoMessageToCmdResp(pbm)
+	newCmdResp := &protos.CmdResp{}
+	_, _, err := pmr.WaitForProto(newCmdResp, time.Second*time.Duration(5))
 	if err != nil {
 		cli.Log.Fatal(err)
 	}
