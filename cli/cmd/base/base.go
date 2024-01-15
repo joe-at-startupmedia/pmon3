@@ -25,6 +25,16 @@ func IsPmondRunning() bool {
 	return false
 }
 
+func handleOpenError(e error) {
+	if e != nil {
+		if strings.Contains(e.Error(), "Could not apply permissions") {
+			cli.Log.Debugf("could not apply sender permissions: %s", e.Error())
+		} else {
+			cli.Log.Fatal("could not initialize sender: ", e.Error())
+		}
+	}
+}
+
 func OpenSender() {
 	if !IsPmondRunning() {
 		cli.Log.Fatal("pmond must be running")
@@ -33,15 +43,14 @@ func OpenSender() {
 		Name: "pmon3_mq",
 		Dir:  cli.Config.GetPosixMessageQueueDir(),
 	}
-	ownership := pmq_responder.Ownership{
-		Group:    cli.Config.PosixMessageQueueGroup,
-		Username: cli.Config.PosixMessageQueueUser,
+	//we delegate ownership to the god daemon
+	pmqSender := pmq_responder.NewRequester(&queueConfig, nil)
+
+	if pmqSender.HasErrors() {
+		handleOpenError(pmqSender.ErrRqst)
+		handleOpenError(pmqSender.ErrResp)
 	}
-	pmqSender, err := pmq_responder.NewRequester(&queueConfig, &ownership)
 	pmr = pmqSender
-	if err != nil {
-		cli.Log.Fatal("could not initialize sender: ", err)
-	}
 }
 
 func CloseSender() {

@@ -21,6 +21,7 @@ func New() {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler()
 	}
+
 	queueConfig := pmq_responder.QueueConfig{
 		Name:  "pmon3_mq",
 		Dir:   pmond.Config.GetPosixMessageQueueDir(),
@@ -30,12 +31,19 @@ func New() {
 		Group:    pmond.Config.PosixMessageQueueGroup,
 		Username: pmond.Config.PosixMessageQueueUser,
 	}
-	pmqResponder, err := pmq_responder.NewResponder(&queueConfig, &ownership)
-	if err != nil {
-		pmond.Log.Fatal(err)
+	pmqResponder := pmq_responder.NewResponder(&queueConfig, &ownership)
+	if pmqResponder.HasErrors() {
+		handleOpenError(pmqResponder.ErrRqst)
+		handleOpenError(pmqResponder.ErrResp)
 	}
 	pmr = pmqResponder
 	runMonitor()
+}
+
+func handleOpenError(e error) {
+	if e != nil {
+		pmond.Log.Fatal("could not initialize sender: ", e.Error())
+	}
 }
 
 var uninterrupted bool = true
@@ -55,7 +63,7 @@ func interruptHandler() {
 		time.Sleep(1 * time.Second)
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		err := pmr.CloseResponder()
+		err := pmr.UnlinkResponder()
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
