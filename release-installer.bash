@@ -39,8 +39,8 @@ systemd_install() {
   sudo systemctl start pmond
   sleep 2
   sudo sh -c "bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
-  sudo chown -R root:$(WHOAMI) /var/log/pmond
-  sudo chmod 660 /var/log/pmond/* || true
+  sudo chown -R "root:${WHOAMI}" /var/log/pmond
+  sudo chmod -R 660 /var/log/pmond/ || true
   ./bin/pmon3 ls
   ./bin/pmon3 --help
 }
