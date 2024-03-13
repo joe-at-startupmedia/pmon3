@@ -2,9 +2,10 @@ package controller
 
 import (
 	"fmt"
+	"pmon3/pmond/protos"
+
 	"github.com/joe-at-startupmedia/pmq_responder"
 	"google.golang.org/protobuf/proto"
-	"pmon3/pmond/protos"
 )
 
 func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
@@ -24,7 +25,9 @@ func HandleCmdRequest(mqr *pmq_responder.MqResponder) error {
 		var cmdResp *protos.CmdResp
 		switch cmd.GetName() {
 		case "log":
+			fallthrough
 		case "logf":
+			fallthrough
 		case "desc":
 			cmdResp = Desc(cmd)
 		case "list":
