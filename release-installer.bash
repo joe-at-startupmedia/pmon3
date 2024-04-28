@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 
 RELEASE=$1
 PROJECT_NAME="pmon3"
