@@ -16,20 +16,6 @@ var Config *conf.Tpl
 var dbOnce sync.Once
 var db *gorm.DB
 
-func init() {
-	Log = logrus.New()
-	if os.Getenv("PMON3_DEBUG") == "true" {
-		Log.SetLevel(logrus.DebugLevel)
-		Log.SetReportCaller(true)
-	} else {
-		Log.SetLevel(logrus.InfoLevel)
-	}
-	Log.SetOutput(os.Stdout)
-	Log.SetFormatter(&logrus.TextFormatter{
-		DisableTimestamp: true,
-	})
-}
-
 func Instance(confDir string) error {
 	tpl, err := conf.Load(confDir)
 	if err != nil {
@@ -37,6 +23,17 @@ func Instance(confDir string) error {
 	}
 
 	Config = tpl
+
+	Log = logrus.New()
+	loglevel := tpl.GetLogrusLevel()
+	if loglevel > logrus.WarnLevel {
+		Log.SetReportCaller(true)
+	}
+	Log.SetLevel(loglevel)
+	Log.SetOutput(os.Stdout)
+	Log.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp: true,
+	})
 
 	return nil
 }

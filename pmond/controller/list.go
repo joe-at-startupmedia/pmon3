@@ -10,7 +10,7 @@ func List(cmd *protos.Cmd) *protos.CmdResp {
 	var all []model.Process
 	err := pmond.Db().Find(&all).Error
 	if err != nil {
-		pmond.Log.Fatalf("pmon3 run err: %v", err)
+		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
 	}
 	newProcessList := protos.ProcessList{}
 	for _, p := range all {

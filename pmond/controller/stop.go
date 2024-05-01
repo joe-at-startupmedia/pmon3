@@ -11,7 +11,7 @@ import (
 
 func Stop(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
-	forced := (cmd.GetArg2() == "force")
+	forced := cmd.GetArg2() == "force"
 	return StopByParams(cmd, idOrName, forced, model.StatusStopped)
 }
 
@@ -39,7 +39,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 		return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 	}
 
-	pmond.Log.Infof("stop process %s success \n", p.Stringify())
+	pmond.Log.Infof("stop process %s success", p.Stringify())
 
 	p.ResetRestartCount()
 

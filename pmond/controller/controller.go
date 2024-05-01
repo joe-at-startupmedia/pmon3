@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/joe-at-startupmedia/goq_responder"
 	"google.golang.org/protobuf/proto"
-	"pmon3/cli"
+	"pmon3/pmond"
 	"pmon3/pmond/protos"
 )
 
@@ -22,7 +22,7 @@ func HandleCmdRequest(mqr *goq_responder.MqResponder, config *goq_responder.Queu
 	cmd := &protos.Cmd{}
 	return mqr.HandleRequestFromProto(cmd, func() (processed []byte, err error) {
 
-		cli.Log.Infof("got a cmd: %s", cmd)
+		pmond.Log.Infof("got a cmd: %s", cmd)
 		var cmdResp *protos.CmdResp
 		switch cmd.GetName() {
 		case "log":

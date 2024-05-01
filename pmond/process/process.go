@@ -61,7 +61,7 @@ func Enqueue(p *model.Process) error {
 }
 
 // currently only invoked by God
-func Restart(p *model.Process) error {
+func Restart(p *model.Process, isInitializing bool) error {
 	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
 			return nil
@@ -69,10 +69,17 @@ func Restart(p *model.Process) error {
 
 		if !p.AutoRestart {
 			if p.Status == model.StatusRunning { // but process is dead, update db state
+				pmond.Log.Errorf("process failed and not restarting: %s", p.Stringify())
 				p.Status = model.StatusFailed
 				pmond.Db().Save(&p)
 			}
 			return nil
+		}
+
+		if isInitializing {
+			pmond.Log.Infof("(re)starting process during initialization: %s", p.Stringify())
+		} else {
+			pmond.Log.Warnf("restarting process: %s", p.Stringify())
 		}
 
 		_, err := proxyWorker(p, "restart")
@@ -125,8 +132,6 @@ func SetUser(runUser string) (*user.User, error) {
 
 func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
-	pmond.Log.Infof("%sing process: %s %s\n", cmd, m.Name, m.ProcessFile)
-
 	var (
 		tb     []string
 		output string
@@ -135,6 +140,7 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 	switch cmd {
 	case "start":
+		pmond.Log.Infof("starting process: %s", m.Stringify())
 		output, err = workerStart(m)
 	case "restart":
 		output, err = workerRestart(m)

@@ -6,6 +6,8 @@
 data: "/etc/pmon3/data"
 # logs dir
 logs: "/var/log/pmond"
+# log levels: info/warn/error
+log_level: "debug"
 # kill processes on termintation
 handle_interrupts: true
 # wait [n] milliseconds before outputing list after running init/stop/restart/kill/drop/exec

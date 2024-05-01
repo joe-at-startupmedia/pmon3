@@ -1,7 +1,9 @@
 package conf
 
 import (
+	"github.com/sirupsen/logrus"
 	"log"
+	"os"
 	"time"
 )
 
@@ -11,6 +13,7 @@ type Tpl struct {
 	HandleInterrupts    bool   `yaml:"handle_interrupts"`
 	CmdExecResponseWait int64  `yaml:"cmd_exec_response_wait"`
 	IpcConnectionWait   int64  `yaml:"ipc_connection_wait"`
+	LogLevel            string `yaml:"log_level"`
 	ConfigFile          string
 }
 
@@ -41,5 +44,25 @@ func (c *Tpl) GetIpcConnectionWait() time.Duration {
 	} else {
 		log.Println("ipc_connection_wait configuration value must be between 0 and 5000 ms")
 		return 200 * time.Millisecond
+	}
+}
+
+func (c *Tpl) GetLogrusLevel() logrus.Level {
+	if os.Getenv("PMON3_DEBUG") == "true" {
+		return logrus.DebugLevel
+	} else {
+		switch c.LogLevel {
+		case "debug":
+			return logrus.DebugLevel
+		case "info":
+			return logrus.InfoLevel
+		case "warn":
+			return logrus.WarnLevel
+		case "error":
+			return logrus.ErrorLevel
+		}
+
+		log.Println("log_level configuration is empty or invalid. Possible values include: debug, info, warn and error. using default level: info")
+		return logrus.InfoLevel
 	}
 }

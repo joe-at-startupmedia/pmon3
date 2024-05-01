@@ -56,9 +56,9 @@ func interruptHandler() {
 		syscall.SIGQUIT)
 	go func() {
 		s := <-sigc
-		pmond.Log.Debugf("Captured interrupt: %s \n", s)
+		pmond.Log.Infof("Captured interrupt: %s", s)
 		uninterrupted = false
-		//wait for the inifity loop to break
+		//wait for the infinity loop to break
 		time.Sleep(1 * time.Second)
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
@@ -74,14 +74,20 @@ func interruptHandler() {
 func runMonitor() {
 
 	timer := time.NewTicker(time.Millisecond * 500)
+	isInitializing := true
+
+	go func() {
+		time.Sleep(30 * time.Second)
+		isInitializing = false
+	}()
 
 	go func() {
 		for {
 			<-timer.C
-			pmond.Log.Debugf("running request handler:\n")
+			pmond.Log.Debug("running request handler")
 			err := controller.HandleCmdRequest(pmr, &queueConfig) //blocking
 			if err != nil {
-				pmond.Log.Warnf("Error handling request: %-v", err)
+				pmond.Log.Errorf("Error handling request: %-v", err)
 			}
 			if !uninterrupted {
 				break
@@ -90,15 +96,13 @@ func runMonitor() {
 	}()
 	for {
 		<-timer.C
-		runningTask()
+		runningTask(isInitializing)
 	}
-	//wait for the interrupt handler to complete
-	time.Sleep(5 * time.Second)
 }
 
 var pendingTask sync.Map
 
-func runningTask() {
+func runningTask(isInitializing bool) {
 	var all []model.Process
 	err := pmond.Db().Find(&all, "status in (?, ?, ?, ?)",
 		model.StatusRunning,
@@ -124,28 +128,29 @@ func runningTask() {
 			}()
 			err = pmond.Db().First(&cur, q.ID).Error
 			if err != nil {
+				pmond.Log.Infof("Task monitor could not find process in database: %d", q.ID)
 				return
 			}
 
 			if cur.Status == model.StatusRunning || cur.Status == model.StatusFailed || cur.Status == model.StatusClosed {
-				//only processes older than 5 seconds can be restarted
 				if time.Since(cur.UpdatedAt).Seconds() <= 5 {
+					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", q.Stringify())
 					return
 				}
 
-				err = process.Restart(&cur)
+				err = process.Restart(&cur, isInitializing)
 				if err != nil {
-					pmond.Log.Error(err)
+					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", q.Stringify(), err)
 				}
 			} else if cur.Status == model.StatusQueued {
-				//only processes older than 1 seconds can be enqueued
 				if time.Since(cur.UpdatedAt).Seconds() <= 1 {
+					pmond.Log.Debugf("Only processes older than 1 second can be enqueued: %s", q.Stringify())
 					return
 				}
 
 				err = process.Enqueue(&cur)
 				if err != nil {
-					pmond.Log.Error(err)
+					pmond.Log.Errorf("task monitor encountered error attempting to enqueue process(%s): %s", q.Stringify(), err)
 				}
 			}
 
