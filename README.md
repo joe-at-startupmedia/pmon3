@@ -138,7 +138,7 @@ Parameter arguments need to use the absolute path。
 pmon3 ls
 ```
 
-#### (re)tart the process [ restart/start ]
+#### (re)start the process [ restart/start ]
 
 ```
 pmon3 restart [id or name]
