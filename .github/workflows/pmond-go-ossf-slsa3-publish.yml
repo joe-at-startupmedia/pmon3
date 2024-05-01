@@ -35,7 +35,7 @@ jobs:
           - linux
         arch:
           - amd64
-    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v1.4.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0
     with:
       go-version: 1.21
       config-file: .slsa-goreleaser/pmond-${{matrix.os}}-${{matrix.arch}}.yml
