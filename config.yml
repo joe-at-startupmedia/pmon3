@@ -8,11 +8,7 @@ data: "/etc/pmon3/data"
 logs: "/var/log/pmond"
 # kill processes on termintation
 handle_interrupts: true
-# wait [n] milliseconds before outputing list after exec cmd
+# wait [n] milliseconds before outputing list after running init/stop/restart/kill/drop/exec
 cmd_exec_response_wait: 1500
-# specify a custom posix_mq directory in order to apply the appropriate permissions
-posix_mq_dir: /dev/mqueue/ #default value when empty
-# specify a custom user to access files in posix_mq_dir
-posix_mq_user: null
-# specify a custom group to access files in posix_mq_dir (must also provide a user)
-posix_mq_group: null
+# wait [n] milliseconds after connecting to IPC client before issuing commands
+ipc_connection_wait: 200

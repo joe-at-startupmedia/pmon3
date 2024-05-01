@@ -138,7 +138,7 @@ Parameter arguments need to use the absolute path。
 pmon3 ls
 ```
 
-#### (re)tart the process [ restart ]
+#### (re)tart the process [ restart/start ]
 
 ```
 pmon3 restart [id or name]
@@ -244,6 +244,3 @@ make systemd_permissions
 ```
 pmon3 exec /usr/local/bin/happac --user root
 ```
-
-### 6. /lib64/libc.so.6: version `GLIBC_2.34' not found (required by ./bin/pmon3)
-Due to the `posix_mq` dependency required for IPC, the binary must be compiled with `CGO_ENABLED=1`. If the machine where the binary was built has a different version of GLIBC than the target machine, this error will occur. The only solution is to build from source on the target machine.

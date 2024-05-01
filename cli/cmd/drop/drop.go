@@ -28,6 +28,8 @@ func init() {
 // show all process list
 func Drop() {
 	base.OpenSender()
+	defer base.CloseSender()
+
 	if forceKill {
 		base.SendCmd("drop", "force")
 	} else {
@@ -38,6 +40,5 @@ func Drop() {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
 	list.Show()
 }

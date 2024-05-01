@@ -13,9 +13,10 @@ import (
 var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
-	Use:   "restart [id or name]",
-	Short: "Restart a process by id or name",
-	Args:  cobra.ExactArgs(1),
+	Use:     "restart [id or name]",
+	Short:   "Restart a process by id or name",
+	Aliases: []string{"start"},
+	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args, flag.Json())
 	},
@@ -31,12 +32,12 @@ func init() {
 
 func cmdRun(args []string, flags string) {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmdArg2("restart", args[0], flags)
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
 	list.Show()
 }

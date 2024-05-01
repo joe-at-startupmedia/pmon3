@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"pmon3/pmond/protos"
-
-	"github.com/joe-at-startupmedia/pmq_responder"
+	"github.com/joe-at-startupmedia/goq_responder"
 	"google.golang.org/protobuf/proto"
+	"pmon3/cli"
+	"pmon3/pmond/protos"
 )
 
 func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
@@ -17,11 +17,12 @@ func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
 }
 
 // HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type
-func HandleCmdRequest(mqr *pmq_responder.MqResponder) error {
+func HandleCmdRequest(mqr *goq_responder.MqResponder, config *goq_responder.QueueConfig) error {
 
 	cmd := &protos.Cmd{}
 	return mqr.HandleRequestFromProto(cmd, func() (processed []byte, err error) {
 
+		cli.Log.Infof("got a cmd: %s", cmd)
 		var cmdResp *protos.CmdResp
 		switch cmd.GetName() {
 		case "log":

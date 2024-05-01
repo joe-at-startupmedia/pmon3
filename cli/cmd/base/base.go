@@ -9,11 +9,11 @@ import (
 
 	"github.com/goinbox/shell"
 	"github.com/google/uuid"
-	"github.com/joe-at-startupmedia/pmq_responder"
+	"github.com/joe-at-startupmedia/goq_responder"
 	"google.golang.org/protobuf/proto"
 )
 
-var pmr *pmq_responder.MqRequester
+var pmr *goq_responder.MqRequester
 
 func IsPmondRunning() bool {
 	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
@@ -39,22 +39,24 @@ func OpenSender() {
 	if !IsPmondRunning() {
 		cli.Log.Fatal("pmond must be running")
 	}
-	queueConfig := pmq_responder.QueueConfig{
-		Name: "pmon3_mq",
-		Dir:  cli.Config.GetPosixMessageQueueDir(),
+	queueConfig := goq_responder.QueueConfig{
+		Name:          "pmon3_mq",
+		UseEncryption: false,
 	}
-	//we delegate ownership to the god daemon
-	pmqSender := pmq_responder.NewRequester(&queueConfig, nil)
+
+	pmqSender := goq_responder.NewRequester(&queueConfig)
+	cli.Log.Debugf("Waiting %d ms before contacting pmond: ", cli.Config.GetIpcConnectionWait())
+	time.Sleep(cli.Config.GetIpcConnectionWait())
 
 	if pmqSender.HasErrors() {
 		handleOpenError(pmqSender.ErrRqst)
-		handleOpenError(pmqSender.ErrResp)
 	}
+
 	pmr = pmqSender
 }
 
 func CloseSender() {
-	pmq_responder.CloseRequester(pmr)
+	goq_responder.CloseRequester(pmr)
 }
 
 func sendCmd(cmd *protos.Cmd) {
@@ -69,7 +71,21 @@ func sendCmd(cmd *protos.Cmd) {
 func GetResponse() *protos.CmdResp {
 	cli.Log.Debugf("getting response")
 	newCmdResp := &protos.CmdResp{}
-	_, _, err := pmr.WaitForProto(newCmdResp, time.Second*time.Duration(5))
+
+	stop := make(chan int)
+	go func() {
+		for {
+			select {
+			case <-time.After(5 * time.Second):
+				cli.Log.Fatal("operation timed out")
+			case <-stop:
+				return
+			}
+		}
+	}()
+
+	_, _, err := pmr.WaitForProto(newCmdResp)
+	stop <- 0
 	if err != nil {
 		cli.Log.Fatal(err)
 	}
@@ -78,6 +94,7 @@ func GetResponse() *protos.CmdResp {
 		cli.Log.Fatal(newCmdResp.GetError())
 	}
 	cli.Log.Debugf("Got a new response: %s", newCmdResp.String())
+
 	return newCmdResp
 }
 

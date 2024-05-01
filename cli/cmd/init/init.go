@@ -20,12 +20,12 @@ var Cmd = &cobra.Command{
 
 func Initialize() {
 	base.OpenSender()
+	defer base.CloseSender()
 	base.SendCmd("init", "")
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
 	list.Show()
 }

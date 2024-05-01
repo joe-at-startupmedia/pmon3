@@ -1,7 +1,7 @@
 package god
 
 import (
-	"github.com/joe-at-startupmedia/pmq_responder"
+	"github.com/joe-at-startupmedia/goq_responder"
 	"os"
 	"os/signal"
 	"pmon3/pmond"
@@ -14,7 +14,13 @@ import (
 	"time"
 )
 
-var pmr *pmq_responder.MqResponder
+var pmr *goq_responder.MqResponder
+
+var queueConfig = goq_responder.QueueConfig{
+	Name:              "pmon3_mq",
+	UseEncryption:     false,
+	UnmaskPermissions: true,
+}
 
 func New() {
 	if pmond.Config.ShouldHandleInterrupts() {
@@ -22,21 +28,14 @@ func New() {
 		interruptHandler()
 	}
 
-	queueConfig := pmq_responder.QueueConfig{
-		Name:  "pmon3_mq",
-		Dir:   pmond.Config.GetPosixMessageQueueDir(),
-		Flags: pmq_responder.O_RDWR | pmq_responder.O_CREAT | pmq_responder.O_NONBLOCK,
-	}
-	ownership := pmq_responder.Ownership{
-		Group:    pmond.Config.PosixMessageQueueGroup,
-		Username: pmond.Config.PosixMessageQueueUser,
-	}
-	pmqResponder := pmq_responder.NewResponder(&queueConfig, &ownership)
+	pmqResponder := goq_responder.NewResponder(&queueConfig)
 	if pmqResponder.HasErrors() {
-		handleOpenError(pmqResponder.ErrRqst)
 		handleOpenError(pmqResponder.ErrResp)
 	}
 	pmr = pmqResponder
+
+	time.Sleep(5 * time.Second)
+
 	runMonitor()
 }
 
@@ -63,7 +62,7 @@ func interruptHandler() {
 		time.Sleep(1 * time.Second)
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		err := pmr.UnlinkResponder()
+		err := pmr.CloseResponder()
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
@@ -75,16 +74,23 @@ func interruptHandler() {
 func runMonitor() {
 
 	timer := time.NewTicker(time.Millisecond * 500)
+
+	go func() {
+		for {
+			<-timer.C
+			pmond.Log.Debugf("running request handler:\n")
+			err := controller.HandleCmdRequest(pmr, &queueConfig) //blocking
+			if err != nil {
+				pmond.Log.Warnf("Error handling request: %-v", err)
+			}
+			if !uninterrupted {
+				break
+			}
+		}
+	}()
 	for {
 		<-timer.C
 		runningTask()
-		err := controller.HandleCmdRequest(pmr)
-		if err != nil {
-			pmond.Log.Warnf("Error handling request: %-v", err)
-		}
-		if !uninterrupted {
-			break
-		}
 	}
 	//wait for the interrupt handler to complete
 	time.Sleep(5 * time.Second)

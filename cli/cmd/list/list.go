@@ -13,13 +13,14 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"list"},
 	Short:   "List all processes",
 	Run: func(cmd *cobra.Command, args []string) {
+		base.OpenSender()
 		Show()
+		base.CloseSender()
 	},
 }
 
 func Show() {
-	base.OpenSender()
-	defer base.CloseSender()
+
 	base.SendCmd("list", "")
 	newCmdResp := base.GetResponse()
 	all := newCmdResp.GetProcessList().GetProcesses()

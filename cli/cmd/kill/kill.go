@@ -29,6 +29,8 @@ func init() {
 
 func Kill(processStatus model.ProcessStatus) {
 	base.OpenSender()
+	defer base.CloseSender()
+
 	if forceKill {
 		base.SendCmd("kill", "force")
 	} else {
@@ -39,6 +41,5 @@ func Kill(processStatus model.ProcessStatus) {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
 	list.Show()
 }
