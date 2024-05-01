@@ -1,9 +1,5 @@
 version: 1
 
-env:
-  - GO111MODULE=on
-  - CGO_ENABLED=1
-
 main: cmd/pmon3/pmon3.go
 
 goos: linux
