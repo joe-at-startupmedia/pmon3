@@ -28,6 +28,12 @@ func New() {
 		interruptHandler()
 	}
 
+	connectResponder()
+
+	runMonitor()
+}
+
+func connectResponder() {
 	pmqResponder := goq_responder.NewResponder(&queueConfig)
 	if pmqResponder.HasErrors() {
 		handleOpenError(pmqResponder.ErrResp)
@@ -35,8 +41,6 @@ func New() {
 	pmr = pmqResponder
 
 	time.Sleep(5 * time.Second)
-
-	runMonitor()
 }
 
 func handleOpenError(e error) {
@@ -81,24 +85,28 @@ func runMonitor() {
 	}()
 
 	go func() {
-		timer := time.NewTicker(time.Millisecond * 500)
+		timer := time.NewTicker(time.Millisecond * 5000)
 		for {
 			<-timer.C
+			if !uninterrupted {
+				break
+			}
 			pmond.Log.Debugf("server status: %s", pmr.MqResp.Status())
 		}
 	}()
 
 	go func() {
-		timer := time.NewTicker(time.Millisecond * 500)
+		//see https://github.com/joe-at-startupmedia/golang-ipc/issues/1
+		//timer := time.NewTicker(time.Millisecond * 1000)
 		for {
-			<-timer.C
+			//<-timer.C
+			if !uninterrupted {
+				break
+			}
 			pmond.Log.Debug("running request handler")
 			err := controller.HandleCmdRequest(pmr, &queueConfig) //blocking
 			if err != nil {
 				pmond.Log.Errorf("Error handling request: %-v", err)
-			}
-			if !uninterrupted {
-				break
 			}
 		}
 	}()
@@ -106,6 +114,9 @@ func runMonitor() {
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C
+		if !uninterrupted {
+			break
+		}
 		runningTask(isInitializing)
 	}
 }
@@ -113,6 +124,11 @@ func runMonitor() {
 var pendingTask sync.Map
 
 func runningTask(isInitializing bool) {
+
+	if !uninterrupted {
+		return
+	}
+
 	var all []model.Process
 	err := pmond.Db().Find(&all, "status in (?, ?, ?, ?)",
 		model.StatusRunning,

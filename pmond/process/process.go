@@ -29,7 +29,12 @@ func IsRunning(pid uint32) bool {
 }
 
 func findPidFromPsCmd(p *model.Process) uint32 {
-	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $2}'", p.Name, p.Args))
+	var rel *shell.ShellResult
+	if len(p.Args) > 0 {
+		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $2}'", p.Name, p.Args))
+	} else {
+		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s$' | grep -v grep | awk '{print $2}'", p.Name))
+	}
 	if rel.Ok {
 		newPidStr := strings.TrimSpace(string(rel.Output))
 		newPid := conv.StrToUint32(newPidStr)
@@ -40,7 +45,12 @@ func findPidFromPsCmd(p *model.Process) uint32 {
 }
 
 func findPpidFromPsCmd(p *model.Process) uint32 {
-	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $3}'", p.Name, p.Args))
+	var rel *shell.ShellResult
+	if len(p.Args) > 0 {
+		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $3}'", p.Name, p.Args))
+	} else {
+		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s$' | grep -v grep | awk '{print $3}'", p.Name))
+	}
 	if rel.Ok {
 		newPpidStr := strings.TrimSpace(string(rel.Output))
 		newPpid := conv.StrToUint32(newPpidStr)
