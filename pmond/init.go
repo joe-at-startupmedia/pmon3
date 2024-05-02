@@ -55,6 +55,9 @@ func Db() *gorm.DB {
 		}
 		db = initDb
 
+		sqldb, err := db.DB()
+		sqldb.SetMaxOpenConns(1)
+
 		// init table
 		if !db.Migrator().HasTable(&model.Process{}) {
 			db.Migrator().CreateTable(&model.Process{})

@@ -28,17 +28,42 @@ func IsRunning(pid uint32) bool {
 	return true
 }
 
-// used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
-func updatedFromPsCmd(p *model.Process) bool {
-	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s ' | grep -v grep | awk '{print $2}'", p.Name))
+func findPidFromPsCmd(p *model.Process) uint32 {
+	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $2}'", p.Name, p.Args))
 	if rel.Ok {
 		newPidStr := strings.TrimSpace(string(rel.Output))
 		newPid := conv.StrToUint32(newPidStr)
-		if newPid != 0 && newPid != p.Pid {
-			p.Pid = newPid
-			p.Status = model.StatusRunning
-			return pmond.Db().Save(&p).Error == nil
+		return newPid
+	}
+
+	return 0
+}
+
+func findPpidFromPsCmd(p *model.Process) uint32 {
+	rel := shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $3}'", p.Name, p.Args))
+	if rel.Ok {
+		newPpidStr := strings.TrimSpace(string(rel.Output))
+		newPpid := conv.StrToUint32(newPpidStr)
+		return newPpid
+	}
+
+	return 0
+}
+
+// used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
+func updatedFromPsCmd(p *model.Process) bool {
+
+	newPid := findPidFromPsCmd(p)
+
+	if newPid != 0 && newPid != p.Pid {
+		newPpid := findPpidFromPsCmd(p)
+		if newPpid == 1 {
+			pmond.Log.Errorf("Detected orphan process with the same process name: %s pid: %d", p.Name, newPid)
+			return true
 		}
+		p.Pid = newPid
+		p.Status = model.StatusRunning
+		return pmond.Db().Save(&p).Error == nil
 	}
 
 	return false

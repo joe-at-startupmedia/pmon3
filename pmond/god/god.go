@@ -73,7 +73,6 @@ func interruptHandler() {
 
 func runMonitor() {
 
-	timer := time.NewTicker(time.Millisecond * 500)
 	isInitializing := true
 
 	go func() {
@@ -82,6 +81,15 @@ func runMonitor() {
 	}()
 
 	go func() {
+		timer := time.NewTicker(time.Millisecond * 500)
+		for {
+			<-timer.C
+			pmond.Log.Debugf("server status: %s", pmr.MqResp.Status())
+		}
+	}()
+
+	go func() {
+		timer := time.NewTicker(time.Millisecond * 500)
 		for {
 			<-timer.C
 			pmond.Log.Debug("running request handler")
@@ -94,6 +102,8 @@ func runMonitor() {
 			}
 		}
 	}()
+
+	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C
 		runningTask(isInitializing)
