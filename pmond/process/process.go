@@ -19,7 +19,7 @@ import (
 func IsRunning(pid uint32) bool {
 	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", pid))
 
-	//if it doesnt exist in proc/n/status ask the OS
+	//if it doesn't exist in proc/n/status ask the OS
 	if err != nil {
 		//it's running if it exists
 		return !os.IsNotExist(err)
@@ -44,7 +44,6 @@ func updatedFromPsCmd(p *model.Process) bool {
 	return false
 }
 
-// currently only invoked by God
 func Enqueue(p *model.Process) error {
 	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
 		if updatedFromPsCmd(p) {
@@ -60,7 +59,6 @@ func Enqueue(p *model.Process) error {
 	return nil
 }
 
-// currently only invoked by God
 func Restart(p *model.Process, isInitializing bool) error {
 	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {

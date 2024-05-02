@@ -6,9 +6,9 @@ import (
 	"pmon3/pmond/model"
 	"sync"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/joe-at-startupmedia/sqlite"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 var Log *logrus.Logger
@@ -49,19 +49,19 @@ func Db() *gorm.DB {
 			}
 		}
 
-		initDb, err := gorm.Open("sqlite3", pmondDbDir+"/data.db")
+		initDb, err := gorm.Open(sqlite.Open(pmondDbDir+"/data.db"), &gorm.Config{})
 		if err != nil {
 			panic(err)
 		}
 		db = initDb
 
 		// init table
-		if !db.HasTable(&model.Process{}) {
-			db.CreateTable(&model.Process{})
+		if !db.Migrator().HasTable(&model.Process{}) {
+			db.Migrator().CreateTable(&model.Process{})
 		}
 
-		if !db.HasTable(&model.Pmond{}) {
-			db.CreateTable(&model.Pmond{})
+		if !db.Migrator().HasTable(&model.Pmond{}) {
+			db.Migrator().CreateTable(&model.Pmond{})
 		}
 
 		// sync data
