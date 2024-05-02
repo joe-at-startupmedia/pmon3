@@ -114,9 +114,6 @@ func runMonitor() {
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C
-		if !uninterrupted {
-			break
-		}
 		runningTask(isInitializing)
 	}
 }
@@ -124,10 +121,6 @@ func runMonitor() {
 var pendingTask sync.Map
 
 func runningTask(isInitializing bool) {
-
-	if !uninterrupted {
-		return
-	}
 
 	var all []model.Process
 	err := pmond.Db().Find(&all, "status in (?, ?, ?, ?)",
