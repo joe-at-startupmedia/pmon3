@@ -45,7 +45,7 @@ func OpenSender() {
 	}
 
 	pmqSender := goq_responder.NewRequester(&queueConfig)
-	cli.Log.Debugf("Waiting %d ms before contacting pmond: ", cli.Config.GetIpcConnectionWait())
+	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())
 
 	if pmqSender.HasErrors() {

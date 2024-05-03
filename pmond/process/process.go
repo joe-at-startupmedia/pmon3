@@ -8,6 +8,7 @@ import (
 	"os/user"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/observer"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 	"strings"
@@ -102,7 +103,10 @@ func Restart(p *model.Process, isInitializing bool) error {
 
 		if !p.AutoRestart {
 			if p.Status == model.StatusRunning { // but process is dead, update db state
-				pmond.Log.Errorf("process failed and not restarting: %s", p.Stringify())
+				observer.HandleEvent(&observer.Event{
+					Type:    observer.FailedEvent,
+					Process: p,
+				})
 				p.Status = model.StatusFailed
 				pmond.Db().Save(&p)
 			}
@@ -112,7 +116,10 @@ func Restart(p *model.Process, isInitializing bool) error {
 		if isInitializing {
 			pmond.Log.Infof("(re)starting process during initialization: %s", p.Stringify())
 		} else {
-			pmond.Log.Warnf("restarting process: %s", p.Stringify())
+			observer.HandleEvent(&observer.Event{
+				Type:    observer.RestartEvent,
+				Process: p,
+			})
 		}
 
 		_, err := proxyWorker(p, "restart")

@@ -3,25 +3,6 @@
 
 <img width="726" alt="pmon3 help" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6f266ccf-7a14-4afc-b626-cbd53e245bc1">
 
-## Start Process
-
-```
-Usage:
-  pmon3 exec [application_binary] [flags]
-
-Aliases:
-  exec, run
-
-Flags:
-  -a, --args string      the processes extra arguments
-  -h, --help             help for exec
-  -l, --log string       the processes stdout log
-  -d, --log_dir string   the processes stdout log dir
-      --name string      the processes name
-  -n, --no-autorestart   do not restart upon process failure
-  -u, --user string      the processes run user
-```
-
 ## Introduction
 
 Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
@@ -189,12 +170,75 @@ pmon3 init
 pmon3 drop [--force]
 ```
 
-## Development
+## Event Handling With Custom Scripts
 
-### Testing
-```shell
-make test
+```yaml
+# a script to execute when a process is restarted which accepts the process details json as the first argument
+on_process_restart_exec: ""
+# a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+on_process_failure_exec: ""
 ```
+
+#### 1. Specify the executable script to run for the `on_process_restart_exec` value. pmond will pass a json-escaped string of the process details as the first argument.
+#### /etc/pmond/config/config.yaml
+```yaml
+on_process_restart_exec: "/etc/pmon3/bin/on_restart.bash"
+```
+
+#### 2. create the script to accept the json-escaped process details:
+#### /etc/pmon3/bin/on_restart.bash
+```bash
+PROCESS_JSON="$1"
+PROCESS_ID=$(echo "${PROCESS_JSON}" | jq '.id')
+PROCESS_NAME=$(echo "${PROCESS_JSON}" | jq '.name')
+echo "process restarted: ${PROCESS_ID} - ${PROCESS_NAME}" >> /var/log/pmond/output.log
+```
+
+#### 3. start pmond in debug mode
+```bash 
+$ PMON3_DEBUG=true pmond
+INFO/vagrant/go_src/pmon3/pmond/observer/observer.go:29 pmon3/pmond/observer.HandleEvent() Received event: &{restarted 0xc0001da630}
+WARN/vagrant/go_src/pmon3/pmond/observer/observer.go:47 pmon3/pmond/observer.onRestartEvent() restarting process: happac3 (3)
+DEBU/vagrant/go_src/pmon3/pmond/observer/observer.go:70 pmon3/pmond/observer.onEventExec() Attempting event executor(restarted): /etc/pmon3/bin/on_restart.bash "{\"id\":3,\"created_at\":\"2024-05-03T05:44:25.114957302Z\",\"updated_at\":\"2024-05-03T06:09:18.71222185Z\",\"pid\":4952,\"log\":\"/var/log/pmond/acf3f83.log\",\"name\":\"happac3\",\"process_file\":\"/usr/local/bin/happac\",\"args\":\"-h startup-patroni-1.node.consul -p 5557 -r 5002\",\"status\":2,\"auto_restart\":true,\"uid\":1000,\"username\":\"vagrant\",\"gid\":1000}"
+```
+
+#### 4. confirm the script executed successfully
+```bash
+$ tail /var/log/pmond/output.log
+process restarted: 4 - "happac4"
+```
+
+## Debugging
+
+### Environment Variables
+
+You can specify debug verbosity from both the pmon3 client and the pmond daemon process using `PMON3_DEBUG=true` as an environment vairable. This will set the Logrus level to `debug`
+
+```bash
+PMON3_DEBUG=true pmond 
+```
+
+You can also debug the underlying IPC library using `QOG_DEBUG=true`
+
+```bash
+QOG_DEBUG=true PMON3_DEBUG=true pmon3 ls
+```
+
+### Configuration File
+
+If you want more control over the verbosity you can set the loglevel in the yaml configuration file.
+
+##### /etc/pmond/config/config.yaml
+```
+# log levels: debug/info/warn/error
+log_level: "info"
+```
+
+If you do not specify a value, `info` will be the default Logrus level.
+
+## CGO_ENABLED=0
+
+No underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC. Benchmarking has been peformed with no noticable performance implications.
 
 ## Common Problems
 

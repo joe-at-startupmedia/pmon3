@@ -8,13 +8,15 @@ import (
 )
 
 type Tpl struct {
-	Data                string `yaml:"data"`
-	Logs                string `yaml:"logs"`
-	HandleInterrupts    bool   `yaml:"handle_interrupts"`
-	CmdExecResponseWait int64  `yaml:"cmd_exec_response_wait"`
-	IpcConnectionWait   int64  `yaml:"ipc_connection_wait"`
-	LogLevel            string `yaml:"log_level"`
-	ConfigFile          string
+	Data                 string `yaml:"data"`
+	Logs                 string `yaml:"logs"`
+	HandleInterrupts     bool   `yaml:"handle_interrupts"`
+	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait"`
+	IpcConnectionWait    int64  `yaml:"ipc_connection_wait"`
+	LogLevel             string `yaml:"log_level"`
+	OnProcessRestartExec string `yaml:"on_process_restart_exec"`
+	OnProcessFailureExec string `yaml:"on_process_failure_exec"`
+	ConfigFile           string
 }
 
 func (c *Tpl) GetDataDir() string {

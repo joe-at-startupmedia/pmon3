@@ -40,7 +40,7 @@ func connectResponder() {
 	}
 	pmr = pmqResponder
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * time.Second) //allows responder to establish connection
 }
 
 func handleOpenError(e error) {
@@ -62,15 +62,14 @@ func interruptHandler() {
 		s := <-sigc
 		pmond.Log.Infof("Captured interrupt: %s", s)
 		uninterrupted = false
-		//wait for the infinity loop to break
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Second) //wait for the infinity loop to break
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
 		err := pmr.CloseResponder()
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Second) //wait for responder to close before exiting
 		os.Exit(0)
 	}()
 }

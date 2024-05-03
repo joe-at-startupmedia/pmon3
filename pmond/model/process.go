@@ -137,17 +137,17 @@ func (process *Process) Save(db *gorm.DB) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("pmon3 run err: %w", err)
 	}
-
 	output, err := json.Marshal(process.RenderTable())
-	if err != nil {
-		return "", err
-	}
-
-	return string(output), nil
+	return string(output), err
 }
 
 func (p Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
+}
+
+func (p *Process) Json() (string, error) {
+	output, err := json.Marshal(p)
+	return string(output), err
 }
 
 func (p *Process) GetIdStr() string {
