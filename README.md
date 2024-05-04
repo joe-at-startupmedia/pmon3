@@ -236,9 +236,31 @@ log_level: "info"
 
 If you do not specify a value, `info` will be the default Logrus level.
 
-## CGO_ENABLED=0
+## Performance Prioritization
 
-No underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC. Benchmarking has been peformed with no noticable performance implications.
+### CGO_ENABLED=0
+
+By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC. Benchmarking has been peformed with less memory and CPU utilization compared to using libraries which to require `CGO_ENABLED=1`.
+
+### posix_mq
+
+The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with `posix_mq`. `posix_mq` does require `CGO_ENABLED=1` and it considerably faster but it also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
+```bash
+BUILD_TAGS="posix_mq" make build-cgo
+```
+
+### CGO-based Sqlite
+
+By default, `pmon3` utilizes an non-CGO version of sqlite which is unnoticably less performant in most circumstances. To enable the CGO version of sqlite:
+```bash
+BUILD_TAGS="cgo_sqlite" make build-cgo
+```
+
+If you enable `posix_mq`, you might as well enable `cgo_sqlite` since `CGO_ENABLED=1` is required for either module. It depends on your requirements whether or not you need one, the other or both. To enable both of these CGO-dependent modules for maximizing overall performance:
+
+```bash
+BUILD_TAGS="posix_mq,cgo_sqlite" make build-cgo
+```
 
 ## Common Problems
 
