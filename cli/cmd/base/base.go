@@ -3,27 +3,15 @@ package base
 import (
 	"pmon3/cli"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
 	"strings"
 	"time"
 
-	"github.com/goinbox/shell"
 	"github.com/google/uuid"
 	"github.com/joe-at-startupmedia/goq_responder"
 	"google.golang.org/protobuf/proto"
 )
 
 var pmr *goq_responder.MqRequester
-
-func IsPmondRunning() bool {
-	rel := shell.RunCmd("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | head -n 1")
-	if rel.Ok {
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := conv.StrToUint32(newPidStr)
-		return newPid != 0
-	}
-	return false
-}
 
 func handleOpenError(e error) {
 	if e != nil {
@@ -36,9 +24,7 @@ func handleOpenError(e error) {
 }
 
 func OpenSender() {
-	if !IsPmondRunning() {
-		cli.Log.Fatal("pmond must be running")
-	}
+
 	queueConfig := goq_responder.QueueConfig{
 		Name:          "pmon3_mq",
 		UseEncryption: false,

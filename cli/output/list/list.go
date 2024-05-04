@@ -63,23 +63,21 @@ func GetStatusColor(status string) string {
 }
 
 func NewModel(tbData [][]string) Model {
-	columns := []table.Column{
-		table.NewColumn(columnKeyID, columnKeyID, 5).WithStyle(
-			lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#afaf00")).
-				Align(lipgloss.Center)),
-		table.NewColumn(columnKeyName, "Name", 15),
-		table.NewColumn(columnKeyPid, "PID", 10),
-		table.NewColumn(columnKeyRestartCount, "⟳", 3),
-		table.NewColumn(columnKeyStatus, columnKeyStatus, 10),
-		table.NewColumn(columnKeyUser, columnKeyUser, 15),
-		table.NewColumn(columnKeyCpu, "CPU", 5),
-		table.NewColumn(columnKeyMem, columnKeyMem, 10),
-		table.NewColumn(columnKeyDate, columnKeyDate, 20),
+
+	//min column sizing
+	widthData := [9]int{
+		2,
+		5,
+		3,
+		1,
+		6,
+		5,
+		4,
+		7,
+		19,
 	}
 
 	var rows []table.Row
-
 	for _, row := range tbData {
 		rows = append(rows, table.NewRow(table.RowData{
 			columnKeyID:           row[0],
@@ -92,10 +90,34 @@ func NewModel(tbData [][]string) Model {
 			columnKeyMem:          row[7],
 			columnKeyDate:         row[8],
 		}))
+
+		//peak finder
+		n := 0
+		for n < 9 {
+			colLength := len(row[n]) + 1
+			if colLength > widthData[n] {
+				widthData[n] = colLength
+			}
+			n++
+		}
+	}
+
+	columns := []table.Column{
+		table.NewColumn(columnKeyID, "ID", widthData[0]).WithStyle(
+			lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#afaf00")).
+				Align(lipgloss.Center)),
+		table.NewColumn(columnKeyName, "Name", widthData[1]),
+		table.NewColumn(columnKeyPid, "PID", widthData[2]),
+		table.NewColumn(columnKeyRestartCount, "⟳", widthData[3]),
+		table.NewColumn(columnKeyStatus, columnKeyStatus, widthData[4]),
+		table.NewColumn(columnKeyUser, columnKeyUser, widthData[5]),
+		table.NewColumn(columnKeyCpu, "CPU", widthData[6]),
+		table.NewColumn(columnKeyMem, columnKeyMem, widthData[7]),
+		table.NewColumn(columnKeyDate, columnKeyDate, widthData[8]),
 	}
 
 	model := Model{
-		// Throw features in... the point is not to look good, it's just reference!
 		tableModel: table.New(columns).
 			WithRows(rows).
 			HeaderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00FFFF"))).

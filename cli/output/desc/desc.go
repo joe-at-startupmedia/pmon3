@@ -21,16 +21,14 @@ const (
 )
 
 func NewModel(tbData [][]string) Model {
-	columns := []table.Column{
-		table.NewColumn(columnKeyProperty, columnKeyProperty, 15).WithStyle(
-			lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#afaf00")).
-				Align(lipgloss.Center)),
-		table.NewColumn(columnKeyDescription, columnKeyDescription, 55),
+
+	//min column sizing
+	widthData := [9]int{
+		15,
+		15,
 	}
 
 	var rows []table.Row
-
 	for i, row := range tbData {
 		if i == 0 {
 			rows = append(rows, table.NewRow(table.RowData{
@@ -43,10 +41,27 @@ func NewModel(tbData [][]string) Model {
 				columnKeyDescription: row[1],
 			}))
 		}
+
+		//peak finder
+		n := 0
+		for n < 2 {
+			colLength := len(row[n]) + 1
+			if colLength > widthData[n] {
+				widthData[n] = colLength
+			}
+			n++
+		}
+	}
+
+	columns := []table.Column{
+		table.NewColumn(columnKeyProperty, columnKeyProperty, widthData[0]).WithStyle(
+			lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#afaf00")).
+				Align(lipgloss.Left)),
+		table.NewColumn(columnKeyDescription, columnKeyDescription, widthData[1]),
 	}
 
 	model := Model{
-		// Throw features in... the point is not to look good, it's just reference!
 		tableModel: table.New(columns).
 			WithRows(rows).
 			HeaderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00FFFF"))).
