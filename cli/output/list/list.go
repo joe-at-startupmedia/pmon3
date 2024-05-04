@@ -87,8 +87,8 @@ func NewModel(tbData [][]string) Model {
 			columnKeyRestartCount: row[3],
 			columnKeyStatus:       table.NewStyledCell(row[4], lipgloss.NewStyle().Foreground(lipgloss.Color(GetStatusColor(row[4])))),
 			columnKeyUser:         row[5],
-			columnKeyCpu:          row[6],
-			columnKeyMem:          row[7],
+			columnKeyCpu:          table.NewStyledCell(row[6], lipgloss.NewStyle().Align(lipgloss.Right)),
+			columnKeyMem:          table.NewStyledCell(row[7], lipgloss.NewStyle().Align(lipgloss.Right)),
 			columnKeyDate:         row[8],
 		}))
 
