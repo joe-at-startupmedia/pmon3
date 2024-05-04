@@ -240,11 +240,11 @@ If you do not specify a value, `info` will be the default Logrus level.
 
 ### CGO_ENABLED=0
 
-By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC and also provide easy installation using the (release-installer)[https://github.com/joe-at-startupmedia/pmon3/blob/master/release-installer.bash] . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1`.
+By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC and also provide easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1`.
 
 ### posix_mq
 
-The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with (posix_mq)[https://github.com/joe-at-startupmedia/posix_mq]. The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but it also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
+The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but it also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
 ```bash
 BUILD_TAGS="posix_mq" make build-cgo
 ```
@@ -256,8 +256,7 @@ By default, `pmon3` utilizes an non-CGO version of sqlite which is unnoticably l
 BUILD_TAGS="cgo_sqlite" make build-cgo
 ```
 
-If you enable `posix_mq`, you might as well enable `cgo_sqlite` since `CGO_ENABLED=1` is required for either module. It depends on your requirements whether or not you need one or both. To enable both of these CGO-dependent modules for maximizing overall performance:
-
+It depends on your requirements whether or not you need one or both. To enable both of these CGO-dependent modules for maximizing overall performance:
 ```bash
 BUILD_TAGS="posix_mq,cgo_sqlite" make build-cgo
 ```
