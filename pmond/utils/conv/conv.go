@@ -20,3 +20,7 @@ func Uint32ToStr(num uint32) string {
 	valStr := strconv.Itoa(int(num))
 	return valStr
 }
+
+func FloatToStr(num float64) string {
+	return strconv.FormatFloat(num, 'f', 1, 64)
+}

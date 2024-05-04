@@ -3,7 +3,7 @@ package cpu
 import (
 	"fmt"
 	"github.com/struCoder/pidusage"
-	"strconv"
+	"pmon3/pmond/utils/conv"
 )
 
 func GetExtraInfo(pid int) (string, string) {
@@ -15,10 +15,10 @@ func GetExtraInfo(pid int) (string, string) {
 		return cpuVal, memVal
 	}
 
-	cpuVal = strconv.Itoa(int(info.CPU))
+	cpuVal = conv.FloatToStr(info.CPU)
 
 	if info.Memory <= 1024 {
-		memVal = strconv.Itoa(int(info.Memory))
+		memVal = conv.FloatToStr(info.Memory)
 	} else if info.Memory <= 1024*1024 {
 		memVal = fmt.Sprintf("%.1f KB", info.Memory/float64(1024))
 	} else if info.Memory <= 1024*1024*1024 {
@@ -26,7 +26,7 @@ func GetExtraInfo(pid int) (string, string) {
 	} else if info.Memory <= 1024*1024*1024*1024 {
 		memVal = fmt.Sprintf("%.1f GB", info.Memory/float64(1024*1024*1024))
 	} else {
-		memVal = strconv.Itoa(int(info.Memory))
+		memVal = conv.FloatToStr(info.Memory)
 	}
 
 	return cpuVal + "%", memVal

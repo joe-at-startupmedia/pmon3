@@ -3,6 +3,7 @@ package table_list
 import (
 	"log"
 	"os"
+	"pmon3/pmond/utils/conv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -80,7 +81,7 @@ func NewModel(tbData [][]string) Model {
 	var rows []table.Row
 	for _, row := range tbData {
 		rows = append(rows, table.NewRow(table.RowData{
-			columnKeyID:           row[0],
+			columnKeyID:           conv.StrToUint32(row[0]),
 			columnKeyName:         row[1],
 			columnKeyPid:          row[2],
 			columnKeyRestartCount: row[3],
@@ -110,11 +111,11 @@ func NewModel(tbData [][]string) Model {
 		table.NewColumn(columnKeyName, "Name", widthData[1]),
 		table.NewColumn(columnKeyPid, "PID", widthData[2]),
 		table.NewColumn(columnKeyRestartCount, "⟳", widthData[3]),
-		table.NewColumn(columnKeyStatus, columnKeyStatus, widthData[4]),
-		table.NewColumn(columnKeyUser, columnKeyUser, widthData[5]),
+		table.NewColumn(columnKeyStatus, "Status", widthData[4]),
+		table.NewColumn(columnKeyUser, "User", widthData[5]),
 		table.NewColumn(columnKeyCpu, "CPU", widthData[6]),
-		table.NewColumn(columnKeyMem, columnKeyMem, widthData[7]),
-		table.NewColumn(columnKeyDate, columnKeyDate, widthData[8]),
+		table.NewColumn(columnKeyMem, "Memory", widthData[7]),
+		table.NewColumn(columnKeyDate, "Date", widthData[8]),
 	}
 
 	model := Model{
