@@ -3,7 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
@@ -16,7 +16,7 @@ func Drop(cmd *protos.Cmd) *protos.CmdResp {
 func DropByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *protos.CmdResp {
 
 	var all []model.Process
-	err := pmond.Db().Find(&all).Error
+	err := db.Db().Find(&all).Error
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("Error finding processes: %w", err))
 	} else if len(all) == 0 {

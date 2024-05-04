@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -52,7 +53,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 		name = filepath.Base(execFile)
 		parsedFlags.Name = name
 	}
-	err, p := model.FindProcessByFileAndName(pmond.Db(), execPath, name)
+	err, p := model.FindProcessByFileAndName(db.Db(), execPath, name)
 	//if process exists
 	if err == nil {
 		pmond.Log.Debugf("updating as queued with flags: %v", flags)
@@ -102,7 +103,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 		AutoRestart: !flags.NoAutoRestart,
 	}
 
-	err = pmond.Db().Save(&p).Error
+	err = db.Db().Save(&p).Error
 
 	return err
 }

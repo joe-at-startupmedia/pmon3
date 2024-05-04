@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"os/user"
 	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/observer"
 	"pmon3/pmond/utils/conv"
@@ -74,7 +75,7 @@ func updatedFromPsCmd(p *model.Process) bool {
 		}
 		p.Pid = newPid
 		p.Status = model.StatusRunning
-		return pmond.Db().Save(&p).Error == nil
+		return db.Db().Save(&p).Error == nil
 	}
 
 	return false
@@ -108,7 +109,7 @@ func Restart(p *model.Process, isInitializing bool) error {
 					Process: p,
 				})
 				p.Status = model.StatusFailed
-				pmond.Db().Save(&p)
+				db.Db().Save(&p)
 			}
 			return nil
 		}
@@ -150,7 +151,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 
 	p.Status = status
 
-	return pmond.Db().Save(p).Error
+	return db.Db().Save(p).Error
 }
 
 func SetUser(runUser string) (*user.User, error) {
@@ -205,7 +206,7 @@ func workerRestart(p *model.Process) (string, error) {
 	execP.UpdatedAt = time.Now()
 
 	waitData := NewProcStat(execP).Wait()
-	return waitData.Save(pmond.Db())
+	return waitData.Save(db.Db())
 }
 
 func workerStart(p *model.Process) (string, error) {
@@ -219,5 +220,5 @@ func workerStart(p *model.Process) (string, error) {
 	execP.UpdatedAt = time.Now()
 
 	waitData := NewProcStat(execP).Wait()
-	return waitData.Save(pmond.Db())
+	return waitData.Save(db.Db())
 }

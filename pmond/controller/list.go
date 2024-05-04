@@ -2,13 +2,14 @@ package controller
 
 import (
 	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
 
 func List(cmd *protos.Cmd) *protos.CmdResp {
 	var all []model.Process
-	err := pmond.Db().Find(&all).Error
+	err := db.Db().Find(&all).Error
 	if err != nil {
 		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
 	}

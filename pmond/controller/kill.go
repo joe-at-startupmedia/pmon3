@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
@@ -19,7 +19,7 @@ func Kill(cmd *protos.Cmd) *protos.CmdResp {
 func KillByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *protos.CmdResp {
 
 	var all []model.Process
-	err := pmond.Db().Find(&all, "status = ?", model.StatusRunning).Error
+	err := db.Db().Find(&all, "status = ?", model.StatusRunning).Error
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("Error finding running processes: %w", err))
 	} else if len(all) == 0 {

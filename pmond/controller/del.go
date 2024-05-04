@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"os"
-	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
@@ -20,7 +20,7 @@ func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdRe
 		return ErroredCmdResp(cmd, fmt.Errorf("%w", stopCmdResp.GetError()))
 	}
 	process := model.FromProtobuf(stopCmdResp.GetProcess())
-	err := pmond.Db().Delete(process).Error
+	err := db.Db().Delete(process).Error
 	_ = os.Remove(process.Log)
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),

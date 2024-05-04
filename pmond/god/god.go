@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -80,7 +81,7 @@ var pendingTask sync.Map
 func runningTask(isInitializing bool) {
 
 	var all []model.Process
-	err := pmond.Db().Find(&all, "status in (?, ?, ?, ?)",
+	err := db.Db().Find(&all, "status in (?, ?, ?, ?)",
 		model.StatusRunning,
 		model.StatusFailed,
 		model.StatusQueued,
@@ -102,7 +103,7 @@ func runningTask(isInitializing bool) {
 			defer func() {
 				pendingTask.Delete(key)
 			}()
-			err = pmond.Db().First(&cur, q.ID).Error
+			err = db.Db().First(&cur, q.ID).Error
 			if err != nil {
 				pmond.Log.Infof("Task monitor could not find process in database: %d", q.ID)
 				return

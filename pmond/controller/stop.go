@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"time"
 )
 
 func Stop(cmd *protos.Cmd) *protos.CmdResp {
@@ -16,7 +18,7 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 }
 
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
-	err, p := model.FindProcessByIdOrName(pmond.Db(), idOrName)
+	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
 	}
@@ -27,12 +29,14 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	if os.IsNotExist(err) {
 		if p.Status != status {
 			p.Status = status
-			if err := pmond.Db().Save(&p).Error; err != nil {
+			if err := db.Db().Save(&p).Error; err != nil {
 				return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 			}
 		}
 	}
 
+	//we need to wait for the process to save before killing it to avoid a restart race condition
+	time.Sleep(200 * time.Millisecond)
 	// try to kill the process
 	err = process.SendOsKillSignal(p, status, forced)
 	if err != nil {

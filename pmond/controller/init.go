@@ -3,13 +3,14 @@ package controller
 import (
 	"fmt"
 	"pmon3/pmond"
+	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
 
 func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 	var all []model.Process
-	err := pmond.Db().Find(&all, "status = ?", model.StatusStopped).Error
+	err := db.Db().Find(&all, "status = ?", model.StatusStopped).Error
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("Error finding stopped processes: %w", err))
 	} else if len(all) == 0 {
