@@ -18,3 +18,9 @@ ipc_connection_wait: 200
 on_process_restart_exec: ""
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
 on_process_failure_exec: ""
+# specify a custom posix_mq directory in order to apply the appropriate permissions
+posix_mq_dir: "/dev/mqueue/" #default value when empty
+# specify a custom user to access files in posix_mq_dir
+posix_mq_user: null
+# specify a custom group to access files in posix_mq_dir (must also provide a user)
+posix_mq_group: null

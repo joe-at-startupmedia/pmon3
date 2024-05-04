@@ -55,6 +55,10 @@ build:
 	$(GO) mod tidy
 	CGO_ENABLED=0 $(GO) build -o bin/pmon3 cmd/pmon3/pmon3.go
 	CGO_ENABLED=0 $(GO) build -o bin/pmond cmd/pmond/pmond.go
+build-cgo:
+	$(GO) mod tidy
+	CGO_ENABLED=1 $(GO) build -tags $(BUILD_TAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
+	CGO_ENABLED=1 $(GO) build -tags $(BUILD_TAGS) -o bin/pmond cmd/pmond/pmond.go
 systemd_install: systemd_uninstall install
 	sudo cp "$(ROOTDIR)/rpm/pmond.service" /usr/lib/systemd/system/
 	sudo cp "$(ROOTDIR)/rpm/pmond.logrotate" /etc/logrotate.d/pmond

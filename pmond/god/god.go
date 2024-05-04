@@ -1,7 +1,6 @@
 package god
 
 import (
-	"github.com/joe-at-startupmedia/goq_responder"
 	"os"
 	"os/signal"
 	"pmon3/pmond"
@@ -14,14 +13,6 @@ import (
 	"time"
 )
 
-var pmr *goq_responder.MqResponder
-
-var queueConfig = goq_responder.QueueConfig{
-	Name:              "pmon3_mq",
-	UseEncryption:     false,
-	UnmaskPermissions: true,
-}
-
 func New() {
 	if pmond.Config.ShouldHandleInterrupts() {
 		pmond.Log.Debugf("Capturing interrupts.")
@@ -31,16 +22,6 @@ func New() {
 	connectResponder()
 
 	runMonitor()
-}
-
-func connectResponder() {
-	pmqResponder := goq_responder.NewResponder(&queueConfig)
-	if pmqResponder.HasErrors() {
-		handleOpenError(pmqResponder.ErrResp)
-	}
-	pmr = pmqResponder
-
-	time.Sleep(5 * time.Second) //allows responder to establish connection
 }
 
 func handleOpenError(e error) {
@@ -65,7 +46,7 @@ func interruptHandler() {
 		time.Sleep(1 * time.Second) //wait for the infinity loop to break
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		err := pmr.CloseResponder()
+		err := closeResponder()
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
@@ -83,32 +64,9 @@ func runMonitor() {
 		isInitializing = false
 	}()
 
-	go func() {
-		timer := time.NewTicker(time.Millisecond * 5000)
-		for {
-			<-timer.C
-			if !uninterrupted {
-				break
-			}
-			pmond.Log.Debugf("server status: %s", pmr.MqResp.Status())
-		}
-	}()
+	go monitorResponderStatus(pmond.Log)
 
-	go func() {
-		//see https://github.com/joe-at-startupmedia/golang-ipc/issues/1
-		//timer := time.NewTicker(time.Millisecond * 1000)
-		for {
-			//<-timer.C
-			if !uninterrupted {
-				break
-			}
-			pmond.Log.Debug("running request handler")
-			err := controller.HandleCmdRequest(pmr, &queueConfig) //blocking
-			if err != nil {
-				pmond.Log.Errorf("Error handling request: %-v", err)
-			}
-		}
-	}()
+	go processRequests(pmond.Log)
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {

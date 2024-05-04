@@ -67,6 +67,10 @@ github.com/joe-at-startupmedia/golang-ipc v1.2.5 h1:y7eBL+KIzOyvHQKg+w4EVC1bP7px
 github.com/joe-at-startupmedia/golang-ipc v1.2.5/go.mod h1:kQwGx486P9OzO/mr/nS9ZjO14hy5GSMrfZeK0fKDzO4=
 github.com/joe-at-startupmedia/goq_responder v0.0.4 h1:LYFg36+OWNJ6bLUc8Nqc8rAK9gcKPQ3h/SLbKUI6Bjg=
 github.com/joe-at-startupmedia/goq_responder v0.0.4/go.mod h1:x2iW5n8sCx0nB84TbiglMQf+aw6IRukILxkWoSgeKeE=
+github.com/joe-at-startupmedia/pmq_responder v0.0.9 h1:5k0dSsD1JYW3U4uXSRpWd2CG+a67r0YBp3V+w4MmhOo=
+github.com/joe-at-startupmedia/pmq_responder v0.0.9/go.mod h1:uFdhVcO5EMM9nNfOJieX3ZE7WHYP3BAqpBmdX49tjFg=
+github.com/joe-at-startupmedia/posix_mq v0.2.1 h1:Ir6IjNiXOwjI16GCIG19vzlvKV1/Q8uorq49cpCc9fc=
+github.com/joe-at-startupmedia/posix_mq v0.2.1/go.mod h1:GophHPEoG4aMbaFcb/2UyXKR7wWyWL4AW+1BoynoIdU=
 github.com/joe-at-startupmedia/sqlite v0.0.1 h1:icVtthRliO/RoFniW7MNkPK8KOuDX0LEzwX2aHaTEoM=
 github.com/joe-at-startupmedia/sqlite v0.0.1/go.mod h1:8OmR/zkldw8ZSL5SQ/ej7UO4PJTCNpH9CdD7B9ulMYo=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=

@@ -8,15 +8,18 @@ import (
 )
 
 type Tpl struct {
-	Data                 string `yaml:"data"`
-	Logs                 string `yaml:"logs"`
-	HandleInterrupts     bool   `yaml:"handle_interrupts"`
-	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait"`
-	IpcConnectionWait    int64  `yaml:"ipc_connection_wait"`
-	LogLevel             string `yaml:"log_level"`
-	OnProcessRestartExec string `yaml:"on_process_restart_exec"`
-	OnProcessFailureExec string `yaml:"on_process_failure_exec"`
-	ConfigFile           string
+	Data                   string `yaml:"data"`
+	Logs                   string `yaml:"logs"`
+	HandleInterrupts       bool   `yaml:"handle_interrupts"`
+	CmdExecResponseWait    int64  `yaml:"cmd_exec_response_wait"`
+	IpcConnectionWait      int64  `yaml:"ipc_connection_wait"`
+	PosixMessageQueueDir   string `yaml:"posix_mq_dir"`
+	PosixMessageQueueUser  string `yaml:"posix_mq_user"`
+	PosixMessageQueueGroup string
+	LogLevel               string `yaml:"log_level"`
+	OnProcessRestartExec   string `yaml:"on_process_restart_exec"`
+	OnProcessFailureExec   string `yaml:"on_process_failure_exec"`
+	ConfigFile             string
 }
 
 func (c *Tpl) GetDataDir() string {
@@ -66,5 +69,13 @@ func (c *Tpl) GetLogrusLevel() logrus.Level {
 
 		log.Println("log_level configuration is empty or invalid. Possible values include: debug, info, warn and error. using default level: info")
 		return logrus.InfoLevel
+	}
+}
+
+func (c *Tpl) GetPosixMessageQueueDir() string {
+	if len(c.PosixMessageQueueDir) > 0 {
+		return c.PosixMessageQueueDir
+	} else {
+		return "/dev/mqueue/"
 	}
 }

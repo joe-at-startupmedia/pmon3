@@ -7,11 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/joe-at-startupmedia/goq_responder"
 	"google.golang.org/protobuf/proto"
 )
-
-var pmr *goq_responder.MqRequester
 
 func handleOpenError(e error) {
 	if e != nil {
@@ -24,25 +21,11 @@ func handleOpenError(e error) {
 }
 
 func OpenSender() {
-
-	queueConfig := goq_responder.QueueConfig{
-		Name:          "pmon3_mq",
-		UseEncryption: false,
-	}
-
-	pmqSender := goq_responder.NewRequester(&queueConfig)
-	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
-	time.Sleep(cli.Config.GetIpcConnectionWait())
-
-	if pmqSender.HasErrors() {
-		handleOpenError(pmqSender.ErrRqst)
-	}
-
-	pmr = pmqSender
+	openSender()
 }
 
 func CloseSender() {
-	goq_responder.CloseRequester(pmr)
+	closeSender()
 }
 
 func sendCmd(cmd *protos.Cmd) {
@@ -70,7 +53,7 @@ func GetResponse() *protos.CmdResp {
 		}
 	}()
 
-	_, _, err := pmr.WaitForProto(newCmdResp)
+	_, _, err := waitForResponse(newCmdResp)
 	stop <- 0
 	if err != nil {
 		cli.Log.Fatal(err)
