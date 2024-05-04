@@ -1,11 +1,11 @@
 package observer
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/goinbox/shell"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"strings"
 )
 
 type EventType int
@@ -52,12 +52,9 @@ func onRestartEvent(evt *Event) {
 }
 
 func jsonEscape(rawJson string) string {
-	b, err := json.Marshal(rawJson)
-	if err != nil {
-		panic(err)
-	}
-	s := string(b)
-	return s[1 : len(s)-1]
+	//remove any existing backslashes and then escape double quotes with backslashes
+	replacer := strings.NewReplacer("\\", "", "\"", "\\\"")
+	return replacer.Replace(rawJson)
 }
 
 func onEventExec(evt *Event, cmd string) {
