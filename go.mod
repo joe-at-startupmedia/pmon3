@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/goinbox/shell v1.0.1
 	github.com/google/uuid v1.6.0
-	github.com/joe-at-startupmedia/goq_responder v0.0.5-0.20240505191407-1b0661b1ec35
+	github.com/joe-at-startupmedia/goq_responder v0.1.0
 	github.com/joe-at-startupmedia/pmq_responder v0.0.9
 	github.com/joe-at-startupmedia/sqlite v0.0.1
 	github.com/pkg/errors v0.9.1
