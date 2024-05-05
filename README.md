@@ -34,7 +34,7 @@ make systemd_install
 ### Using Release Installer
 
 ```bash
-wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.13.2
+wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.14.0
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -221,7 +221,7 @@ PMON3_DEBUG=true pmond
 You can also debug the underlying IPC library using `QOG_DEBUG=true`
 
 ```bash
-QOG_DEBUG=true PMON3_DEBUG=true pmon3 ls
+QOG_DEBUG=true IPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
 ```
 
 ### Configuration File
@@ -240,11 +240,11 @@ If you do not specify a value, `info` will be the default Logrus level.
 
 ### CGO_ENABLED=0
 
-By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC and also provide easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1`.
+By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC and also provide easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1` provided as follows:
 
-### posix_mq
+### Posix MQ
 
-The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but it also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
+The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
 ```bash
 BUILD_TAGS="posix_mq" make build-cgo
 ```
@@ -315,3 +315,4 @@ make systemd_permissions
 ```
 pmon3 exec /usr/local/bin/happac --user root
 ```
+

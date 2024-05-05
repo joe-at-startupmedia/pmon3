@@ -15,9 +15,8 @@ var pmr *goq_responder.MqResponder
 func connectResponder() {
 
 	queueConfig := goq_responder.QueueConfig{
-		Name:              "pmon3_mq",
-		UseEncryption:     false,
-		UnmaskPermissions: true,
+		Name:                    "pmon3_mq",
+		ServerUnmaskPermissions: true,
 	}
 
 	pmqResponder := goq_responder.NewResponder(&queueConfig)
