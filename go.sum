@@ -61,10 +61,10 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/joe-at-startupmedia/golang-ipc v1.2.6-0.20240505183047-138c3e40ab85 h1:JpCHzWbOi0En2eR1iIjNcuN054nz3tObiqBs9NoPK+c=
-github.com/joe-at-startupmedia/golang-ipc v1.2.6-0.20240505183047-138c3e40ab85/go.mod h1:WW9YeukNfUR7D7g/ZUxL4wgRmsKcAZReeJzDNu0pJ9g=
-github.com/joe-at-startupmedia/goq_responder v0.0.5-0.20240505183353-69e986d515a9 h1:wABtTz9Pwze1zXxU9a8AWRS3SqdVaIsAvuq3Vyi5WWA=
-github.com/joe-at-startupmedia/goq_responder v0.0.5-0.20240505183353-69e986d515a9/go.mod h1:kofroXZ0mntwofYTGkFn39KIZXopmgIllcAfW0HdL+0=
+github.com/joe-at-startupmedia/golang-ipc v1.2.6-0.20240505191147-6aad9347aa44 h1:QL9PtvqxmtpPBvkrc+b2/LHhUgLQHhgIpOPVryRlANU=
+github.com/joe-at-startupmedia/golang-ipc v1.2.6-0.20240505191147-6aad9347aa44/go.mod h1:WW9YeukNfUR7D7g/ZUxL4wgRmsKcAZReeJzDNu0pJ9g=
+github.com/joe-at-startupmedia/goq_responder v0.0.5-0.20240505191407-1b0661b1ec35 h1:wOcQ4xTmd9HK7uNdMuVwnJQXFpWciwkoTALkX6pirC4=
+github.com/joe-at-startupmedia/goq_responder v0.0.5-0.20240505191407-1b0661b1ec35/go.mod h1:EocCL2lTQuEIXLUo6GvLrVhmMF6vVbg1d6l9QyrTjmw=
 github.com/joe-at-startupmedia/pmq_responder v0.0.9 h1:5k0dSsD1JYW3U4uXSRpWd2CG+a67r0YBp3V+w4MmhOo=
 github.com/joe-at-startupmedia/pmq_responder v0.0.9/go.mod h1:uFdhVcO5EMM9nNfOJieX3ZE7WHYP3BAqpBmdX49tjFg=
 github.com/joe-at-startupmedia/posix_mq v0.2.1 h1:Ir6IjNiXOwjI16GCIG19vzlvKV1/Q8uorq49cpCc9fc=
