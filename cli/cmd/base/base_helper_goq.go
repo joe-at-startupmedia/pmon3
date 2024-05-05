@@ -15,8 +15,9 @@ var pmr *goq_responder.MqRequester
 func openSender() {
 
 	queueConfig := goq_responder.QueueConfig{
-		Name:          "pmon3_mq",
-		UseEncryption: false,
+		Name:             "pmon3_mq",
+		ClientRetryTimer: 0,
+		ClientTimeout:    0,
 	}
 
 	pmqSender := goq_responder.NewRequester(&queueConfig)
