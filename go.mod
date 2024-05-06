@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/goinbox/shell v1.0.1
 	github.com/google/uuid v1.6.0
-	github.com/joe-at-startupmedia/goq_responder v0.1.0
+	github.com/joe-at-startupmedia/goq_responder v0.1.1
 	github.com/joe-at-startupmedia/pmq_responder v0.0.9
 	github.com/joe-at-startupmedia/sqlite v0.0.1
 	github.com/pkg/errors v0.9.1
@@ -40,7 +40,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/joe-at-startupmedia/golang-ipc v1.2.6-0.20240505191147-6aad9347aa44 // indirect
+	github.com/joe-at-startupmedia/golang-ipc v1.2.7 // indirect
 	github.com/joe-at-startupmedia/posix_mq v0.2.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
