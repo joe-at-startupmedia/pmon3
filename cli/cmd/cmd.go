@@ -14,7 +14,7 @@ import (
 	"pmon3/cli/cmd/logf"
 	"pmon3/cli/cmd/restart"
 	"pmon3/cli/cmd/stop"
-	"pmon3/cli/cmd/top"
+	"pmon3/cli/cmd/topn"
 	"pmon3/conf"
 
 	"github.com/spf13/cobra"
@@ -45,7 +45,7 @@ func Exec() error {
 		kill.Cmd,
 		initialize.Cmd,
 		drop.Cmd,
-		top.Cmd,
+		topn.Cmd,
 		verCmd,
 	)
 

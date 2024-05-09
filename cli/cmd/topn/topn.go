@@ -1,51 +1,44 @@
-package top
+package topn
 
 import (
+	"bufio"
 	"fmt"
-	"github.com/gosuri/uilive"
-	"github.com/spf13/cobra"
 	"io"
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/pmond/model"
-	"strings"
 	"sync"
+
+	"github.com/gosuri/uilive"
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
-	Use:     "top",
-	Aliases: []string{"top"},
-	Short:   "Provides a dynamic real-time view of running processes",
+	Use:     "topn",
+	Aliases: []string{"topn"},
+	Short:   "Shows processes using the native top",
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
-		Top()
+		Topn()
 		base.CloseSender()
 	},
 }
 
-func Top() {
+func Topn() {
 
-	base.SendCmd("list", "")
+	base.SendCmd("top", "")
 	newCmdResp := base.GetResponse()
-	all := newCmdResp.GetProcessList().GetProcesses()
-	var pidsCsv string
-	for _, p := range all {
-		process := model.FromProtobuf(p)
-		pidsCsv = fmt.Sprintf("%d,%s", process.Pid, pidsCsv)
-	}
-	pidsCsv = strings.TrimRight(pidsCsv, ",")
+	pidsCsv := newCmdResp.GetValueStr()
 	displayTop(pidsCsv)
 }
 
 func displayTop(pidsCsv string) {
 	cmd := exec.Command("top", "-p", pidsCsv, "-b")
-	//fmt.Printf("%s", cmd.String())
+	fmt.Printf("%s", cmd.String())
 	stdout, _ := cmd.StdoutPipe()
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-
 		writer := uilive.New()
 		writer.Start()
 		defer func() {
@@ -53,13 +46,21 @@ func displayTop(pidsCsv string) {
 			wg.Done()
 
 		}()
+		reader := bufio.NewReader(stdout)
+		var strStack []string
 		for {
-			readString := make([]byte, 1024)
-			_, err := stdout.Read(readString)
+			readString, err := reader.ReadString('\n')
 			if err != nil || err == io.EOF {
 				return
 			}
-			fmt.Fprintf(writer, "%s\n", readString)
+			if len(readString) > 2 {
+				strStack = append(strStack, readString)
+			} else if len(strStack) > 5 {
+				for _, str := range strStack {
+					fmt.Fprintf(writer, "%s", str)
+				}
+				strStack = []string{}
+			}
 		}
 	}()
 	if err := cmd.Start(); err != nil {
