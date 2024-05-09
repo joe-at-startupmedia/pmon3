@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/charmbracelet/bubbletea v0.26.0
 	github.com/charmbracelet/lipgloss v0.10.0
+	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
 	github.com/evertras/bubble-table v0.15.7
 	github.com/gin-gonic/gin v1.9.1
 	github.com/goinbox/shell v1.0.1
