@@ -124,11 +124,12 @@ pmon3 ls
 
 #### Top Native [ topn ]
 
-This will output the resource usage of all processes using the native `top` command that is pre-installed on most unix-based operating systems
+This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes mangaed by (and including) the pmond process. The output is updated every few seconds until the process is terminated using Ctrl+C.
 
 ```
 pmon3 topn
 ```
+<img width="559" alt="Screen Shot 2024-05-08 at 8 28 12 PM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/8ecdd5da-52e2-40d8-b52f-1e2d9aa1c835">
 
 #### (re)start the process [ restart/start ]
 
