@@ -2,6 +2,7 @@ package top
 
 import (
 	"fmt"
+	"github.com/gosuri/uilive"
 	"github.com/spf13/cobra"
 	"io"
 	"os/exec"
@@ -38,22 +39,27 @@ func Top() {
 }
 
 func displayTop(pidsCsv string) {
-
 	cmd := exec.Command("top", "-p", pidsCsv, "-b")
-	fmt.Printf("%s", cmd.String())
+	//fmt.Printf("%s", cmd.String())
 	stdout, _ := cmd.StdoutPipe()
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
 
+		writer := uilive.New()
+		writer.Start()
+		defer func() {
+			writer.Stop()
+			wg.Done()
+
+		}()
 		for {
 			readString := make([]byte, 1024)
 			_, err := stdout.Read(readString)
 			if err != nil || err == io.EOF {
 				return
 			}
-			fmt.Printf("%s\n", readString)
+			fmt.Fprintf(writer, "%s\n", readString)
 		}
 	}()
 	if err := cmd.Start(); err != nil {
