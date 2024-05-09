@@ -70,10 +70,13 @@ Available Commands:
   ls          List all processes
   restart     Restart a process by id or name
   stop        Stop a process by id or name
+  topn        Shows processes using the native top
   version
 
 Flags:
   -h, --help   help for pmon3
+
+Use "pmon3 [command] --help" for more information about a command
 ```
 
 #### Running process [run/exec]
@@ -117,6 +120,14 @@ Parameter arguments need to use the absolute path。
 
 ```
 pmon3 ls
+```
+
+#### Top Native [ topn ]
+
+This will output the resource usage of all processes using the native `top` command that is pre-installed on most unix-based operating systems
+
+```
+pmon3 topn
 ```
 
 #### (re)start the process [ restart/start ]
