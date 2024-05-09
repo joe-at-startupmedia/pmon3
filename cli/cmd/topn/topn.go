@@ -34,7 +34,7 @@ func Topn() {
 
 func displayTop(pidsCsv string) {
 	cmd := exec.Command("top", "-p", pidsCsv, "-b")
-	fmt.Printf("%s", cmd.String())
+	//fmt.Printf("%s", cmd.String())
 	stdout, _ := cmd.StdoutPipe()
 	var wg sync.WaitGroup
 	wg.Add(1)

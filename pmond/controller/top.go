@@ -19,7 +19,6 @@ func Top(cmd *protos.Cmd) *protos.CmdResp {
 	for _, p := range all {
 		pidsCsv = fmt.Sprintf("%d,%s", p.Pid, pidsCsv)
 	}
-	//pidsCsv = strings.TrimRight(pidsCsv, ",")
 	newCmdResp := protos.CmdResp{
 		Id:       cmd.GetId(),
 		Name:     cmd.GetName(),
