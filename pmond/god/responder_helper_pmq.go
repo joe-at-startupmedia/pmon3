@@ -35,11 +35,11 @@ func closeResponder() error {
 	return pmr.UnlinkResponder()
 }
 
-func processRequests(logger *logrus.Logger) {
+func processRequests(uninterrupted *bool, logger *logrus.Logger) {
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C
-		if !uninterrupted {
+		if !*uninterrupted {
 			break
 		}
 		logger.Debug("running request handler")
@@ -50,7 +50,7 @@ func processRequests(logger *logrus.Logger) {
 	}
 }
 
-func monitorResponderStatus(logger *logrus.Logger) {
+func monitorResponderStatus(uninterrupted *bool, logger *logrus.Logger) {
 	//posix_mq doest have a status, so we do nothing here
 }
 

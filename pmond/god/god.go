@@ -15,14 +15,16 @@ import (
 )
 
 func New() {
+
+	uninterrupted := true
 	if pmond.Config.ShouldHandleInterrupts() {
 		pmond.Log.Debugf("Capturing interrupts.")
-		interruptHandler()
+		interruptHandler(&uninterrupted)
 	}
 
 	connectResponder()
 
-	runMonitor()
+	runMonitor(&uninterrupted)
 }
 
 func handleOpenError(e error) {
@@ -33,7 +35,7 @@ func handleOpenError(e error) {
 
 var uninterrupted bool = true
 
-func interruptHandler() {
+func interruptHandler(uninterrupted *bool) {
 	sigc := make(chan os.Signal)
 	signal.Notify(sigc,
 		syscall.SIGHUP,
@@ -43,7 +45,7 @@ func interruptHandler() {
 	go func() {
 		s := <-sigc
 		pmond.Log.Infof("Captured interrupt: %s", s)
-		uninterrupted = false
+		*uninterrupted = false
 		time.Sleep(1 * time.Second) //wait for the infinity loop to break
 		emptyCmd := protos.Cmd{}
 		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
@@ -56,7 +58,7 @@ func interruptHandler() {
 	}()
 }
 
-func runMonitor() {
+func runMonitor(uninterrupted *bool) {
 
 	isInitializing := true
 
@@ -65,9 +67,9 @@ func runMonitor() {
 		isInitializing = false
 	}()
 
-	go monitorResponderStatus(pmond.Log)
+	go monitorResponderStatus(uninterrupted, pmond.Log)
 
-	go processRequests(pmond.Log)
+	go processRequests(uninterrupted, pmond.Log)
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
@@ -103,7 +105,8 @@ func runningTask(isInitializing bool) {
 			defer func() {
 				pendingTask.Delete(key)
 			}()
-			err = db.Db().First(&cur, q.ID).Error
+
+			err := db.Db().First(&cur, q.ID).Error
 			if err != nil {
 				pmond.Log.Infof("Task monitor could not find process in database: %d", q.ID)
 				return

@@ -32,12 +32,9 @@ func closeResponder() error {
 	return pmr.CloseResponder()
 }
 
-func processRequests(logger *logrus.Logger) {
-	//see https://github.com/joe-at-startupmedia/golang-ipc/issues/1
-	//timer := time.NewTicker(time.Millisecond * 500)
+func processRequests(uninterrupted *bool, logger *logrus.Logger) {
 	for {
-		//<-timer.C
-		if !uninterrupted {
+		if !*uninterrupted {
 			break
 		}
 		logger.Debug("running request handler")
@@ -48,11 +45,11 @@ func processRequests(logger *logrus.Logger) {
 	}
 }
 
-func monitorResponderStatus(logger *logrus.Logger) {
+func monitorResponderStatus(uninterrupted *bool, logger *logrus.Logger) {
 	timer := time.NewTicker(time.Millisecond * 5000)
 	for {
 		<-timer.C
-		if !uninterrupted {
+		if !*uninterrupted {
 			break
 		}
 		logger.Debugf("server status: %s", pmr.MqResp.Status())
