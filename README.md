@@ -5,11 +5,11 @@
 
 ## Introduction
 
-Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Nodejs PM2 can also be utilized
+Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Node.js PM2 can also be utilized
 
 Each method has certain advantages and disadvantages. We hope to provide a convenient and easy-to-use tool for Golang process deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
 
-Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by seperating the `pmond` deamon process from the `pmon3` agent.
+Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by separating the `pmond` daemon process from the `pmon3` agent.
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
@@ -124,7 +124,7 @@ pmon3 ls
 
 #### Top Native [ topn ]
 
-This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes mangaed by (and including) the pmond process. The output is updated every few seconds until the process is terminated using Ctrl+C.
+This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
 
 ```
 pmon3 topn
@@ -172,7 +172,7 @@ pmon3 show [id or name]
 pmon3 kill [--force]
 ```
 
-#### Restart all steopped process [ init ]
+#### Restart all stepped process [ init ]
 ```
 pmon3 init
 ```
@@ -191,7 +191,7 @@ on_process_restart_exec: ""
 on_process_failure_exec: ""
 ```
 
-#### 1. Specify the executable script to run for the `on_process_restart_exec` value. pmond will pass a json-escaped string of the process details as the first argument.
+#### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
 #### /etc/pmond/config/config.yaml
 ```yaml
 on_process_restart_exec: "/etc/pmon3/bin/on_restart.bash"
@@ -224,7 +224,7 @@ process restarted: 4 - "happac4"
 
 ### Environment Variables
 
-You can specify debug verbosity from both the pmon3 client and the pmond daemon process using `PMON3_DEBUG=true` as an environment vairable. This will set the Logrus level to `debug`
+You can specify debug verbosity from both the `pmon3` client and the `pmond` daemon process using `PMON3_DEBUG=true` as an environment variable. This will set the Logrus level to `debug`
 
 ```bash
 PMON3_DEBUG=true pmond 
@@ -252,7 +252,7 @@ If you do not specify a value, `info` will be the default Logrus level.
 
 ### CGO_ENABLED=0
 
-By default, no underlying libraries require CGO. This allows for portability between different machines using different versions of GLIBC and also provide easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1` provided as follows:
+By default, no underlying libraries require CGO. This allows for portability between machines using different versions of GLIBC and also provides easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1` provided below:
 
 ### Posix MQ
 
@@ -268,7 +268,7 @@ By default, `pmon3` utilizes an non-CGO version of sqlite which is unnoticably l
 BUILD_TAGS="cgo_sqlite" make build-cgo
 ```
 
-It depends on your requirements whether or not you need one or both. To enable both of these CGO-dependent modules for maximizing overall performance:
+It depends on your requirements whether you need one or both. To enable both of these CGO-dependent modules for maximizing overall performance:
 ```bash
 BUILD_TAGS="posix_mq,cgo_sqlite" make build-cgo
 ```
@@ -307,7 +307,7 @@ source /etc/profile.d/pmon3.sh
 
 ### 4. FATA stat /var/run/pmon3/pmon3.sock: no such file or directory
 
-If you encounter the error above, make sure the pmond service has started sucessfully.
+If you encounter the error above, make sure the `pmond` service has started successfully.
 
 ```shell
 sudo systemctl start pmond
