@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"time"
 )
 
 var Cmd = &cobra.Command{
@@ -49,7 +50,7 @@ func handleKeyPressEvents(pidsCsv string) {
 	}()
 	ctx, cancel := context.WithCancel(context.Background())
 	sortBit := false
-	go displayTop(writer, pidsCsv, false, ctx)
+	go displayTopLoop(writer, pidsCsv, false, ctx)
 
 	for {
 		char, key, err := keyboard.GetKey()
@@ -64,13 +65,25 @@ func handleKeyPressEvents(pidsCsv string) {
 			sortBit = !sortBit
 			cancel()
 			ctx, cancel = context.WithCancel(context.Background())
-			go displayTop(writer, pidsCsv, sortBit, ctx)
+			go displayTopLoop(writer, pidsCsv, sortBit, ctx)
 		}
 	}
 }
 
-func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx context.Context) {
+func displayTopLoop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx context.Context) {
+	for {
+		select {
+		// case context is done.
+		case <-ctx.Done():
+			return
+		default:
+			go displayTop(writer, pidsCsv, sortBit)
+			time.Sleep(1 * time.Second)
+		}
+	}
+}
 
+func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool) {
 	var cmd *exec.Cmd
 	var sortField string
 
@@ -79,7 +92,7 @@ func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx context
 	} else {
 		sortField = "%MEM"
 	}
-	cmd = exec.Command("top", "-p", pidsCsv, "-o", sortField, "-b")
+	cmd = exec.Command("top", "-p", pidsCsv, "-o", sortField, "-b", "-n 1")
 	//fmt.Printf("%s", cmd.String())
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -90,29 +103,24 @@ func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx context
 		reader := bufio.NewReader(stdout)
 		var strStack []string
 		for {
-			select {
-			// case context is done.
-			case <-ctx.Done():
+			readString, err := reader.ReadString('\n')
+			if err != nil && err != io.EOF {
+				cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)
 				return
-			default:
-				readString, err := reader.ReadString('\n')
-				if err != nil || err == io.EOF {
-					cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)
-					return
+			}
+			if len(readString) > 2 {
+				strStack = append(strStack, readString)
+			} else if len(strStack) > 5 {
+				if sortBit {
+					fmt.Fprintf(writer, "%s\n", "\033[31;1;4mPress ESC to quit, (s) to sort by Memory utilization\033[0m")
+				} else {
+					fmt.Fprintf(writer, "%s\n", "\033[31;1;4mPress ESC to quit, (s) to sort by CPU utilization\033[0m")
 				}
-				if len(readString) > 2 {
-					strStack = append(strStack, readString)
-				} else if len(strStack) > 5 {
-					if sortBit {
-						fmt.Fprintf(writer, "%s\n", "\033[31;1;4mPress ESC to quit, (s) to sort by Memory utilization\033[0m")
-					} else {
-						fmt.Fprintf(writer, "%s\n", "\033[31;1;4mPress ESC to quit, (s) to sort by CPU utilization\033[0m")
-					}
-					for _, str := range strStack {
-						fmt.Fprintf(writer, "%s", str)
-					}
-					strStack = []string{}
+				for _, str := range strStack {
+					fmt.Fprintf(writer, "%s", str)
 				}
+				strStack = []string{}
+				return
 			}
 		}
 	}()
