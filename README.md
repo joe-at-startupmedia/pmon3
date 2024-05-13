@@ -79,11 +79,14 @@ Flags:
 Use "pmon3 [command] --help" for more information about a command
 ```
 
+<a name="pmon3_exec"></a>
 #### Running process [run/exec]
 
 ```
 pmon3 exec [application_binary] [flags]
 ```
+
+<a name="exec_flags"></a>
 The starting process accepts several parameters. The parameter descriptions are as follows:
 
 ```
@@ -137,6 +140,7 @@ pmon3 topn
 pmon3 restart [id or name]
 ```
 
+<a name="pmon3_stop"></a>
 #### Stop the process  [ stop ]
 
 ```
@@ -148,6 +152,9 @@ pmon3 stop [id or name]
 ```
 # view logs of the process specified
 pmon3 log [id or name]
+
+# view logs of the process specified including those previously rotated/archived
+pmon3 log -a [id or name]
 
 # Similar to using `tail -f xxx.log`
 pmon3 logf [id or name]
@@ -167,20 +174,83 @@ pmon3 show [id or name]
 
 <img width="516" alt="pmon3 desc" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/881af535-9a83-472c-b2a5-b0caff5596f3">
 
+<a name="pmon3_kill"></a>
 #### Terminate all running process [ kill ]
 ```
 pmon3 kill [--force]
 ```
 
-#### Restart all stepped process [ init ]
+<a name="pmon3_init"></a>
+#### Restart all stopped process or start processes specified in the app config [ init ]
 ```
 pmon3 init
 ```
-
+<a name="pmon3_drop"></a>
 #### Terminate and delete all processes [drop]
 ```
 pmon3 drop [--force]
 ```
+
+## Application Config
+
+By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
+
+#### Criteria
+ When an application config is provided `pmond` will instead refer to the `apps` array specified based on the following criteria:
+1. When `pmond` is starting from a fresh install
+2. When `pmon3` successfully executes a [drop](#pmon3_drop) command followed by running an [init](#pmon3_init) command.
+
+If [init](#pmon3_init) is ran while there are still stopped process in the database (resulting from `pmond` daemon restart or [kill](#pmon3_kill), the Application config will *NOT* be used, and instead the previously-stopped process will be restarted.
+
+#### Configuration
+
+#### /etc/pmond/config/config.yaml
+```yaml
+apps_config_file: /etc/pmon3/config/apps.config.json
+```
+
+#### /etc/pmond/config/app.config.json
+```json
+{
+  "apps": [
+    {
+      "file": "/usr/local/bin/happac",
+      "flags": {
+        "name": "happac1",
+        "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
+        "user": "vagrant"
+      }
+    },
+    {
+      "file": "/usr/local/bin/happab",
+      "flags": {
+        "name": "happac2",
+        "log": "happac2",
+        "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
+        "user": "vagrant"
+      }
+    },
+    {
+      "file": "/usr/local/bin/happac",
+      "flags": {
+        "name": "happac3",
+        "args": "-h startup-patroni-1.node.consul -p 5557 -r 5002",
+        "user": "vagrant",
+        "no_auto_restart": true
+      }
+    }
+  ]
+}
+```
+
+All possible `flags` values matching those specified in the [exec](#exec_flags) command:
+
+* user
+* log
+* log_dir
+* no_auto_restart
+* args
+* name
 
 ## Event Handling With Custom Scripts
 
