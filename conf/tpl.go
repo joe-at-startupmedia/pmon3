@@ -15,11 +15,14 @@ type Tpl struct {
 	IpcConnectionWait      int64  `yaml:"ipc_connection_wait"`
 	PosixMessageQueueDir   string `yaml:"posix_mq_dir"`
 	PosixMessageQueueUser  string `yaml:"posix_mq_user"`
-	PosixMessageQueueGroup string
+	PosixMessageQueueGroup string `yaml:"posix_mq_group"`
 	LogLevel               string `yaml:"log_level"`
 	OnProcessRestartExec   string `yaml:"on_process_restart_exec"`
 	OnProcessFailureExec   string `yaml:"on_process_failure_exec"`
-	ConfigFile             string
+
+	ConfigFile     string
+	AppsConfigFile string `yaml:"apps_config_file"`
+	AppsConfig     *AppsConfig
 }
 
 func (c *Tpl) GetDataDir() string {

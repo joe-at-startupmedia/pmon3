@@ -36,31 +36,14 @@ func getExecFileAbsPath(execFile string) (string, error) {
 func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	execFile := cmd.GetArg1()
 	flags := cmd.GetArg2()
-	// get exec abs file path
-	execPath, err := getExecFileAbsPath(execFile)
-	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("file arguments error: %w", err))
-	}
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
+		return ErroredCmdResp(cmd, fmt.Errorf("command error: could not parse flags: %w, flags: %s", err, flags))
 	}
-	name := parsedFlags.Name
-	// get process file name
-	if len(name) <= 0 {
-		//set the filename as the name
-		name = filepath.Base(execFile)
-		parsedFlags.Name = name
-	}
-	err, p := model.FindProcessByFileAndName(db.Db(), execPath, name)
-	//if process exists
-	if err == nil {
-		pmond.Log.Debugf("updating as queued with flags: %v", flags)
-		err = UpdateAsQueued(p, execPath, parsedFlags)
-	} else {
-		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
-		err = insertAsQueued(execPath, parsedFlags)
+	err = EnqueueProcess(execFile, parsedFlags)
+	if strings.HasPrefix(err.Error(), "command error:") {
+		return ErroredCmdResp(cmd, err)
 	}
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
@@ -70,6 +53,31 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 		newCmdResp.Error = err.Error()
 	}
 	return &newCmdResp
+}
+
+func EnqueueProcess(execFile string, flags *model.ExecFlags) error {
+	// get exec abs file path
+	execPath, err := getExecFileAbsPath(execFile)
+	if err != nil {
+		return fmt.Errorf("command error: file argument error: %w", err)
+	}
+	name := flags.Name
+	// get process file name
+	if len(name) <= 0 {
+		//set the filename as the name
+		name = filepath.Base(execFile)
+		flags.Name = name
+	}
+	err, p := model.FindProcessByFileAndName(db.Db(), execPath, name)
+	//if process exists
+	if err == nil {
+		pmond.Log.Debugf("updating as queued with flags: %v", flags)
+		err = UpdateAsQueued(p, execPath, flags)
+	} else {
+		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
+		err = insertAsQueued(execPath, flags)
+	}
+	return err
 }
 
 func insertAsQueued(processFile string, flags *model.ExecFlags) error {

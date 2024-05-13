@@ -71,6 +71,8 @@ func runMonitor(uninterrupted *bool) {
 
 	go processRequests(uninterrupted, pmond.Log)
 
+	controller.StartsAppsFromConfig()
+
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
 		<-timer.C

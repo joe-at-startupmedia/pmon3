@@ -24,3 +24,5 @@ posix_mq_dir: "/dev/mqueue/" #default value when empty
 posix_mq_user: null
 # specify a custom group to access files in posix_mq_dir (must also provide a user)
 posix_mq_group: null
+# a JSON configuration file to specify a list of apps to start on the first initializtion
+apps_config_file:
