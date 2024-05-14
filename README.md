@@ -1,4 +1,5 @@
-# `pmon3`
+# pmon3
+
 `pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
 
 <img width="726" alt="pmon3 help" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6f266ccf-7a14-4afc-b626-cbd53e245bc1">
@@ -31,6 +32,7 @@ make build
 make systemd_install
 ```
 
+<a name="release_installer"></a>
 ### Using Release Installer
 
 ```bash
@@ -185,6 +187,7 @@ pmon3 kill [--force]
 ```
 pmon3 init
 ```
+
 <a name="pmon3_drop"></a>
 #### Terminate and delete all processes [drop]
 ```
@@ -322,7 +325,7 @@ If you do not specify a value, `info` will be the default Logrus level.
 
 ### CGO_ENABLED=0
 
-By default, no underlying libraries require CGO. This allows for portability between machines using different versions of GLIBC and also provides easy installation using the [Release Installer](https://github.com/joe-at-startupmedia/pmon3#using-release-installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1` provided below:
+By default, no underlying libraries require CGO. This allows for portability between machines using different versions of GLIBC and also provides easy installation using the [Release Installer](#release_installer) . Benchmarking results have confirmed less memory and CPU utilization compared to using the libraries which do require `CGO_ENABLED=1` provided below:
 
 ### Posix MQ
 
