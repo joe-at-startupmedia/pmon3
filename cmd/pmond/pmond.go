@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if isPmondRunning() {
 		pmond.Log.Fatal("pmond is already running")
 	}
