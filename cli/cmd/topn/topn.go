@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/eiannone/keyboard"
-	"github.com/gosuri/uilive"
-	"github.com/spf13/cobra"
 	"io"
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"time"
+
+	"github.com/eiannone/keyboard"
+	"github.com/gosuri/uilive"
+	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
@@ -125,6 +126,6 @@ func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool) {
 		}
 	}()
 	if err := cmd.Start(); err != nil {
-		cli.Log.Error("Encountered an error executing: %s: %s", cmd.String(), err)
+		cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)
 	}
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
@@ -18,15 +19,16 @@ func Restart(cmd *protos.Cmd) *protos.CmdResp {
 	return RestartByParams(cmd, idOrName, flags, true)
 }
 
-// this will kill the process and insert a new record with "queued" status
 func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCounter bool) *protos.CmdResp {
+	// kill the process and insert a new record with "queued" status
+
 	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
 	}
 	if process.IsRunning(p.Pid) {
 		if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("restart error: %w", err.Error()))
+			return ErroredCmdResp(cmd, errors.New(err.Error()))
 		}
 	}
 	execflags := model.ExecFlags{}

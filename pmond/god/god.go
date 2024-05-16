@@ -36,7 +36,7 @@ func handleOpenError(e error) {
 var uninterrupted bool = true
 
 func interruptHandler(uninterrupted *bool) {
-	sigc := make(chan os.Signal)
+	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,
 		syscall.SIGHUP,
 		syscall.SIGINT,

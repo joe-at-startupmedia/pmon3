@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 	"os"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
@@ -17,7 +17,7 @@ func Delete(cmd *protos.Cmd) *protos.CmdResp {
 func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdResp {
 	stopCmdResp := StopByParams(cmd, idOrName, forced, model.StatusStopped)
 	if len(stopCmdResp.GetError()) > 0 {
-		return ErroredCmdResp(cmd, fmt.Errorf("%w", stopCmdResp.GetError()))
+		return ErroredCmdResp(cmd, errors.New(stopCmdResp.GetError()))
 	}
 	process := model.FromProtobuf(stopCmdResp.GetProcess())
 	err := db.Db().Delete(process).Error
