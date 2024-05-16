@@ -41,16 +41,17 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	if err != nil {
 		return ErroredCmdResp(cmd, fmt.Errorf("command error: could not parse flags: %w, flags: %s", err, flags))
 	}
-	err = EnqueueProcess(execFile, parsedFlags)
-	if strings.HasPrefix(err.Error(), "command error:") {
-		return ErroredCmdResp(cmd, err)
-	}
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}
+	err = EnqueueProcess(execFile, parsedFlags)
 	if err != nil {
-		newCmdResp.Error = err.Error()
+		if strings.HasPrefix(err.Error(), "command error:") {
+			return ErroredCmdResp(cmd, err)
+		} else {
+			newCmdResp.Error = err.Error()
+		}
 	}
 	return &newCmdResp
 }
