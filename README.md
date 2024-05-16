@@ -4,6 +4,17 @@
 
 <img width="726" alt="pmon3 help" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6f266ccf-7a14-4afc-b626-cbd53e245bc1">
 
+
+* [Introduction](#section_intro)
+* [Installation](#section_install)
+* [Commands](#section_commands)
+* [Application Configuration](#section_config)
+* [Event Handling](#section_events)
+* [Debugging](#section_debugging)
+* [Performance](#section_performance)
+* [Problems](#section_problems)
+
+<a name="section_intro"></a>
 ## Introduction
 
 Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Node.js PM2 can also be utilized
@@ -14,6 +25,7 @@ Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if th
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
+<a name="section_install"></a>
 ## How To Install
 
 [Releases](https://github.com/joe-at-startupmedia/pmon3/releases) 
@@ -50,7 +62,8 @@ sudo systemctl start pmond
 sudo /usr/local/pmon3/bin/pmond &
 ```
 
-## Command Introduction
+<a name="section_commands"></a>
+## Commands
 
 #### Help
 
@@ -194,6 +207,7 @@ pmon3 init
 pmon3 drop [--force]
 ```
 
+<a name="section_config"></a>
 ## Application Config
 
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
@@ -207,12 +221,12 @@ If [init](#pmon3_init) is ran while there are still stopped process in the datab
 
 #### Configuration
 
-#### /etc/pmond/config/config.yaml
+#### /etc/pmon3/config/config.yaml
 ```yaml
 apps_config_file: /etc/pmon3/config/apps.config.json
 ```
 
-#### /etc/pmond/config/app.config.json
+#### /etc/pmon3/config/app.config.json
 ```json
 {
   "apps": [
@@ -255,6 +269,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 * args
 * name
 
+<a name="section_events"></a>
 ## Event Handling With Custom Scripts
 
 ```yaml
@@ -293,6 +308,7 @@ $ tail /var/log/pmond/output.log
 process restarted: 4 - "happac4"
 ```
 
+<a name="section_debugging"></a>
 ## Debugging
 
 ### Environment Variables
@@ -321,6 +337,7 @@ log_level: "info"
 
 If you do not specify a value, `info` will be the default Logrus level.
 
+<a name="section_performance"></a>
 ## Performance Prioritization
 
 ### CGO_ENABLED=0
@@ -352,6 +369,7 @@ CGO_ENABLED=1 go build -tags "posix_mq,cgo_sqlite" -o bin/pmon3 cmd/pmon3/pmon3.
 CGO_ENABLED=1 go build -tags "posix_mq,cgo_sqlite" -o bin/pmond cmd/pmond/pmond.go
 ```
 
+<a name="section_problems"></a>
 ## Common Problems
 
 ### 1. Log Rotation?
@@ -378,7 +396,7 @@ sudo sh -c "pmon3 completion zsh > /etc/profile.d/pmon3.sh"
 source /etc/profile.d/pmon3.sh
 ```
 
-### 4. FATA stat /var/run/pmon3/pmon3.sock: no such file or directory
+### 4. FATA/vagrant/go_src/pmon3/cmd/pmon3/pmon3.go:27 main.main() pmond must be running
 
 If you encounter the error above, make sure the `pmond` service has started successfully.
 
