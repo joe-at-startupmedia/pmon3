@@ -25,6 +25,10 @@ func isPmondRunning() bool {
 
 func main() {
 	err := pmond.Instance(conf.GetConfigFile())
+	if err != nil {
+		panic(err)
+	}
+	
 	if isPmondRunning() {
 		pmond.Log.Fatal("pmond is already running")
 	}

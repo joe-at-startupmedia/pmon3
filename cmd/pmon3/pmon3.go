@@ -23,6 +23,10 @@ func isPmondRunning() bool {
 func main() {
 
 	err := cli.Instance(conf.GetConfigFile())
+	if err != nil {
+		panic(err)
+	}
+
 	if !isPmondRunning() {
 		cli.Log.Fatal("pmond must be running")
 	}
