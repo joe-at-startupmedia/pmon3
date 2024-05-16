@@ -51,8 +51,7 @@ jobs:
 
       - name: Run Pmond And Exec
         run: |
-          PMON3_CONF=config.yml go run --race cmd/pmond/pmond.go &
-          PMON3_CONF=config.yml go run --race cmd/pmon3/pmon3.go exec bin/test_server
+          PMON3_CONF=config.yml go run --race cmd/pmond/pmond.go & && PMON3_CONF=config.yml go run --race cmd/pmon3/pmon3.go exec bin/test_server
         shell: bash
 
       - name: Build amd64
