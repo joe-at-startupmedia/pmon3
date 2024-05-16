@@ -34,7 +34,7 @@ jobs:
     needs: test
     strategy:
      matrix:
-       os: [ ubuntu-latest, macOS-latest ]
+       os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -52,21 +52,16 @@ jobs:
         shell: bash
 
       - name: Build 386
-        if: matrix.os != 'macOS-latest'
         run: |
           GOARCH=386 go build -v ./...
         shell: bash
 
       - name: Build arm64
-        if: |
-          matrix.os != 'macOS-latest'
         run: |
           GOARCH=arm64 go build -v ./...
         shell: bash
 
       - name: Build arm
-        if: |
-          matrix.os != 'macOS-latest'
         run: |
           GOARCH=arm go build -v ./...
         shell: bash
