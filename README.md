@@ -245,15 +245,15 @@ apps_config_file: /etc/pmon3/config/apps.config.json
         "log": "happac2",
         "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
         "user": "vagrant"
+        "no_auto_restart": true
       }
     },
     {
-      "file": "/usr/local/bin/happac",
+      "file": "/usr/local/bin/node",
       "flags": {
-        "name": "happac3",
-        "args": "-h startup-patroni-1.node.consul -p 5557 -r 5002",
-        "user": "vagrant",
-        "no_auto_restart": true
+        "name": "metabase-api",
+        "args": "/var/www/vhosts/metabase-api/index.js",
+        "user": "dw_user"
       }
     }
   ]
