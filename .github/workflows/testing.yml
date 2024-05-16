@@ -46,7 +46,7 @@ jobs:
           go-version: 1.21
 
       - name: Run Pmond
-        run: go run --race cmd/pmond/pmond.go &
+        run: PMON3_CONF=config.yml go run --race cmd/pmond/pmond.go &
         shell: bash
 
       - name: Build TestServer
@@ -54,7 +54,7 @@ jobs:
         shell: bash
 
       - name: Text Exec
-        run: go run --race cmd/pmon3/pmon3.go exec bin/test_server
+        run: PMON3_CONF=config.yml go run --race cmd/pmon3/pmon3.go exec bin/test_server
         shell: bash
 
       - name: Build amd64
