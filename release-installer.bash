@@ -34,7 +34,10 @@ systemd_install() {
   sudo cp "rpm/pmond.service" /usr/lib/systemd/system/
   sudo cp "rpm/pmond.logrotate" /etc/logrotate.d/pmond
   sudo mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
-  sudo cp "config.yml" /etc/pmon3/config/
+  # prevent configuration overwrite from previous installation
+  if [ ! -f /etc/pmon3/config/config.yml ]; then
+    sudo cp "config.yml" /etc/pmon3/config/
+  fi
   sudo systemctl enable pmond
   sudo systemctl start pmond
   sleep 2

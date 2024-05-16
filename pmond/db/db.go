@@ -1,12 +1,13 @@
 package db
 
 import (
-	"gorm.io/gorm"
 	"os"
 	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 var dbOnce sync.Once
@@ -42,7 +43,7 @@ func Db() *gorm.DB {
 		err = initDb.First(&pmondModel).Error
 		if err != nil {
 			if err == gorm.ErrRecordNotFound { // first version
-				db.Create(&model.Pmond{Version: conf.Version})
+				initDb.Create(&model.Pmond{Version: conf.Version})
 			}
 		}
 
