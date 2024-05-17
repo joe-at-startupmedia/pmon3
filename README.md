@@ -1,3 +1,5 @@
+[![Testing](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
+
 # pmon3
 
 `pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
