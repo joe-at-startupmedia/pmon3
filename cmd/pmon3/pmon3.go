@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/goinbox/shell"
+	"os"
 	"pmon3/cli"
 	"pmon3/cli/cmd"
 	"pmon3/conf"
@@ -27,7 +28,9 @@ func main() {
 		panic(err)
 	}
 
-	if !isPmondRunning() {
+	skipRunCheck := os.Getenv("PMON3_SKIP_RUNCHECK")
+
+	if skipRunCheck != "true" && !isPmondRunning() {
 		cli.Log.Fatal("pmond must be running")
 	}
 	if err != nil {
