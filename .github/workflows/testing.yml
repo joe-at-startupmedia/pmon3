@@ -30,7 +30,7 @@ jobs:
       shell: bash
 
     - name: Docker Testing
-      run: docker build -t local < Dockerfile
+      run: docker build -t pmon3 .
 
   build:
     name: Build
