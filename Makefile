@@ -56,8 +56,9 @@ tools:
 .PHONY: test
 test: build
 	$(GO) build -o bin/test_server test/test_server.go
+	$(GO) build -o bin/test_cli test/test_cli.go
 	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
-	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec $(ROOTDIR)/bin/test_server
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/test_cli exec $(ROOTDIR)/bin/test_server
 
 .PHONY: build
 build:
