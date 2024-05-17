@@ -57,19 +57,25 @@ test: build
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
 	$(GO) build -o bin/cli test/cli/cli.go
+	cp test/test-apps.config.json "$(TEST_DIR_DATA).."
+	cp bin/app "$(TEST_DIR_DATA).."
 	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
 	sleep 3 
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server"}'
-	$(TEST_VARS) ./bin/cli ls_assert 1 running
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server2"}'
-	$(TEST_VARS) ./bin/cli ls_assert 2 running
-	$(TEST_VARS) ./bin/cli desc 2
+	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server3"}'
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
+	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server4"}'
+	$(TEST_VARS) ./bin/cli ls_assert 4 running
+	$(TEST_VARS) ./bin/cli desc 4
 	$(TEST_VARS) ./bin/cli del 1
-	$(TEST_VARS) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	$(TEST_VARS) ./bin/cli kill
-	$(TEST_VARS) ./bin/cli ls_assert 1 stopped
+	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
 	$(TEST_VARS) ./bin/cli init
-	$(TEST_VARS) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
+	$(TEST_VARS) ./bin/cli drop
+	$(TEST_VARS) ./bin/cli ls_assert 0
+	$(TEST_VARS) ./bin/cli init
+	$(TEST_VARS) ./bin/cli ls_assert 2 running
 	$(TEST_VARS) ./bin/cli drop
 	$(TEST_VARS) ./bin/cli ls_assert 0
 	pidof pmond | xargs kill -9

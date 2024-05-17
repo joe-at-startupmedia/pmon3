@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "file": "/usr/src/pmon3/app",
+      "flags": {
+        "name": "test-server-1"
+      }
+    },
+    {
+      "file": "/usr/src/pmon3/app",
+      "flags": {
+        "name": "test-server-2"
+      }
+    }
+  ]
+}

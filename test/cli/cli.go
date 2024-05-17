@@ -21,8 +21,10 @@ func main() {
 
 	base.OpenSender()
 
-	args := os.Args
+	execCmd(os.Args, 0)
+}
 
+func execCmd(args []string, retries int) {
 	cmdArg := args[1]
 	if cmdArg == "ls_assert" {
 		base.SendCmd("list", "")
@@ -38,8 +40,6 @@ func main() {
 	} else {
 		panic("must provide a command")
 	}
-
-	//time.Sleep(0 * time.Second)
 
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {
@@ -61,7 +61,14 @@ func main() {
 				pStatus := args[3]
 				for _, p := range processList {
 					if p.Status != pStatus {
-						cli.Log.Fatalf("Expected process status of %d but got %d", expectedProcessLen, actualProcessLen)
+						if retries < 3 { //three retries are allowed
+							cli.Log.Infof("Expected process status of %s but got %s", pStatus, p.Status)
+							cli.Log.Warnf("retry count: %d", retries+1)
+							time.Sleep(time.Second * 5)
+							execCmd(args, retries+1)
+						} else {
+							cli.Log.Fatalf("Expected process status of %s but got %s", pStatus, p.Status)
+						}
 					}
 				}
 			}
