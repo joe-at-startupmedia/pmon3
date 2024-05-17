@@ -55,7 +55,7 @@ tools:
 
 .PHONY: test
 test: build build_test
-	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
+	PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
 	PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec bin/test_server
 
 .PHONY: build_test
@@ -75,32 +75,32 @@ build_cgo:
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
-	sudo cp "$(ROOTDIR)/rpm/pmond.service" /usr/lib/systemd/system/
-	sudo cp "$(ROOTDIR)/rpm/pmond.logrotate" /etc/logrotate.d/pmond
-	sudo mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
-	sudo cp "$(ROOTDIR)/config.yml" /etc/pmon3/config/
-	sudo systemctl enable pmond
-	sudo systemctl start pmond
-	sudo sh -c "$(ROOTDIR)/bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
+	cp "$(ROOTDIR)/rpm/pmond.service" /usr/lib/systemd/system/
+	cp "$(ROOTDIR)/rpm/pmond.logrotate" /etc/logrotate.d/pmond
+	mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
+	cp "$(ROOTDIR)/config.yml" /etc/pmon3/config/
+	systemctl enable pmond
+	systemctl start pmond
+	sh -c "$(ROOTDIR)/bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
 	$(MAKE) systemd_permissions
 	$(ROOTDIR)/bin/pmon3 ls
 	$(ROOTDIR)/bin/pmon3 --help
 
 .PHONY: systemd_uninstall
 systemd_uninstall: 
-	sudo rm -rf /var/log/pmond /etc/pmon3/config /etc/pmon3/data /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
-	sudo systemctl stop pmond || true
-	sudo systemctl disable pmond || true
+	rm -rf /var/log/pmond /etc/pmon3/config /etc/pmon3/data /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
+	systemctl stop pmond || true
+	systemctl disable pmond || true
 
 .PHONY: systemd_permissions
 systemd_permissions:
 	sleep 2
-	sudo chown -R root:$(WHOAMI) /var/log/pmond
-	sudo chmod 660 "/var/log/pmond/*" || true
+	chown -R root:$(WHOAMI) /var/log/pmond
+	chmod 660 "/var/log/pmond/*" || true
 
 .PHONY: install
 install:
-	sudo cp -R bin/pmon* /usr/local/bin/
+	cp -R bin/pmon* /usr/local/bin/
 
 .PHONY: protogen
 protogen:
