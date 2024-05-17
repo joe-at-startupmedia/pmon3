@@ -11,7 +11,7 @@ log_level: debug
 # kill processes on termination
 handle_interrupts: true
 # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
-cmd_exec_response_wait: 2500
+cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
 ipc_connection_wait: 0
 # a script to execute when a process is restarted which accepts the process details json as the first argument

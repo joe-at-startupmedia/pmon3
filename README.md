@@ -221,7 +221,7 @@ If [init](#pmon3_init) is ran while there are still stopped process in the datab
 
 #### Configuration
 
-#### /etc/pmon3/config/config.yaml
+#### /etc/pmon3/config/config.yml
 ```yaml
 apps_config_file: /etc/pmon3/config/apps.config.json
 ```
@@ -280,7 +280,7 @@ on_process_failure_exec: ""
 ```
 
 #### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
-#### /etc/pmond/config/config.yaml
+#### /etc/pmond/config/config.yml
 ```yaml
 on_process_restart_exec: "/etc/pmon3/bin/on_restart.bash"
 ```
@@ -313,11 +313,18 @@ process restarted: 4 - "happac4"
 
 ### Environment Variables
 
-You can specify debug verbosity from both the `pmon3` client and the `pmond` daemon process using `PMON3_DEBUG=true` as an environment variable. This will set the Logrus level to `debug`
+You can specify debug verbosity from both the `pmon3` client and the `pmond` daemon process using the `PMON3_DEBUG` environment variable.
 
 ```bash
 PMON3_DEBUG=true pmond 
 ```
+
+`PMON3_DEBUG` accepts the following values:
+* `true`: sets the debug level to debug
+* `debug`: has the same effect as true
+* `info`: sets the debug level to info
+* `warn`: sets the debug level to warn
+* `error`: sets the debug level to error
 
 You can also debug the underlying IPC library using `QOG_DEBUG=true`
 
@@ -329,7 +336,7 @@ QOG_DEBUG=true IPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
 
 If you want more control over the verbosity you can set the loglevel in the yaml configuration file.
 
-##### /etc/pmond/config/config.yaml
+##### /etc/pmond/config/config.yml
 ```
 # log levels: debug/info/warn/error
 log_level: "info"

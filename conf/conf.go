@@ -12,9 +12,9 @@ import (
 // current app version
 var Version = "1.14.5"
 
-// two options:
-// 1. Use PMON3_CONF envionment variable
-// 2. fallback toa hardcoded path
+// GetConfigFile two options:
+// 1. Use PMON3_CONF environment variable
+// 2. fallback to a hardcoded path
 func GetConfigFile() string {
 	conf := os.Getenv("PMON3_CONF")
 	if len(conf) == 0 {

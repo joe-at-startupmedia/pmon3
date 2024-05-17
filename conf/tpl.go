@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const DEFAULT_LOG_LEVEL = logrus.InfoLevel
+
 type Tpl struct {
 	Data                   string `yaml:"data"`
 	Logs                   string `yaml:"logs"`
@@ -56,22 +58,31 @@ func (c *Tpl) GetIpcConnectionWait() time.Duration {
 }
 
 func (c *Tpl) GetLogrusLevel() logrus.Level {
-	if os.Getenv("PMON3_DEBUG") == "true" {
-		return logrus.DebugLevel
-	} else {
-		switch c.LogLevel {
-		case "debug":
+	debugEnv := os.Getenv("PMON3_DEBUG")
+	if len(debugEnv) > 0 {
+		if debugEnv == "true" {
 			return logrus.DebugLevel
-		case "info":
-			return logrus.InfoLevel
-		case "warn":
-			return logrus.WarnLevel
-		case "error":
-			return logrus.ErrorLevel
+		} else {
+			return strToLogLevel(debugEnv)
 		}
+	} else {
+		return strToLogLevel(c.LogLevel)
+	}
+}
 
-		log.Println("log_level configuration is empty or invalid. Possible values include: debug, info, warn and error. using default level: info")
+func strToLogLevel(str string) logrus.Level {
+	switch str {
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
 		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	default:
+		log.Println("log_level configuration is empty or invalid. Possible values include: debug, info, warn and error.")
+		return DEFAULT_LOG_LEVEL
 	}
 }
 
