@@ -59,8 +59,8 @@ tools:
 test: build
 	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
-	$(GO) build -o bin/app test/app.go
-	$(GO) build -o bin/cli test/cli.go
+	$(GO) build -o bin/app test/app/app.go
+	$(GO) build -o bin/cli test/cli/cli.go
 	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond > test.log 2>&1 &
 	sleep 3 
 	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server"}'
