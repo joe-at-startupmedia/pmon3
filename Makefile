@@ -5,9 +5,7 @@ PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
 WHOAMI=$(shell whoami)
-TEST_DIR_LOGS="$(ROOTDIR)/tmp/logs"
-TEST_DIR_DATA="$(ROOTDIR)/tmp/data"
-TEST_FILE_CONFIG=$(ROOTDIR)/tmp/config-test.yml
+TEST_FILE_CONFIG=$(ROOTDIR)/config.yml
 
 all: build
 
@@ -56,14 +54,11 @@ tools:
 	fi
 
 .PHONY: test
-test: build_test
+test: build build_test
 	sudo PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
 	PMON3_DEBUG=true PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmon3 exec bin/test_server
 
 .PHONY: build_test
-build_test: build
-	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
-	printf '%s\n%s' "data: $(TEST_DIR_DATA)" "logs: $(TEST_DIR_LOGS)" > $(TEST_FILE_CONFIG)
 	$(GO) build -o bin/test_server test/test_server.go
 
 .PHONY: build
