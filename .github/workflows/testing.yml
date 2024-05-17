@@ -29,6 +29,9 @@ jobs:
       run: go vet ./...
       shell: bash
 
+    - name: Docker Testing
+      run: docker build -t local < Dockerfile
+
   build:
     name: Build
     needs: test
@@ -64,17 +67,6 @@ jobs:
       - name: Build arm
         run: |
           GOARCH=arm go build -v ./...
-        shell: bash
-
-      - name: Build TestServer
-        run: go build -o bin/test_server test/test_server.go
-        shell: bash
-
-      - name: Run Pmond And Exec
-        run: |
-          PMON3_CONF=config.yml go run --race cmd/pmond/pmond.go
-          sleep 5
-          PMON3_CONF=config.yml go run --race cmd/pmon3/pmon3.go exec bin/test_server
         shell: bash
 
       - name: Finish
