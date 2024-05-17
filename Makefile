@@ -62,7 +62,6 @@ test: build_test
 
 .PHONY: build_test
 build_test: build
-	sudo rm -rf "$(ROOTDIR)/tmp" 
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	printf '%s\n%s' "data: $(TEST_DIR_DATA)" "logs: $(TEST_DIR_LOGS)" > $(TEST_FILE_CONFIG)
 	$(GO) build -o bin/test_server test/test_server.go
