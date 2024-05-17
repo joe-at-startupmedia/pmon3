@@ -24,8 +24,6 @@ func connectResponder() {
 		handleOpenError(pmqResponder.ErrResp)
 	}
 	pmr = pmqResponder
-
-	time.Sleep(5 * time.Second) //allows responder to establish connection
 }
 
 func closeResponder() error {

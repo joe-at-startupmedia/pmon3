@@ -5,7 +5,9 @@ PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
 WHOAMI=$(shell whoami)
-TEST_FILE_CONFIG=$(ROOTDIR)/config.yml
+TEST_FILE_CONFIG ?= $(ROOTDIR)/test/test-config.yml
+TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data:" | tr -d '"' | cut -d' ' -f2)
+TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs:" | tr -d '"' | cut -d' ' -f2)
 
 all: build
 
@@ -55,11 +57,26 @@ tools:
 
 .PHONY: test
 test: build
-	$(GO) build -o bin/test_server test/test_server.go
-	$(GO) build -o bin/test_cli test/test_cli.go
-	chmod +x ./bin/*
-	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond &
-	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/test_cli exec $(ROOTDIR)/bin/test_server
+	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	$(GO) build -o bin/app test/app.go
+	$(GO) build -o bin/cli test/cli.go
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/pmond > test.log 2>&1 &
+	sleep 3 
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server"}'
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server2"}'
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 2 running
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli desc 2
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli del 1
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli kill
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 1 stopped
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli init
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli drop
+	$(TEST_VARS) PMON3_CONF=$(TEST_FILE_CONFIG) ./bin/cli ls_assert 0
+	pidof pmond | xargs kill -9
 
 .PHONY: build
 build:
