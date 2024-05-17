@@ -27,19 +27,19 @@ func main() {
 	if cmdArg == "ls_assert" {
 		base.SendCmd("list", "")
 	} else if len(args) == 4 {
-		cli.Log.Infof("Executing: pmon3 %s %s %s", args[1], args[2], args[3])
+		cli.Log.Infof("Executing: pmon3 %s %s %s", cmdArg, args[2], args[3])
 		base.SendCmdArg2(cmdArg, args[2], args[3])
 	} else if len(args) == 3 {
-		cli.Log.Infof("Executing: pmon3 %s %s", args[1], args[2])
+		cli.Log.Infof("Executing: pmon3 %s %s", cmdArg, args[2])
 		base.SendCmd(cmdArg, args[2])
 	} else if len(args) == 2 {
-		cli.Log.Infof("Executing: pmon3 %s", args[1])
+		cli.Log.Infof("Executing: pmon3 %s", cmdArg)
 		base.SendCmd(cmdArg, "")
 	} else {
 		panic("must provide a command")
 	}
 
-	time.Sleep(0 * time.Second)
+	//time.Sleep(0 * time.Second)
 
 	newCmdResp := base.GetResponse()
 	if len(newCmdResp.GetError()) > 0 {

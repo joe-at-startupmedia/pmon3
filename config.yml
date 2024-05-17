@@ -3,26 +3,26 @@
 # --------------------------------
 
 # data dir, such as db data
-data: "/etc/pmon3/data"
+data: /etc/pmon3/data
 # logs dir
-logs: "/var/log/pmond"
+logs: /var/log/pmond
 # log levels: debug/info/warn/error
-log_level: "info"
-# kill processes on termintation
+log_level: info
+# kill processes on termination
 handle_interrupts: true
-# wait [n] milliseconds before outputing list after running init/stop/restart/kill/drop/exec
+# wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
 cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
 ipc_connection_wait: 0
 # a script to execute when a process is restarted which accepts the process details json as the first argument
-on_process_restart_exec: ""
+on_process_restart_exec:
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
-on_process_failure_exec: ""
+on_process_failure_exec:
 # specify a custom posix_mq directory in order to apply the appropriate permissions
-posix_mq_dir: "/dev/mqueue/" #default value when empty
+posix_mq_dir: /dev/mqueue/ #default value when empty
 # specify a custom user to access files in posix_mq_dir
 posix_mq_user: null
 # specify a custom group to access files in posix_mq_dir (must also provide a user)
 posix_mq_group: null
-# a JSON configuration file to specify a list of apps to start on the first initializtion
+# a JSON configuration file to specify a list of apps to start on the first initialization
 apps_config_file:
