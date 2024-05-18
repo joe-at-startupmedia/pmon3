@@ -358,19 +358,19 @@ By default, no underlying libraries require CGO. This allows for portability bet
 
 The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
 ```bash
-BUILD_TAGS="posix_mq" make build-cgo
+BUILD_TAGS="posix_mq" make build_cgo
 ```
 
 ### CGO-based Sqlite
 
 By default, `pmon3` utilizes an non-CGO version of sqlite which is unnoticably less performant in most circumstances. To enable the CGO version of sqlite:
 ```bash
-BUILD_TAGS="cgo_sqlite" make build-cgo
+BUILD_TAGS="cgo_sqlite" make build_cgo
 ```
 
 It depends on your requirements whether you need one or both. To enable both of these CGO-dependent modules for maximizing overall performance:
 ```bash
-BUILD_TAGS="posix_mq,cgo_sqlite" make build-cgo
+BUILD_TAGS="posix_mq,cgo_sqlite" make build_cgo
 ```
 
 Or without using the Makefile:
