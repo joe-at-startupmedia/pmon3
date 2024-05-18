@@ -1,6 +1,7 @@
 package base
 
 import (
+	"context"
 	"pmon3/cli"
 	"pmon3/pmond/protos"
 	"strings"
@@ -9,6 +10,8 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 )
+
+const SEND_RECEIVE_TIMEOUT = time.Second * 5
 
 func handleOpenError(e error) {
 	if e != nil {
@@ -29,41 +32,53 @@ func CloseSender() {
 }
 
 func sendCmd(cmd *protos.Cmd) {
+	cli.Log.Debug("sending message")
 	pbm := proto.Message(cmd)
-	err := pmr.RequestUsingProto(&pbm, 0)
-	if err != nil {
-		cli.Log.Fatal(err)
+	sendErrChan := make(chan error, 1)
+
+	ctx, cancel := context.WithTimeout(context.Background(), SEND_RECEIVE_TIMEOUT)
+	defer cancel()
+
+	go func() {
+		err := pmr.RequestUsingProto(&pbm, 0)
+		sendErrChan <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		cli.Log.Fatal("operation timed out")
+	case err := <-sendErrChan:
+		if err != nil {
+			cli.Log.Fatal(err)
+		}
+		cli.Log.Debugf("Sent a new message: %s", cmd.String())
 	}
-	cli.Log.Debugf("Sent a new message: %s", cmd.String())
 }
 
 func GetResponse() *protos.CmdResp {
-	cli.Log.Debugf("getting response")
+	cli.Log.Debug("getting response")
 	newCmdResp := &protos.CmdResp{}
+	readErrChan := make(chan error, 1)
 
-	stop := make(chan int)
+	ctx, cancel := context.WithTimeout(context.Background(), SEND_RECEIVE_TIMEOUT)
+	defer cancel()
+
 	go func() {
-		for {
-			select {
-			case <-time.After(5 * time.Second):
-				cli.Log.Fatal("operation timed out")
-			case <-stop:
-				return
-			}
-		}
+		_, _, err := waitForResponse(newCmdResp)
+		readErrChan <- err
 	}()
 
-	_, _, err := waitForResponse(newCmdResp)
-	stop <- 0
-	if err != nil {
-		cli.Log.Fatal(err)
+	select {
+	case <-ctx.Done():
+		cli.Log.Fatal("operation timed out")
+	case err := <-readErrChan:
+		if err != nil {
+			cli.Log.Fatal(err)
+		} else if len(newCmdResp.GetError()) > 0 {
+			cli.Log.Fatal(newCmdResp.GetError())
+		}
+		cli.Log.Debugf("Got a new response: %s", newCmdResp.String())
 	}
-
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatal(newCmdResp.GetError())
-	}
-	cli.Log.Debugf("Got a new response: %s", newCmdResp.String())
-
 	return newCmdResp
 }
 
