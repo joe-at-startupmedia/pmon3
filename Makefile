@@ -53,7 +53,7 @@ tools:
 
 .PHONY: test
 test: build
-	rm -r "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
 	$(GO) build -o bin/cli test/cli/cli.go
