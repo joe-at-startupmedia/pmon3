@@ -20,8 +20,8 @@ fmt:
 fmt_check:
 	@diff=$$($(GOFMT) -d $(GOFILES)); \
 	if [ -n "$$diff" ]; then \
-		echo "Please run 'make fmt' and commit the result:"; \
-		echo "$${diff}"; \
+		@printf "Please run 'make fmt' and commit the result:"; \
+		@printf "$${diff}"; \
 		exit 1; \
 	fi;
 
@@ -51,35 +51,6 @@ tools:
 	$(GO) install golang.org/x/lint/golint@latest
 	$(GO) install github.com/client9/misspell/cmd/misspell@latest
 
-.PHONY: test
-test: build
-	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
-	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
-	$(GO) build -o bin/app test/app/app.go
-	$(GO) build -o bin/cli test/cli/cli.go
-	cp test/test-apps.config.json "$(TEST_DIR_DATA).."
-	cp bin/app "$(TEST_DIR_DATA).."
-	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
-	sleep 3 
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server3"}'
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server4"}'
-	$(TEST_VARS) ./bin/cli ls_assert 4 running
-	$(TEST_VARS) ./bin/cli desc 4
-	$(TEST_VARS) ./bin/cli del 1
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	$(TEST_VARS) ./bin/cli kill
-	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
-	$(TEST_VARS) ./bin/cli init
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	$(TEST_VARS) ./bin/cli drop
-	$(TEST_VARS) ./bin/cli ls_assert 0
-	$(TEST_VARS) ./bin/cli init
-	$(TEST_VARS) ./bin/cli ls_assert 2 running
-	$(TEST_VARS) ./bin/cli drop
-	$(TEST_VARS) ./bin/cli ls_assert 0
-	pidof pmond | xargs kill -9
-
 .PHONY: build
 build:
 	$(GO) mod tidy
@@ -89,8 +60,73 @@ build:
 .PHONY: build_cgo
 build_cgo:
 	$(GO) mod tidy
-	CGO_ENABLED=1 $(GO) build -tags $(BUILD_TAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
-	CGO_ENABLED=1 $(GO) build -tags $(BUILD_TAGS) -o bin/pmond cmd/pmond/pmond.go
+	CGO_ENABLED=1 $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
+	CGO_ENABLED=1 $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
+
+.PHONY: test
+test: build run_test
+
+#using a value wrapped in double qoutes doesnt work
+test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
+
+.PHONY: test_cgo
+test_cgo: build_cgo run_test
+
+.PHONY: run_test
+run_test:
+	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	$(GO) build -o bin/app test/app/app.go
+	$(GO) build $(BUILD_FLAGS) -o bin/cli test/cli/cli.go
+	cp test/test-apps.config.json "$(TEST_DIR_DATA).."
+	cp bin/app "$(TEST_DIR_DATA).."
+	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
+	sleep 3 
+	@printf "\n\n\033[1mtests that pmond booted from apps config\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli ls_assert 2 running
+	#
+	@printf "\n\n\033[1mtests running additional apps from initial boot\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server3"}'
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
+	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server4"}'
+	$(TEST_VARS) ./bin/cli ls_assert 4 running
+	#
+	@printf "\n\n\033[1mtests desc command returns nonzero status\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli desc 4
+	#
+	@printf "\n\n\033[1mtests del command removes an application from process list\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli del 1
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
+	#
+	@printf "\n\n\033[1mtests kill command result in stopping all processes\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli kill
+	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
+	#
+	@printf "\n\n\033[1mtests init command restarts all apps\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli init
+	$(TEST_VARS) ./bin/cli ls_assert 3 running
+	#
+	@printf "\n\n\033[1mtests drop command removes all applications\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli drop
+	$(TEST_VARS) ./bin/cli ls_assert 0
+	#
+	@printf "\n\n\033[1mtests init commands boots pmond from app config\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli init
+	$(TEST_VARS) ./bin/cli ls_assert 2 running
+	#
+	@printf "\n\n\033[1mtests that starting and stopping an app works\033[0m\n\n"
+	$(TEST_VARS) ./bin/cli drop
+	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server5"}'
+	$(TEST_VARS) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) ./bin/cli stop 1
+	$(TEST_VARS) ./bin/cli ls_assert 1 stopped
+	$(TEST_VARS) ./bin/cli restart 1 '{}'
+	$(TEST_VARS) ./bin/cli ls_assert 1 running
+	$(TEST_VARS) ./bin/cli drop
+	#
+	@printf "\n\n\033[1mAll tests passed\033[0m\n\n"
+	pidof pmond | xargs kill -9
+
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install

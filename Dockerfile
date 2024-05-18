@@ -7,4 +7,5 @@ RUN apk --update add build-base && \
   git clone https://github.com/joe-at-startupmedia/pmon3.git . && \
   mkdir /usr/src/pmon3/data && \
   mkdir /usr/src/pmon3/logs && \
-  make test
+  make test && \
+  make test_cgo
