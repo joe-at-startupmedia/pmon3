@@ -30,7 +30,7 @@ func openSender() {
 	pmr = pmqSender
 }
 
-func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, uint, error) {
+func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, error) {
 	return pmr.WaitForProto(newCmdResp, time.Second*time.Duration(5))
 }
 

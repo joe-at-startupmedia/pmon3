@@ -40,7 +40,7 @@ func sendCmd(cmd *protos.Cmd) {
 	defer cancel()
 
 	go func() {
-		err := pmr.RequestUsingProto(&pbm, 0)
+		err := pmr.RequestUsingProto(&pbm)
 		sendErrChan <- err
 	}()
 
@@ -64,7 +64,7 @@ func GetResponse() *protos.CmdResp {
 	defer cancel()
 
 	go func() {
-		_, _, err := waitForResponse(newCmdResp)
+		_, err := waitForResponse(newCmdResp)
 		readErrChan <- err
 	}()
 

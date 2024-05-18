@@ -21,6 +21,18 @@ func openSender() {
 	}
 
 	pmqSender := goq_responder.NewRequester(&queueConfig)
+	//for {
+	//	msg, err := pmqSender.MqRqst.Read()
+	//	if err != nil {
+	//		cli.Log.Fatal(err)
+	//	} else if msg != nil {
+	//		cli.Log.Debugf("Requester status(%s)", msg.Status)
+	//		if msg.Status == "Connected" {
+	//			break
+	//		}
+	//	}
+	//}
+
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())
 
@@ -31,7 +43,7 @@ func openSender() {
 	pmr = pmqSender
 }
 
-func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, uint, error) {
+func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, error) {
 	return pmr.WaitForProto(newCmdResp)
 }
 
