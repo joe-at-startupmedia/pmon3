@@ -135,7 +135,7 @@ pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 
 :exclamation::exclamation: Note :exclamation::exclamation:
 
-Parameter arguments need to use the absolute path。
+Parameter arguments need to use the absolute path.
 
 #### View List  [ list/ls ]
 
