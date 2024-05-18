@@ -10,7 +10,7 @@ import (
 )
 
 // current app version
-var Version = "1.14.6"
+var Version = "1.14.7"
 
 // GetConfigFile two options:
 // 1. Use PMON3_CONF environment variable
