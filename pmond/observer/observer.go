@@ -21,8 +21,8 @@ func (w EventType) String() string {
 
 // Event with some payload
 type Event struct {
-	Type    EventType
 	Process *model.Process
+	Type    EventType
 }
 
 func HandleEvent(evt *Event) {

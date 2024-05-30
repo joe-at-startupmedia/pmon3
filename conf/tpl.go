@@ -10,11 +10,9 @@ import (
 const DEFAULT_LOG_LEVEL = logrus.InfoLevel
 
 type Tpl struct {
+	AppsConfig             *AppsConfig
 	Data                   string `yaml:"data"`
 	Logs                   string `yaml:"logs"`
-	HandleInterrupts       bool   `yaml:"handle_interrupts"`
-	CmdExecResponseWait    int64  `yaml:"cmd_exec_response_wait"`
-	IpcConnectionWait      int64  `yaml:"ipc_connection_wait"`
 	PosixMessageQueueDir   string `yaml:"posix_mq_dir"`
 	PosixMessageQueueUser  string `yaml:"posix_mq_user"`
 	PosixMessageQueueGroup string `yaml:"posix_mq_group"`
@@ -22,9 +20,11 @@ type Tpl struct {
 	OnProcessRestartExec   string `yaml:"on_process_restart_exec"`
 	OnProcessFailureExec   string `yaml:"on_process_failure_exec"`
 
-	ConfigFile     string
-	AppsConfigFile string `yaml:"apps_config_file"`
-	AppsConfig     *AppsConfig
+	ConfigFile          string
+	AppsConfigFile      string `yaml:"apps_config_file"`
+	CmdExecResponseWait int64  `yaml:"cmd_exec_response_wait"`
+	IpcConnectionWait   int64  `yaml:"ipc_connection_wait"`
+	HandleInterrupts    bool   `yaml:"handle_interrupts"`
 }
 
 func (c *Tpl) GetDataDir() string {

@@ -63,21 +63,21 @@ func StringToProcessStatus(s string) ProcessStatus {
 }
 
 type Process struct {
-	ID           uint32        `gorm:"primary_key" json:"id"`
 	CreatedAt    time.Time     `json:"created_at"`
 	UpdatedAt    time.Time     `json:"updated_at"`
-	Pid          uint32        `gorm:"column:pid" json:"pid"`
+	Pointer      *os.Process   `gorm:"-" json:"-"`
 	Log          string        `gorm:"column:log" json:"log"`
 	Name         string        `gorm:"unique" json:"name"`
 	ProcessFile  string        `json:"process_file"`
 	Args         string        `json:"args"`
-	Status       ProcessStatus `json:"status"`
-	Pointer      *os.Process   `gorm:"-" json:"-"`
-	AutoRestart  bool          `json:"auto_restart"`
-	Uid          uint32        `gorm:"column:uid" json:"uid"`
 	Username     string        `json:"username"`
+	Status       ProcessStatus `json:"status"`
+	ID           uint32        `gorm:"primary_key" json:"id"`
+	Pid          uint32        `gorm:"column:pid" json:"pid"`
+	Uid          uint32        `gorm:"column:uid" json:"uid"`
 	Gid          uint32        `gorm:"column:gid" json:"gid"`
 	RestartCount uint32        `gorm:"-" json:"-"`
+	AutoRestart  bool          `json:"auto_restart"`
 }
 
 func (p Process) NoAutoRestartStr() string {

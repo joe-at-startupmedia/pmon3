@@ -9,9 +9,9 @@ type ExecFlags struct {
 	User          string `json:"user"`
 	Log           string `json:"log"`
 	LogDir        string `json:"log_dir"`
-	NoAutoRestart bool   `json:"no_auto_restart"`
 	Args          string `json:"args"`
 	Name          string `json:"name"`
+	NoAutoRestart bool   `json:"no_auto_restart"`
 }
 
 func (e *ExecFlags) Parse(jsonStr string) (*ExecFlags, error) {
