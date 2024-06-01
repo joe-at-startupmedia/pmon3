@@ -1,6 +1,8 @@
 package god
 
 import (
+	"github.com/joe-at-startupmedia/xipc"
+	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"pmon3/pmond"
@@ -13,6 +15,8 @@ import (
 	"syscall"
 	"time"
 )
+
+var xr xipc.IResponder
 
 func New() {
 
@@ -138,4 +142,33 @@ func runningTask(isInitializing bool) {
 
 		}(p, key)
 	}
+}
+
+func monitorResponderStatus(uninterrupted *bool, logger *logrus.Logger) {
+	//posix_mq doest have a status, so we do nothing here
+}
+
+// HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type
+func handleCmdRequest(mqr xipc.IResponder) error {
+	cmd := &protos.Cmd{}
+	return mqr.HandleRequestFromProto(cmd, func() (processed []byte, err error) {
+		return controller.MsgHandler(cmd)
+	})
+}
+
+func processRequests(uninterrupted *bool, logger *logrus.Logger) {
+	for {
+		if !*uninterrupted {
+			break
+		}
+		logger.Debug("running request handler")
+		err := handleCmdRequest(xr) //blocking
+		if err != nil {
+			logger.Errorf("Error handling request: %-v", err)
+		}
+	}
+}
+
+func closeResponder() error {
+	return xr.CloseResponder()
 }

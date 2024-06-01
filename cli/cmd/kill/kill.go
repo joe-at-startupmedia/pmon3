@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,12 +32,14 @@ func Kill(processStatus model.ProcessStatus) {
 	base.OpenSender()
 	defer base.CloseSender()
 
+	var sent *protos.Cmd
+
 	if forceKill {
-		base.SendCmd("kill", "force")
+		sent = base.SendCmd("kill", "force")
 	} else {
-		base.SendCmd("kill", "")
+		sent = base.SendCmd("kill", "")
 	}
-	newCmdResp := base.GetResponse()
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

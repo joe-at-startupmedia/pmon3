@@ -22,8 +22,8 @@ var Cmd = &cobra.Command{
 func cmdRun(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	base.SendCmd("desc", args[0])
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmd("desc", args[0])
+	newCmdResp := base.GetResponse(sent)
 	process := newCmdResp.GetProcess()
 	rel := [][]string{
 		{"status", process.Status},

@@ -5,6 +5,7 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/conf"
+	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"time"
 )
@@ -26,22 +27,23 @@ func main() {
 
 func execCmd(args []string, retries int) {
 	cmdArg := args[1]
+	var sent *protos.Cmd
 	if cmdArg == "ls_assert" {
-		base.SendCmd("list", "")
+		sent = base.SendCmd("list", "")
 	} else if len(args) == 4 {
 		cli.Log.Infof("Executing: pmon3 %s %s %s", cmdArg, args[2], args[3])
-		base.SendCmdArg2(cmdArg, args[2], args[3])
+		sent = base.SendCmdArg2(cmdArg, args[2], args[3])
 	} else if len(args) == 3 {
 		cli.Log.Infof("Executing: pmon3 %s %s", cmdArg, args[2])
-		base.SendCmd(cmdArg, args[2])
+		sent = base.SendCmd(cmdArg, args[2])
 	} else if len(args) == 2 {
 		cli.Log.Infof("Executing: pmon3 %s", cmdArg)
-		base.SendCmd(cmdArg, "")
+		sent = base.SendCmd(cmdArg, "")
 	} else {
 		panic("must provide a command")
 	}
 
-	newCmdResp := base.GetResponse()
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatal(newCmdResp.GetError())
 	} else {

@@ -37,8 +37,8 @@ func init() {
 
 func cmdRun(args []string, flags string) {
 	base.OpenSender()
-	base.SendCmdArg2("exec", args[0], flags)
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmdArg2("exec", args[0], flags)
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

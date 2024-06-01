@@ -4,6 +4,7 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
+	"pmon3/pmond/protos"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -30,12 +31,14 @@ func Drop() {
 	base.OpenSender()
 	defer base.CloseSender()
 
+	var sent *protos.Cmd
+
 	if forceKill {
-		base.SendCmd("drop", "force")
+		sent = base.SendCmd("drop", "force")
 	} else {
-		base.SendCmd("drop", "")
+		sent = base.SendCmd("drop", "")
 	}
-	newCmdResp := base.GetResponse()
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

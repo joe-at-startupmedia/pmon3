@@ -21,8 +21,8 @@ var Cmd = &cobra.Command{
 
 func Show() {
 
-	base.SendCmd("list", "")
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmd("list", "")
+	newCmdResp := base.GetResponse(sent)
 	all := newCmdResp.GetProcessList().GetProcesses()
 	var allProcess [][]string
 	for _, p := range all {

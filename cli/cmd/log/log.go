@@ -28,8 +28,8 @@ func init() {
 func cmdRun(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	base.SendCmd("log", args[0])
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmd("log", args[0])
+	newCmdResp := base.GetResponse(sent)
 	logFile := newCmdResp.GetProcess().GetLog()
 
 	if logRotated {

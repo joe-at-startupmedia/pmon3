@@ -4,6 +4,7 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	table_one "pmon3/cli/output/one"
+	"pmon3/pmond/protos"
 
 	"pmon3/pmond/model"
 
@@ -30,12 +31,13 @@ func init() {
 func runCmd(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
+	var sent *protos.Cmd
 	if forceKill {
 		base.SendCmdArg2("del", args[0], "force")
 	} else {
 		base.SendCmd("del", args[0])
 	}
-	newCmdResp := base.GetResponse()
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
