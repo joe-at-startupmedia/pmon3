@@ -332,7 +332,7 @@ PMON3_DEBUG=true pmond
 You can also debug the underlying IPC library using `QOG_DEBUG=true`
 
 ```bash
-QOG_DEBUG=true IPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
+XIPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
 ```
 
 ### Configuration File
