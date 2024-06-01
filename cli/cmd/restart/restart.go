@@ -33,8 +33,8 @@ func init() {
 func cmdRun(args []string, flags string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	base.SendCmdArg2("restart", args[0], flags)
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmdArg2("restart", args[0], flags)
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

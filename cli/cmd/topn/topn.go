@@ -28,8 +28,8 @@ var Cmd = &cobra.Command{
 
 func Topn() {
 
-	base.SendCmd("top", "")
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmd("top", "")
+	newCmdResp := base.GetResponse(sent)
 	pidsCsv := newCmdResp.GetValueStr()
 	if len(pidsCsv) == 0 {
 		//this should never happen because it should always return at least the pmond pid

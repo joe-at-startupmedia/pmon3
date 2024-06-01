@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	table_one "pmon3/cli/output/one"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -30,12 +31,13 @@ func init() {
 func cmdRun(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
+	var sent *protos.Cmd
 	if forceKill {
-		base.SendCmdArg2("stop", args[0], "force")
+		sent = base.SendCmdArg2("stop", args[0], "force")
 	} else {
-		base.SendCmd("stop", args[0])
+		sent = base.SendCmd("stop", args[0])
 	}
-	newCmdResp := base.GetResponse()
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

@@ -10,15 +10,16 @@ import (
 const DEFAULT_LOG_LEVEL = logrus.InfoLevel
 
 type Tpl struct {
-	AppsConfig             *AppsConfig
-	Data                   string `yaml:"data"`
-	Logs                   string `yaml:"logs"`
-	PosixMessageQueueDir   string `yaml:"posix_mq_dir"`
-	PosixMessageQueueUser  string `yaml:"posix_mq_user"`
-	PosixMessageQueueGroup string `yaml:"posix_mq_group"`
-	LogLevel               string `yaml:"log_level"`
-	OnProcessRestartExec   string `yaml:"on_process_restart_exec"`
-	OnProcessFailureExec   string `yaml:"on_process_failure_exec"`
+	AppsConfig           *AppsConfig
+	Data                 string `yaml:"data"`
+	Logs                 string `yaml:"logs"`
+	PosixMessageQueueDir string `yaml:"posix_mq_dir"`
+	ShmemDir             string `yaml:"shmem_dir"`
+	MessageQueueUser     string `yaml:"mq_user"`
+	MessageQueueGroup    string `yaml:"mq_group"`
+	LogLevel             string `yaml:"log_level"`
+	OnProcessRestartExec string `yaml:"on_process_restart_exec"`
+	OnProcessFailureExec string `yaml:"on_process_failure_exec"`
 
 	ConfigFile          string
 	AppsConfigFile      string `yaml:"apps_config_file"`
@@ -91,5 +92,13 @@ func (c *Tpl) GetPosixMessageQueueDir() string {
 		return c.PosixMessageQueueDir
 	} else {
 		return "/dev/mqueue/"
+	}
+}
+
+func (c *Tpl) GetShmemDir() string {
+	if len(c.ShmemDir) > 0 {
+		return c.ShmemDir
+	} else {
+		return "/tmp/"
 	}
 }

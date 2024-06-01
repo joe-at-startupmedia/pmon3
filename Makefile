@@ -51,26 +51,30 @@ tools:
 	$(GO) install golang.org/x/lint/golint@latest
 	$(GO) install github.com/client9/misspell/cmd/misspell@latest
 
-.PHONY: build
-build:
+.PHONY: base_build
+base_build: 
 	$(GO) mod tidy
-	CGO_ENABLED=0 $(GO) build -o bin/pmon3 cmd/pmon3/pmon3.go
-	CGO_ENABLED=0 $(GO) build -o bin/pmond cmd/pmond/pmond.go
+	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
+	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
+
+.PHONY: build
+build: ENV_VARS=CGO_ENABLED=0
+build: base_build
 
 .PHONY: build_cgo
-build_cgo:
-	$(GO) mod tidy
-	CGO_ENABLED=1 $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
-	CGO_ENABLED=1 $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
+build_cgo: ENV_VARS=CGO_ENABLED=1
+build_cgo: base_build
 
 .PHONY: test
 test: build run_test
 
-#using a value wrapped in double qoutes doesnt work
-test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
-
 .PHONY: test_cgo
+test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
 test_cgo: build_cgo run_test
+
+.PHONY: test_mem
+test_mem: BUILD_FLAGS=$(shell echo '-tags shmem')
+test_mem: build run_test
 
 .PHONY: run_test
 run_test:

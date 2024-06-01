@@ -21,8 +21,8 @@ var Cmd = &cobra.Command{
 func Initialize() {
 	base.OpenSender()
 	defer base.CloseSender()
-	base.SendCmd("init", "")
-	newCmdResp := base.GetResponse()
+	sent := base.SendCmd("init", "")
+	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}

@@ -2,6 +2,7 @@ package base
 
 import (
 	"context"
+	"github.com/joe-at-startupmedia/xipc"
 	"pmon3/cli"
 	"pmon3/pmond/protos"
 	"strings"
@@ -10,6 +11,8 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 )
+
+var xr xipc.IRequester
 
 const SEND_RECEIVE_TIMEOUT = time.Second * 5
 
@@ -23,14 +26,6 @@ func handleOpenError(e error) {
 	}
 }
 
-func OpenSender() {
-	openSender()
-}
-
-func CloseSender() {
-	closeSender()
-}
-
 func sendCmd(cmd *protos.Cmd) {
 	cli.Log.Debug("sending message")
 	pbm := proto.Message(cmd)
@@ -40,7 +35,7 @@ func sendCmd(cmd *protos.Cmd) {
 	defer cancel()
 
 	go func() {
-		err := pmr.RequestUsingProto(&pbm)
+		err := xr.RequestUsingProto(&pbm)
 		sendErrChan <- err
 	}()
 
@@ -55,7 +50,7 @@ func sendCmd(cmd *protos.Cmd) {
 	}
 }
 
-func GetResponse() *protos.CmdResp {
+func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	cli.Log.Debug("getting response")
 	newCmdResp := &protos.CmdResp{}
 	readErrChan := make(chan error, 1)
@@ -64,8 +59,18 @@ func GetResponse() *protos.CmdResp {
 	defer cancel()
 
 	go func() {
-		_, err := waitForResponse(newCmdResp)
-		readErrChan <- err
+		timer := time.NewTicker(time.Millisecond * 500)
+		for {
+			_, err := waitForResponse(newCmdResp)
+			if newCmdResp.GetId() != sent.GetId() {
+				cli.Log.Errorf("response (%s) doesn't match sent (%s). skipping.", newCmdResp.GetId(), sent.GetId())
+				<-timer.C
+				continue
+			}
+			readErrChan <- err
+			break
+		}
+
 	}()
 
 	select {
@@ -77,12 +82,12 @@ func GetResponse() *protos.CmdResp {
 		} else if len(newCmdResp.GetError()) > 0 {
 			cli.Log.Fatal(newCmdResp.GetError())
 		}
-		cli.Log.Debugf("Got a new response: %s", newCmdResp.String())
+		cli.Log.Debugf("Got a new response: %s", newCmdResp.Id)
 	}
 	return newCmdResp
 }
 
-func SendCmd(cmdName string, arg1 string) {
+func SendCmd(cmdName string, arg1 string) *protos.Cmd {
 	cmd := &protos.Cmd{
 		Id:   uuid.NewString(),
 		Name: cmdName,
@@ -90,9 +95,11 @@ func SendCmd(cmdName string, arg1 string) {
 	}
 
 	sendCmd(cmd)
+
+	return cmd
 }
 
-func SendCmdArg2(cmdName string, arg1 string, arg2 string) {
+func SendCmdArg2(cmdName string, arg1 string, arg2 string) *protos.Cmd {
 	cmd := &protos.Cmd{
 		Id:   uuid.NewString(),
 		Name: cmdName,
@@ -101,4 +108,14 @@ func SendCmdArg2(cmdName string, arg1 string, arg2 string) {
 	}
 
 	sendCmd(cmd)
+
+	return cmd
+}
+
+func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, error) {
+	return xr.WaitForProto(newCmdResp)
+}
+
+func CloseSender() error {
+	return xr.CloseRequester()
 }
