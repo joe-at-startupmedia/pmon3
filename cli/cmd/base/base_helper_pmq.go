@@ -12,7 +12,7 @@ func OpenSender() {
 
 	queueConfig := &xipc_pmq.QueueConfig{
 		Name: "pmon3_pmq",
-		Dir:  cli.Config.GetPosixMessageQueueDir(),
+		Dir:  cli.Config.PosixMessageQueueDir,
 	}
 
 	xr = xipc_pmq.NewRequester(queueConfig, nil)

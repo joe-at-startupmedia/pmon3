@@ -7,18 +7,18 @@ import (
 )
 
 var Log *logrus.Logger
-var Config *conf.Tpl
+var Config *conf.Config
 
 func Instance(confDir string) error {
-	tpl, err := conf.Load(confDir)
+	config, err := conf.Load(confDir)
 	if err != nil {
 		return err
 	}
 
-	Config = tpl
+	Config = config
 
 	Log = logrus.New()
-	loglevel := tpl.GetLogrusLevel()
+	loglevel := config.GetLogrusLevel()
 	if loglevel > logrus.WarnLevel {
 		Log.SetReportCaller(true)
 	}
@@ -27,6 +27,8 @@ func Instance(confDir string) error {
 	Log.SetFormatter(&logrus.TextFormatter{
 		DisableTimestamp: true,
 	})
+
+	Log.Info(config)
 
 	return nil
 }

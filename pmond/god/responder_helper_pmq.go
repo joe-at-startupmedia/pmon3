@@ -11,7 +11,7 @@ import (
 func connectResponder() {
 	queueConfig := xipc_pmq.QueueConfig{
 		Name:  "pmon3_pmq",
-		Dir:   pmond.Config.GetPosixMessageQueueDir(),
+		Dir:   pmond.Config.PosixMessageQueueDir,
 		Flags: xipc_pmq.O_RDWR | xipc_pmq.O_CREAT, //| xipc_pmq.O_NONBLOCK,
 	}
 	ownership := xipc.Ownership{

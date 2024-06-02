@@ -12,7 +12,7 @@ func OpenSender() {
 
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       "pmon3_mem",
-		BasePath:   cli.Config.GetShmemDir(),
+		BasePath:   cli.Config.ShmemDir,
 		MaxMsgSize: 4096,
 	}
 
