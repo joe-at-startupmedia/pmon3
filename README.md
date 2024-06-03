@@ -3,10 +3,10 @@
 
 
 
+
 `pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
 
-<img width="726" alt="pmon3 help" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6f266ccf-7a14-4afc-b626-cbd53e245bc1">
-
+<img width="537" alt="pmon3_ls" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5d79ad53-664d-4ee7-bfac-f3fc94c2b316">
 
 * [Introduction](#section_intro)
 * [Installation](#section_install)
@@ -151,7 +151,7 @@ This will output the resource utilization of all processes using the native `top
 ```
 pmon3 topn
 ```
-<img width="559" alt="Screen Shot 2024-05-08 at 8 28 12 PM" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/8ecdd5da-52e2-40d8-b52f-1e2d9aa1c835">
+<img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
 #### (re)start the process [ restart/start ]
 
@@ -191,7 +191,7 @@ pmon3 del [id or name]
 pmon3 show [id or name]
 ```
 
-<img width="516" alt="pmon3 desc" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/881af535-9a83-472c-b2a5-b0caff5596f3">
+<img width="475" alt="pmon3_show" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6b564a1c-0e26-468c-bd01-6dabce0c7620">
 
 <a name="pmon3_kill"></a>
 #### Terminate all running process [ kill ]
