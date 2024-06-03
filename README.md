@@ -11,7 +11,8 @@
 * [Introduction](#section_intro)
 * [Installation](#section_install)
 * [Commands](#section_commands)
-* [Application Configuration](#section_config)
+* [Configuration](#section_config)
+* [Application(s) Config](#section_appconfig)
 * [Event Handling](#section_events)
 * [Debugging](#section_debugging)
 * [Performance](#section_performance)
@@ -211,7 +212,59 @@ pmon3 drop [--force]
 ```
 
 <a name="section_config"></a>
-## Application Config
+## Configuration
+The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
+The following configuration options are available:
+```yaml
+# All commented values are the default when empty or omitted
+#
+# directory where the database is stored
+#data_dir: /etc/pmon3/data
+# directory where the logs are stored
+#logs_dir: /var/log/pmond
+# log levels: debug/info/warn/error
+#log_level: info
+# kill processes on termination
+#handle_interrupts: true
+# wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
+#cmd_exec_response_wait: 1500
+# wait [n] milliseconds after connecting to IPC client before issuing commands
+#ipc_connection_wait: 0
+# a script to execute when a process is restarted which accepts the process details json as the first argument
+#on_process_restart_exec:
+# a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+#on_process_failure_exec:
+# specify a custom posix_mq directory in order to apply the appropriate permissions
+#posix_mq_dir: /dev/mqueue/
+# specify a custom shared memory directory in order to apply the appropriate permissions
+#shmem_dir: /dev/shm/
+# specify a custom user to access files in posix_mq_dir  or shmem_dir
+#mq_user:
+# specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
+#mq_group:
+# a JSON configuration file to specify a list of apps to start on the first initialization
+#apps_config_file:
+```
+
+The configuration values can be overridden using environment variables:
+
+
+* `CONFIGOR_DATADIR`
+* `CONFIGOR_LOGSDIR`
+* `CONFIGOR_LOGLEVEL`
+* `CONFIGOR_HANDLEINTERRUPTS`
+* `CONFIGOR_CMDEXECRESPONSEWAIT`
+* `CONFIGOR_IPCCONNECTIONWAIT`
+* `CONFIGOR_ONPROCESSRESTARTEXEC`
+* `CONFIGOR_ONPROCESSFAILUREEXEC`
+* `CONFIGOR_POSIXMESSAGEQUEUEDIR`
+* `CONFIGOR_SHMEMDIR`
+* `CONFIGOR_MESSAGEQUEUEUSER`
+* `CONFIGOR_MESSAGEQUEUEGROUP`
+* `CONFIGOR_APPSCONFIGFILE`
+
+<a name="section_appconfig"></a>
+## Application(s) Config
 
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
 
@@ -226,6 +279,7 @@ If [init](#pmon3_init) is ran while there are still stopped process in the datab
 
 #### /etc/pmon3/config/config.yml
 ```yaml
+#default value when empty or omitted
 apps_config_file: /etc/pmon3/config/apps.config.json
 ```
 
@@ -340,8 +394,9 @@ XIPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
 If you want more control over the verbosity you can set the loglevel in the yaml configuration file.
 
 ##### /etc/pmond/config/config.yml
-```
-# log levels: debug/info/warn/error
+```yaml
+#possible values: debug/info/warn/error
+#default value when empty or omitted
 log_level: "info"
 ```
 

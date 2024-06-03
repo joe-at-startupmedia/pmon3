@@ -7,8 +7,8 @@ ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
 WHOAMI=$(shell whoami)
 TEST_FILE_CONFIG ?= $(ROOTDIR)/test/test-config.yml
 TEST_VARS ?= PMON3_CONF=$(TEST_FILE_CONFIG)
-TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data:" | cut -d' ' -f2)
-TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs:" | cut -d' ' -f2)
+TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data_dir:" | cut -d' ' -f2)
+TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs_dir:" | cut -d' ' -f2)
 
 all: build
 

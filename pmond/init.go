@@ -18,7 +18,7 @@ func Instance(confDir string) error {
 	Config = config
 
 	Log = logrus.New()
-	loglevel := config.GetLogrusLevel()
+	loglevel := config.GetLogLevel()
 	if loglevel > logrus.WarnLevel {
 		Log.SetReportCaller(true)
 	}

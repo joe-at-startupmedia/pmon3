@@ -40,10 +40,10 @@ type Config struct {
 	AppsConfigFile       string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
 	DataDir              string `yaml:"data_dir" default:"/etc/pmon3/data"`
 	LogsDir              string `yaml:"logs_dir" default:"/var/log/pmond"`
-	PosixMessageQueueDir string `yaml:"posix_message_queue_dir" default:"/dev/mqueue/"`
+	PosixMessageQueueDir string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
 	ShmemDir             string `yaml:"shmem_dir" default:"/dev/shm/"`
-	MessageQueueUser     string `yaml:"message_queue_user"`
-	MessageQueueGroup    string `yaml:"message_queue_group"`
+	MessageQueueUser     string `yaml:"mq_user"`
+	MessageQueueGroup    string `yaml:"mq_group"`
 	LogLevel             string `yaml:"log_level" default:"info"`
 	OnProcessRestartExec string `yaml:"on_process_restart_exec"`
 	OnProcessFailureExec string `yaml:"on_process_failure_exec"`
@@ -56,13 +56,22 @@ func Load(configFile string) (*Config, error) {
 
 	config := &Config{}
 
-	if err := configor.New(&configor.Config{Verbose: true, Debug: true}).Load(config, configFile); err != nil {
+	//toggled only by the environment variable
+	logLevel := config.GetLogLevel()
+	shouldDebug := logLevel == logrus.DebugLevel
+
+	configorInst := configor.New(&configor.Config{
+		Verbose: shouldDebug,
+		Debug:   shouldDebug,
+	})
+
+	if err := configorInst.Load(config, configFile); err != nil {
 		return nil, err
 	}
 
 	if len(config.AppsConfigFile) > 0 {
 		config.AppsConfig = &AppsConfig{}
-		if err := configor.New(&configor.Config{Verbose: true, Debug: true}).Load(config.AppsConfig, config.AppsConfigFile); err != nil {
+		if err := configorInst.Load(config.AppsConfig, config.AppsConfigFile); err != nil {
 			return nil, err
 		}
 	}
@@ -88,7 +97,7 @@ func (c *Config) GetIpcConnectionWait() time.Duration {
 	}
 }
 
-func (c *Config) GetLogrusLevel() logrus.Level {
+func (c *Config) GetLogLevel() logrus.Level {
 	debugEnv := os.Getenv("PMON3_DEBUG")
 	if len(debugEnv) > 0 {
 		if debugEnv == "true" {
