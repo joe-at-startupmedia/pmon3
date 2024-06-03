@@ -21,7 +21,7 @@ var xr xipc.IResponder
 func New() {
 
 	uninterrupted := true
-	if pmond.Config.ShouldHandleInterrupts() {
+	if pmond.Config.HandleInterrupts {
 		pmond.Log.Debugf("Capturing interrupts.")
 		interruptHandler(&uninterrupted)
 	}

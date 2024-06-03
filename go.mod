@@ -11,6 +11,7 @@ require (
 	github.com/goinbox/shell v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/gosuri/uilive v0.0.4
+	github.com/jinzhu/configor v1.2.2
 	github.com/joe-at-startupmedia/sqlite v0.0.1
 	github.com/joe-at-startupmedia/xipc v0.0.8
 	github.com/pkg/errors v0.9.1
@@ -19,12 +20,12 @@ require (
 	github.com/struCoder/pidusage v0.2.1
 	github.com/tabalt/gracehttp v1.3.0
 	google.golang.org/protobuf v1.33.0
-	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.25.10
 )
 
 require (
+	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/apache/arrow/go/arrow v0.0.0-20211112161151-bc219186db40 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
@@ -76,6 +77,7 @@ require (
 	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.11.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/uint128 v1.1.1 // indirect
 	modernc.org/cc/v3 v3.36.0 // indirect
 	modernc.org/ccgo/v3 v3.16.8 // indirect

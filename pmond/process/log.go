@@ -14,7 +14,7 @@ const logSuffix = ".log"
 func GetLogPath(customLogFile string, hash string, logDir string) (string, error) {
 	if len(logDir) <= 0 {
 		pmond.Log.Debugf("custom log dir: %s \n", logDir)
-		logDir = pmond.Config.GetLogsDir()
+		logDir = pmond.Config.LogsDir
 	}
 
 	prjDir := strings.TrimRight(logDir, "/")
