@@ -121,7 +121,6 @@ func strToLogLevel(str string) logrus.Level {
 	case "error":
 		return logrus.ErrorLevel
 	default:
-		log.Println("log_level configuration is empty or invalid. Possible values include: debug, info, warn and error.")
 		return DEFAULT_LOG_LEVEL
 	}
 }
