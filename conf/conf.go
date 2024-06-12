@@ -63,6 +63,7 @@ func Load(configFile string) (*Config, error) {
 	configorInst := configor.New(&configor.Config{
 		Verbose: shouldDebug,
 		Debug:   shouldDebug,
+		Silent:  true,
 	})
 
 	if err := configorInst.Load(config, configFile); err != nil {
