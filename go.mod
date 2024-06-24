@@ -13,7 +13,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/jinzhu/configor v1.2.2
 	github.com/joe-at-startupmedia/sqlite v0.0.1
-	github.com/joe-at-startupmedia/xipc v0.0.8
+	github.com/joe-at-startupmedia/xipc v0.0.9
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -46,7 +46,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joe-at-startupmedia/gipc v0.0.1 // indirect
 	github.com/joe-at-startupmedia/posix_mq v0.2.1 // indirect
-	github.com/joe-at-startupmedia/shmemipc v0.0.7 // indirect
+	github.com/joe-at-startupmedia/shmemipc v0.0.8 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
