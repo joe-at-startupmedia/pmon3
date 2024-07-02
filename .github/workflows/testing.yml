@@ -56,7 +56,7 @@ jobs:
 
       - name: Build 386
         run: |
-          GOARCH=386 go build -v ./...
+          GOARCH=386 go build -tags net -v ./...
         shell: bash
 
       - name: Build arm64
