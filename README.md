@@ -435,7 +435,7 @@ CGO_ENABLED=1 go build -tags "posix_mq,cgo_sqlite" -o bin/pmond cmd/pmond/pmond.
 ```
 
 ### Unix Sockets
-Less performant than the default shared memory implementation and the posix_mq implementation
+Significantly less performant than the default shared memory implementation and posix_mq implementation. It also has the capability of utilizing TCP cockets with additional build flags (currently: `build -tags net,network`).
 
 ```bash
 BUILD_FLAGS="-tags net" make build
@@ -443,8 +443,8 @@ BUILD_FLAGS="-tags net" make build
 
 Or without using the Makefile:
 ```bash
-CGO_ENABLED=0 go build -tags shmem -o bin/pmon3 cmd/pmon3/pmon3.go
-CGO_ENABLED=0 go build -tags shmem -o bin/pmond cmd/pmond/pmond.go
+CGO_ENABLED=0 go build -tags net -o bin/pmon3 cmd/pmon3/pmon3.go
+CGO_ENABLED=0 go build -tags net -o bin/pmond cmd/pmond/pmond.go
 ```
 
 <a name="section_problems"></a>
