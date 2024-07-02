@@ -72,9 +72,9 @@ test: build run_test
 test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
 test_cgo: build_cgo run_test
 
-.PHONY: test_mem
-test_mem: BUILD_FLAGS=$(shell echo '-tags shmem')
-test_mem: build run_test
+.PHONY: test_net
+test_net: BUILD_FLAGS=$(shell echo '-tags net')
+test_net: build run_test
 
 .PHONY: run_test
 run_test:

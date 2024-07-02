@@ -1,4 +1,4 @@
-//go:build !posix_mq && !shmem
+//go:build net
 
 package god
 

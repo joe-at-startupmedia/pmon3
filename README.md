@@ -434,11 +434,11 @@ CGO_ENABLED=1 go build -tags "posix_mq,cgo_sqlite" -o bin/pmon3 cmd/pmon3/pmon3.
 CGO_ENABLED=1 go build -tags "posix_mq,cgo_sqlite" -o bin/pmond cmd/pmond/pmond.go
 ```
 
-### Shared Memory
-Another option is using shared memory which should outperform the default unix-socket based implementation (by a factor of 10). Unlike Posix MQ, this does not require CGO_ENABLED=1. To utilize the shared memory implementation, simply provided the `shemem` build tag:
+### Unix Sockets
+Less performant than the default shared memory implementation and the posix_mq implementation
 
 ```bash
-BUILD_FLAGS="-tags shmem" make build
+BUILD_FLAGS="-tags net" make build
 ```
 
 Or without using the Makefile:
