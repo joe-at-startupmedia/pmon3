@@ -93,7 +93,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 		return err
 	}
 
-	user, err := process.SetUser(flags.User)
+	user, _, err := process.SetUser(flags.User)
 	if err != nil {
 		return err
 	}

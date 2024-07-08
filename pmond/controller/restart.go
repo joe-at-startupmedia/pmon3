@@ -75,7 +75,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 	}
 
 	if len(flags.User) > 0 {
-		user, err := process.SetUser(flags.User)
+		user, _, err := process.SetUser(flags.User)
 		if err != nil {
 			return err
 		}

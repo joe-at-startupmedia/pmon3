@@ -3,6 +3,7 @@ package process
 import (
 	"os"
 	"pmon3/pmond/model"
+	"pmon3/pmond/utils/array"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/crypto"
 	"strings"
@@ -12,7 +13,7 @@ import (
 )
 
 func Exec(processFile, customLogFile, name, extArgs string, username string, autoRestart bool) (*model.Process, error) {
-	user, err := SetUser(username)
+	user, groupIds, err := SetUser(username)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +33,9 @@ func Exec(processFile, customLogFile, name, extArgs string, username string, aut
 		Files: []*os.File{nil, logOutput, logOutput},
 		Sys: &syscall.SysProcAttr{
 			Credential: &syscall.Credential{
-				Uid: conv.StrToUint32(user.Uid),
-				Gid: conv.StrToUint32(user.Gid),
+				Uid:    conv.StrToUint32(user.Uid),
+				Gid:    conv.StrToUint32(user.Gid),
+				Groups: array.Map(groupIds, func(gid string) uint32 { return conv.StrToUint32(gid) }),
 			},
 			Setsid: true,
 		},

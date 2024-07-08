@@ -154,7 +154,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 	return db.Db().Save(p).Error
 }
 
-func SetUser(runUser string) (*user.User, error) {
+func SetUser(runUser string) (*user.User, []string, error) {
 	var curUser *user.User
 	var err error
 
@@ -165,10 +165,16 @@ func SetUser(runUser string) (*user.User, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return curUser, nil
+	groupIds, err := curUser.GroupIds()
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return curUser, groupIds, nil
 }
 
 func proxyWorker(m *model.Process, cmd string) ([]string, error) {
