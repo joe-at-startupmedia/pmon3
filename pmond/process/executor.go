@@ -11,12 +11,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Exec(processFile, customLogFile, name, extArgs string, envVars string, username string, autoRestart bool) (*model.Process, error) {
+func Exec(processFile string, customLogFile string, processName string, extArgs string, envVars string, username string, autoRestart bool) (*model.Process, error) {
 	user, groupIds, err := SetUser(username)
 	if err != nil {
 		return nil, err
 	}
-	logPath, err := GetLogPath(customLogFile, processFile, name, "")
+	logPath, err := GetLogPath("", customLogFile, processFile, processName)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func Exec(processFile, customLogFile, name, extArgs string, envVars string, user
 		},
 	}
 
-	var processParams = []string{name}
+	var processParams = []string{processName}
 	if len(extArgs) > 0 {
 		processParams = append(processParams, strings.Split(extArgs, " ")...)
 	}
@@ -59,7 +59,7 @@ func Exec(processFile, customLogFile, name, extArgs string, envVars string, user
 	pModel := model.Process{
 		Pid:         uint32(process.Pid),
 		Log:         logPath,
-		Name:        name,
+		Name:        processName,
 		ProcessFile: processFile,
 		Args:        strings.Join(processParams[1:], " "),
 		EnvVars:     envVars,

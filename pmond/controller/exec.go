@@ -87,7 +87,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 		processParams = append(processParams, strings.Split(flags.Args, " ")...)
 	}
 
-	logPath, err := process.GetLogPath(flags.Log, processFile, flags.Name, flags.LogDir)
+	logPath, err := process.GetLogPath(flags.LogDir, flags.Log, processFile, flags.Name)
 	if err != nil {
 		return err
 	}

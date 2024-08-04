@@ -13,27 +13,32 @@ import (
 
 const logSuffix = ".log"
 
-func GetLogPath(customLogFile string, processFile string, processName string, logDir string) (string, error) {
-	if len(logDir) == 0 {
-		pmond.Log.Debugf("custom log dir: %s \n", logDir)
-		logDir = pmond.Config.LogsDir
+func GetLogPath(customLogDir string, customLogFile string, processFile string, processName string) (string, error) {
+
+	var logDest string
+
+	if len(customLogDir) > 0 {
+		logDest = strings.TrimRight(customLogDir, "/")
+	} else {
+		logDest = strings.TrimRight(pmond.Config.LogsDir, "/")
 	}
 
-	prjDir := strings.TrimRight(logDir, "/")
-	if len(customLogFile) == 0 {
-		_, err := os.Stat(prjDir)
+	if len(customLogFile) > 0 {
+		logDest = customLogFile
+	} else {
+		_, err := os.Stat(logDest)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(prjDir, 0755)
+			err := os.MkdirAll(logDest, 0755)
 			if err != nil {
-				return "", errors.Wrapf(err, "err: %s, logs dir: '%s'", err.Error(), prjDir)
+				return "", errors.Wrapf(err, "err: %s, logs dir: '%s'", err.Error(), logDest)
 			}
 		}
-		customLogFile = prjDir + "/" + processName + logSuffix
+		logDest = logDest + "/" + processName + logSuffix
 	}
 
-	pmond.Log.Debugf("log file is: %s \n", customLogFile)
+	pmond.Log.Debugf("log file is: %s \n", logDest)
 
-	return customLogFile, nil
+	return logDest, nil
 }
 
 func GetLogFile(logFileName string, user user.User) (*os.File, error) {

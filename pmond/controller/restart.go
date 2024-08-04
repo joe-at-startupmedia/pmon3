@@ -60,7 +60,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
-		logPath, err := process.GetLogPath(flags.Log, processFile, m.Name, flags.LogDir)
+		logPath, err := process.GetLogPath(flags.LogDir, flags.Log, processFile, m.Name)
 		if err != nil {
 			return err
 		}
