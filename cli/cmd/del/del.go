@@ -33,9 +33,9 @@ func runCmd(args []string) {
 	defer base.CloseSender()
 	var sent *protos.Cmd
 	if forceKill {
-		base.SendCmdArg2("del", args[0], "force")
+		sent = base.SendCmdArg2("del", args[0], "force")
 	} else {
-		base.SendCmd("del", args[0])
+		sent = base.SendCmd("del", args[0])
 	}
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {

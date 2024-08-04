@@ -9,7 +9,6 @@ import (
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
-	"pmon3/pmond/utils/crypto"
 	"strings"
 )
 
@@ -61,7 +60,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
-		logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile+m.Name), flags.LogDir)
+		logPath, err := process.GetLogPath(flags.Log, processFile, m.Name, flags.LogDir)
 		if err != nil {
 			return err
 		}

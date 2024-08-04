@@ -13,12 +13,13 @@ message Process {
       string name = 6;
       string process_file = 7;
       string args = 8;
-      string status = 9;
-      bool auto_restart = 10;
-      uint32 uid = 11;
-      string username = 12;
-      uint32 gid = 13;
-      uint32 restart_count = 14;
+      string env_vars = 9;
+      string status = 10;
+      bool auto_restart = 11;
+      uint32 uid = 12;
+      string username = 13;
+      uint32 gid = 14;
+      uint32 restart_count = 15;
 }
 
 message ProcessList {

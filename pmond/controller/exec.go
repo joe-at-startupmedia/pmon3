@@ -11,7 +11,6 @@ import (
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
-	"pmon3/pmond/utils/crypto"
 	"strings"
 )
 
@@ -88,7 +87,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 		processParams = append(processParams, strings.Split(flags.Args, " ")...)
 	}
 
-	logPath, err := process.GetLogPath(flags.Log, crypto.Crc32Hash(processFile+flags.Name), flags.LogDir)
+	logPath, err := process.GetLogPath(flags.Log, processFile, flags.Name, flags.LogDir)
 	if err != nil {
 		return err
 	}
@@ -104,6 +103,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 		Name:        flags.Name,
 		ProcessFile: processFile,
 		Args:        strings.Join(processParams[1:], " "),
+		EnvVars:     flags.EnvVars,
 		Pointer:     nil,
 		Status:      model.StatusQueued,
 		Uid:         conv.StrToUint32(user.Uid),

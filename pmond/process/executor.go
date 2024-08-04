@@ -5,31 +5,36 @@ import (
 	"pmon3/pmond/model"
 	"pmon3/pmond/utils/array"
 	"pmon3/pmond/utils/conv"
-	"pmon3/pmond/utils/crypto"
 	"strings"
 	"syscall"
 
 	"github.com/pkg/errors"
 )
 
-func Exec(processFile, customLogFile, name, extArgs string, username string, autoRestart bool) (*model.Process, error) {
+func Exec(processFile, customLogFile, name, extArgs string, envVars string, username string, autoRestart bool) (*model.Process, error) {
 	user, groupIds, err := SetUser(username)
 	if err != nil {
 		return nil, err
 	}
-	logPath, err := GetLogPath(customLogFile, crypto.Crc32Hash(processFile+name), "")
+	logPath, err := GetLogPath(customLogFile, processFile, name, "")
 	if err != nil {
 		return nil, err
 	}
-	logOutput, err := GetLogFile(logPath)
+	logOutput, err := GetLogFile(logPath, *user)
 	if err != nil {
 		return nil, err
+	}
+
+	Env := os.Environ()
+
+	if len(envVars) > 0 {
+		Env = append(Env, strings.Fields(envVars)...)
 	}
 
 	lastSepIdx := strings.LastIndex(processFile, string(os.PathSeparator))
 	attr := &os.ProcAttr{
 		Dir:   processFile[0 : lastSepIdx+1],
-		Env:   os.Environ(),
+		Env:   Env,
 		Files: []*os.File{nil, logOutput, logOutput},
 		Sys: &syscall.SysProcAttr{
 			Credential: &syscall.Credential{
@@ -57,6 +62,7 @@ func Exec(processFile, customLogFile, name, extArgs string, username string, aut
 		Name:        name,
 		ProcessFile: processFile,
 		Args:        strings.Join(processParams[1:], " "),
+		EnvVars:     envVars,
 		Pointer:     process,
 		Status:      model.StatusInit,
 		Uid:         conv.StrToUint32(user.Uid),

@@ -70,6 +70,7 @@ type Process struct {
 	Name         string        `gorm:"unique" json:"name"`
 	ProcessFile  string        `json:"process_file"`
 	Args         string        `json:"args"`
+	EnvVars      string        `json:"env_vars"`
 	Username     string        `json:"username"`
 	Status       ProcessStatus `json:"status"`
 	ID           uint32        `gorm:"primary_key" json:"id"`
@@ -186,6 +187,7 @@ func (p *Process) ToProtobuf() *protos.Process {
 		Name:         p.Name,
 		ProcessFile:  p.ProcessFile,
 		Args:         p.Args,
+		EnvVars:      p.EnvVars,
 		Status:       p.Status.String(),
 		AutoRestart:  p.AutoRestart,
 		Uid:          p.Uid,
@@ -214,6 +216,7 @@ func FromProtobuf(p *protos.Process) *Process {
 		Name:         p.GetName(),
 		ProcessFile:  p.GetProcessFile(),
 		Args:         p.GetArgs(),
+		EnvVars:      p.GetEnvVars(),
 		Status:       StringToProcessStatus(p.GetStatus()),
 		AutoRestart:  p.GetAutoRestart(),
 		Uid:          p.GetUid(),

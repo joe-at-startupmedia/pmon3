@@ -10,5 +10,6 @@ message ExecFlags {
       string log_dir = 3;
       bool no_auto_restart = 4;
       string args = 5;
-      string name = 6;
+      string env_vars = 6;
+      string name = 7;
 }

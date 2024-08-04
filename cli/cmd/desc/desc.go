@@ -33,6 +33,7 @@ func cmdRun(args []string) {
 		{"restarted", conv.Uint32ToStr(process.RestartCount)},
 		{"process", process.ProcessFile},
 		{"args", process.Args},
+		{"env-vars", process.EnvVars},
 		{"user", process.Username},
 		{"log", process.Log},
 		{"no-autorestart", strconv.FormatBool(!process.AutoRestart)},
