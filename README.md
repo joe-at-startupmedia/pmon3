@@ -112,20 +112,23 @@ The starting process accepts several parameters. The parameter descriptions are 
 // The process name. It will use the file name of the binary as the default name if not provided 
 --name
 
-// Where to store logs. It will use the following as the default: /var/log/pmon3/
---log   -l
+// Where to store logs. It will override the confuration files `logs_dir` property
+--log-dir  -d
 
-// Only custom log directory, priority is lower than --log
---log_dir -d
+// The absolute path of a custom log file
+--log  -l
 
 // Provide parameters to be passed to the binary, multiple parameters are separated by spaces
 --args  -a "-arg1=val1 -arg2=val2"
 
+// Provide environment variables (appended to those already existing on the system `os.Environ()`)
+--env-vars "ENV_VAR_1=env_var_1_value ENV_VAR_2=env_var_2_value"
+
 // managing user
---user  -u
+--user -u
 
 // Do not restart automatically. It will automatically restart by default.
---no-autorestart    -n
+--no-autorestart  -n
 ```
 
 #### Example：
@@ -243,7 +246,7 @@ The following configuration options are available:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
 #mq_group:
 # a JSON configuration file to specify a list of apps to start on the first initialization
-#apps_config_file:
+#apps_config_file: /etc/pmon3/config/app.config.json
 ```
 
 The configuration values can be overridden using environment variables:
@@ -292,14 +295,15 @@ apps_config_file: /etc/pmon3/config/apps.config.json
       "flags": {
         "name": "happac1",
         "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
-        "user": "vagrant"
+        "user": "vagrant",
+        "log_dir": "/var/log/custom/",
       }
     },
     {
       "file": "/usr/local/bin/happab",
       "flags": {
         "name": "happac2",
-        "log": "happac2",
+        "log": "/var/log/happac2.log",
         "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
         "user": "vagrant"
         "no_auto_restart": true
@@ -310,6 +314,7 @@ apps_config_file: /etc/pmon3/config/apps.config.json
       "flags": {
         "name": "metabase-api",
         "args": "/var/www/vhosts/metabase-api/index.js",
+        "env_vars": "NODE_ENV=prod"
         "user": "dw_user"
       }
     }
@@ -324,6 +329,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 * log_dir
 * no_auto_restart
 * args
+* env_vars
 * name
 
 <a name="section_events"></a>
