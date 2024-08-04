@@ -52,7 +52,7 @@ make systemd_install
 ### Using Release Installer
 
 ```bash
-wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.14.12
+wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.14.13
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
