@@ -30,11 +30,10 @@ func Dgraph() {
 	}
 
 	response := strings.Split(newCmdResp.GetValueStr(), "||")
-	queueOrder := response[0]
 	dGraph := response[1]
 
 	fmt.Println("Queue Order")
-	for i, appName := range strings.Split(queueOrder, "\n") {
+	for i, appName := range strings.Split(response[0], "\n") {
 		fmt.Printf("\t%d: %s\n", i, appName)
 	}
 

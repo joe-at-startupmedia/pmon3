@@ -32,3 +32,10 @@ func Instance(confDir string) error {
 
 	return nil
 }
+
+func ReloadConf() {
+	err := Instance(conf.GetConfigFile())
+	if err != nil {
+		Log.Fatal(err)
+	}
+}
