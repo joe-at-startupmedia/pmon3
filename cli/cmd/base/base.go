@@ -55,7 +55,14 @@ func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	newCmdResp := &protos.CmdResp{}
 	readErrChan := make(chan error, 1)
 
-	ctx, cancel := context.WithTimeout(context.Background(), SEND_RECEIVE_TIMEOUT)
+	send_rcv_timeout := SEND_RECEIVE_TIMEOUT
+
+	//because processes with dependencies take longer to start
+	if sent.GetName() == "init" {
+		send_rcv_timeout = time.Second * 180
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), send_rcv_timeout)
 	defer cancel()
 
 	go func() {
