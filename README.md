@@ -52,7 +52,7 @@ make systemd_install
 ### Using Release Installer
 
 ```bash
-wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.14.13
+wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.15.0
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -233,6 +233,8 @@ The following configuration options are available:
 #cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
 #ipc_connection_wait: 0
+# wait [n] milliseconds after enqueueing a dependent process
+#dependent_process_enqueued_wait: 2000
 # a script to execute when a process is restarted which accepts the process details json as the first argument
 #on_process_restart_exec:
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
@@ -258,6 +260,7 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_HANDLEINTERRUPTS`
 * `CONFIGOR_CMDEXECRESPONSEWAIT`
 * `CONFIGOR_IPCCONNECTIONWAIT`
+* `CONFIGOR_DEPENDENTPROCESSENQUEUEDWAIT`
 * `CONFIGOR_ONPROCESSRESTARTEXEC`
 * `CONFIGOR_ONPROCESSFAILUREEXEC`
 * `CONFIGOR_POSIXMESSAGEQUEUEDIR`
@@ -297,6 +300,7 @@ apps_config_file: /etc/pmon3/config/apps.config.json
         "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
         "user": "vagrant",
         "log_dir": "/var/log/custom/",
+        "dependencies": ["happac2"]
       }
     },
     {
@@ -305,7 +309,7 @@ apps_config_file: /etc/pmon3/config/apps.config.json
         "name": "happac2",
         "log": "/var/log/happac2.log",
         "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
-        "user": "vagrant"
+        "user": "vagrant",
         "no_auto_restart": true
       }
     },
@@ -314,7 +318,7 @@ apps_config_file: /etc/pmon3/config/apps.config.json
       "flags": {
         "name": "metabase-api",
         "args": "/var/www/vhosts/metabase-api/index.js",
-        "env_vars": "NODE_ENV=prod"
+        "env_vars": "NODE_ENV=prod",
         "user": "dw_user"
       }
     }
@@ -331,6 +335,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 * args
 * env_vars
 * name
+* dependencies
 
 <a name="section_events"></a>
 ## Event Handling With Custom Scripts

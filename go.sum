@@ -129,6 +129,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
+github.com/joe-at-startupmedia/depgraph v0.0.1 h1:mF6gcNBrb18aKaYyAzF9jTeG9ABzC5fOXrcpHgHrcYw=
+github.com/joe-at-startupmedia/depgraph v0.0.1/go.mod h1:w3JA5m1+c+oEr0yOT5E/pxFq1SmzZ5Igv9yCwKYMfFc=
 github.com/joe-at-startupmedia/gipc v0.0.1 h1:pPr2vtzzrnoo5pvs1xHtfs4tUhovaMAoBlY2s5ubOMo=
 github.com/joe-at-startupmedia/gipc v0.0.1/go.mod h1:n5cTkR14mHykdyjs97dHf5/wnyF8UCtRx8iNic2mgLU=
 github.com/joe-at-startupmedia/posix_mq v0.2.1 h1:Ir6IjNiXOwjI16GCIG19vzlvKV1/Q8uorq49cpCc9fc=

@@ -11,7 +11,7 @@ import (
 )
 
 // current app version
-var Version = "1.14.13"
+var Version = "1.15.0"
 
 const DEFAULT_LOG_LEVEL = logrus.InfoLevel
 
@@ -36,20 +36,21 @@ type AppsConfigApp struct {
 }
 
 type Config struct {
-	AppsConfig           *AppsConfig
-	AppsConfigFile       string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
-	DataDir              string `yaml:"data_dir" default:"/etc/pmon3/data"`
-	LogsDir              string `yaml:"logs_dir" default:"/var/log/pmond"`
-	PosixMessageQueueDir string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
-	ShmemDir             string `yaml:"shmem_dir" default:"/dev/shm/"`
-	MessageQueueUser     string `yaml:"mq_user"`
-	MessageQueueGroup    string `yaml:"mq_group"`
-	LogLevel             string `yaml:"log_level" default:"info"`
-	OnProcessRestartExec string `yaml:"on_process_restart_exec"`
-	OnProcessFailureExec string `yaml:"on_process_failure_exec"`
-	CmdExecResponseWait  int64  `yaml:"cmd_exec_response_wait" default:"1500"`
-	IpcConnectionWait    int64  `yaml:"ipc_connection_wait"`
-	HandleInterrupts     bool   `yaml:"handle_interrupts" default:"true"`
+	AppsConfig                   *AppsConfig
+	AppsConfigFile               string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
+	DataDir                      string `yaml:"data_dir" default:"/etc/pmon3/data"`
+	LogsDir                      string `yaml:"logs_dir" default:"/var/log/pmond"`
+	PosixMessageQueueDir         string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
+	ShmemDir                     string `yaml:"shmem_dir" default:"/dev/shm/"`
+	MessageQueueUser             string `yaml:"mq_user"`
+	MessageQueueGroup            string `yaml:"mq_group"`
+	LogLevel                     string `yaml:"log_level" default:"info"`
+	OnProcessRestartExec         string `yaml:"on_process_restart_exec"`
+	OnProcessFailureExec         string `yaml:"on_process_failure_exec"`
+	CmdExecResponseWait          int64  `yaml:"cmd_exec_response_wait" default:"1500"`
+	IpcConnectionWait            int64  `yaml:"ipc_connection_wait"`
+	HandleInterrupts             bool   `yaml:"handle_interrupts" default:"true"`
+	DependentProcessEnqueuedWait int64  `yaml:"dependent_process_enqueued_wait" default:"1000"`
 }
 
 func Load(configFile string) (*Config, error) {
@@ -85,7 +86,16 @@ func (c *Config) GetCmdExecResponseWait() time.Duration {
 		return time.Duration(c.CmdExecResponseWait) * time.Millisecond
 	} else {
 		log.Println("cmd_exec_response_wait configuration value must be between 0 and 10000 ms")
-		return 2000 * time.Millisecond
+		return 1500 * time.Millisecond
+	}
+}
+
+func (c *Config) GetDependentProcessEnqueuedWait() time.Duration {
+	if c.CmdExecResponseWait >= 0 && c.CmdExecResponseWait <= 10000 {
+		return time.Duration(c.CmdExecResponseWait) * time.Millisecond
+	} else {
+		log.Println("dependent_process_enqueued_wait configuration value must be between 0 and 10000 ms")
+		return 1000 * time.Millisecond
 	}
 }
 

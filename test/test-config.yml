@@ -14,6 +14,8 @@ logs_dir: /usr/src/pmon3/logs/
 #cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
 #ipc_connection_wait: 0
+# wait [n] milliseconds after enqueueing a dependent process
+#dependent_process_enqueued_wait: 2000
 # a script to execute when a process is restarted which accepts the process details json as the first argument
 #on_process_restart_exec: ""
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
