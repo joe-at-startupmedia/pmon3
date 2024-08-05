@@ -33,7 +33,8 @@ func init() {
 	Cmd.Flags().StringVarP(&flag.Args, "args", "a", "", "the processes extra arguments")
 	Cmd.Flags().StringVarP(&flag.EnvVars, "env-vars", "e", "", "the processes environment variables (space-delimited)")
 	Cmd.Flags().StringVar(&flag.Name, "name", "", "the processes name")
-	Cmd.Flags().StringVarP(&flag.LogDir, "log-dir", "d", "", "the processes stdout log dir")
+	Cmd.Flags().StringVar(&flag.LogDir, "log-dir", "", "the processes stdout log dir")
+	Cmd.Flags().StringSliceVarP(&flag.Dependencies, "dependency", "d", []string{}, "provide a list of process names this process depends on")
 }
 
 func cmdRun(args []string, flags string) {

@@ -7,6 +7,7 @@ import (
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"time"
 )
 
 func Initialize(cmd *protos.Cmd) *protos.CmdResp {
@@ -68,6 +69,7 @@ func StartsAppsFromConfig() bool {
 
 	for _, app := range apps {
 		err := EnqueueProcess(app.File, &app.Flags)
+		time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
 		if err != nil {
 			pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
 		}

@@ -79,6 +79,7 @@ type Process struct {
 	Gid          uint32        `gorm:"column:gid" json:"gid"`
 	RestartCount uint32        `gorm:"-" json:"-"`
 	AutoRestart  bool          `json:"auto_restart"`
+	Dependencies string        `json:"dependencies"`
 }
 
 func (p Process) NoAutoRestartStr() string {
@@ -194,6 +195,7 @@ func (p *Process) ToProtobuf() *protos.Process {
 		Username:     p.Username,
 		Gid:          p.Gid,
 		RestartCount: p.GetRestartCount(),
+		Dependencies: p.Dependencies,
 	}
 	return &newProcess
 }
@@ -223,6 +225,7 @@ func FromProtobuf(p *protos.Process) *Process {
 		Username:     p.GetUsername(),
 		Gid:          p.GetGid(),
 		RestartCount: p.GetRestartCount(),
+		Dependencies: p.GetDependencies(),
 	}
 	return &newProcess
 }

@@ -30,16 +30,27 @@ func Dgraph() {
 	}
 
 	response := strings.Split(newCmdResp.GetValueStr(), "||")
-	dGraph := response[1]
 
-	fmt.Println("Queue Order")
-	for i, appName := range strings.Split(response[0], "\n") {
-		fmt.Printf("\t%d: %s\n", i, appName)
+	var nonDeptAppNames []string
+	var deptAppNames []string
+	if len(response[0]) > 0 {
+		nonDeptAppNames = strings.Split(response[0], "\n")
+	}
+	if len(response[1]) > 0 {
+		deptAppNames = strings.Split(response[1], "\n")
 	}
 
-	if len(dGraph) > 0 {
+	fmt.Println("Queue Order")
+	for i, appName := range deptAppNames {
+		fmt.Printf("\t%d: %s\n", i, appName)
+	}
+	for i, appName := range nonDeptAppNames {
+		fmt.Printf("\t%d: %s\n", i+len(deptAppNames), appName)
+	}
+
+	if len(deptAppNames) > 0 {
 		fmt.Println("Dependency Graph Order")
-		for i, appName := range strings.Split(dGraph, "\n") {
+		for i, appName := range deptAppNames {
 			fmt.Printf("\t%d: %s\n", i, appName)
 		}
 	}

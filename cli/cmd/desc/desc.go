@@ -37,6 +37,7 @@ func cmdRun(args []string) {
 		{"user", process.Username},
 		{"log", process.Log},
 		{"no-autorestart", strconv.FormatBool(!process.AutoRestart)},
+		{"dependencies", process.Dependencies},
 		{"created_at", process.CreatedAt},
 		{"updated_at", process.UpdatedAt},
 	}
