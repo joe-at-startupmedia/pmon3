@@ -12,4 +12,5 @@ message ExecFlags {
       string args = 5;
       string env_vars = 6;
       string name = 7;
+      repeated string dependencies = 8;
 }

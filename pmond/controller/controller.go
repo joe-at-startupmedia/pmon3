@@ -44,6 +44,8 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = Delete(cmd)
 	case "drop":
 		cmdResp = Drop(cmd)
+	case "dgraph":
+		cmdResp = Dgraph(cmd)
 	}
 
 	data, err := proto.Marshal(cmdResp)

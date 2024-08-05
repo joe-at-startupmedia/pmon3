@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
@@ -22,14 +23,14 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 		var all []model.Process
 		err := db.Db().Find(&all, "status = ?", model.StatusStopped).Error
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("Error finding stopped processes: %w", err))
+			return ErroredCmdResp(cmd, fmt.Errorf("error finding stopped processes: %w", err))
 		} else if len(all) == 0 {
 			return ErroredCmdResp(cmd, fmt.Errorf("Could not find any stopped processes"))
 		}
 
 		var (
 			cr       *protos.CmdResp
-			hasError bool = false
+			hasError = false
 		)
 
 		for _, process := range all {
@@ -59,14 +60,18 @@ func StartsAppsFromConfig() bool {
 		}
 		return false
 	}
-	apps := pmond.Config.AppsConfig.Apps
-	if len(apps) > 0 {
-		for _, app := range apps {
-			err := EnqueueProcess(app.File, &app.Flags)
-			if err != nil {
-				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
-			}
+
+	apps, _, err := conf.ComputeDepGraph(pmond.Config.AppsConfig.Apps)
+	if err != nil {
+		return false
+	}
+
+	for _, app := range apps {
+		err := EnqueueProcess(app.File, &app.Flags)
+		if err != nil {
+			pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
 		}
 	}
+
 	return true
 }

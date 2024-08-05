@@ -6,13 +6,14 @@ import (
 )
 
 type ExecFlags struct {
-	User          string `json:"user"`
-	Log           string `json:"log"`
-	LogDir        string `json:"log_dir"`
-	Args          string `json:"args"`
-	EnvVars       string `json:"env_vars"`
-	Name          string `json:"name"`
-	NoAutoRestart bool   `json:"no_auto_restart"`
+	User          string   `json:"user"`
+	Log           string   `json:"log"`
+	LogDir        string   `json:"log_dir"`
+	Args          string   `json:"args"`
+	EnvVars       string   `json:"env_vars"`
+	Name          string   `json:"name"`
+	NoAutoRestart bool     `json:"no_auto_restart"`
+	Dependencies  []string `json:"dependencies"`
 }
 
 func (e *ExecFlags) Parse(jsonStr string) (*ExecFlags, error) {

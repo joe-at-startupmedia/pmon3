@@ -10,7 +10,7 @@ import (
 
 func Delete(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
-	forced := (cmd.GetArg2() == "force")
+	forced := cmd.GetArg2() == "force"
 	return DeleteByParams(cmd, idOrName, forced)
 }
 
