@@ -9,7 +9,7 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 
 	if len(apps) > 0 {
 		g := depgraph.New()
-		enqueueOrder := make([]AppsConfigApp, 0)
+		nonDeptApps := make([]AppsConfigApp, 0)
 		depAppNames := make(map[string]AppsConfigApp)
 		nonDepAppNames := make(map[string]AppsConfigApp)
 		for _, app := range apps {
@@ -29,17 +29,15 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 
 		if len(g.Leaves()) > 0 {
 
-			sortedLayers := make([]AppsConfigApp, 0)
+			deptApps := make([]AppsConfigApp, 0)
 
 			topoSortedLayers := g.TopoSortedLayers()
 			for _, appNames := range topoSortedLayers {
 				for _, appName := range appNames {
 					if depAppNames[appName].File != "" {
-						sortedLayers = append(sortedLayers, depAppNames[appName])
-						enqueueOrder = append(enqueueOrder, depAppNames[appName])
+						deptApps = append(deptApps, depAppNames[appName])
 					} else if nonDepAppNames[appName].File != "" {
-						sortedLayers = append(sortedLayers, nonDepAppNames[appName])
-						enqueueOrder = append(enqueueOrder, nonDepAppNames[appName])
+						deptApps = append(deptApps, nonDepAppNames[appName])
 						delete(nonDepAppNames, appName)
 					} else if nonDepAppNames[appName].File == "" {
 						logrus.Warnf("dependencies: %s is not a valid app name", appName)
@@ -48,10 +46,10 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 			}
 
 			for appName := range nonDepAppNames {
-				enqueueOrder = append(enqueueOrder, nonDepAppNames[appName])
+				nonDeptApps = append(nonDeptApps, nonDepAppNames[appName])
 			}
 
-			return enqueueOrder, sortedLayers, nil
+			return nonDeptApps, deptApps, nil
 		} else {
 
 			return apps, nil, nil
@@ -63,6 +61,10 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 }
 
 func MapKeys(appMap []AppsConfigApp) []string {
+
+	if len(appMap) == 0 {
+		return []string{}
+	}
 
 	keys := make([]string, len(appMap))
 

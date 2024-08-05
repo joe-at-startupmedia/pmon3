@@ -98,18 +98,19 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) error {
 	}
 
 	p := model.Process{
-		Pid:         0,
-		Log:         logPath,
-		Name:        flags.Name,
-		ProcessFile: processFile,
-		Args:        strings.Join(processParams[1:], " "),
-		EnvVars:     flags.EnvVars,
-		Pointer:     nil,
-		Status:      model.StatusQueued,
-		Uid:         conv.StrToUint32(user.Uid),
-		Gid:         conv.StrToUint32(user.Gid),
-		Username:    user.Username,
-		AutoRestart: !flags.NoAutoRestart,
+		Pid:          0,
+		Log:          logPath,
+		Name:         flags.Name,
+		ProcessFile:  processFile,
+		Args:         strings.Join(processParams[1:], " "),
+		EnvVars:      flags.EnvVars,
+		Pointer:      nil,
+		Status:       model.StatusQueued,
+		Uid:          conv.StrToUint32(user.Uid),
+		Gid:          conv.StrToUint32(user.Gid),
+		Username:     user.Username,
+		AutoRestart:  !flags.NoAutoRestart,
+		Dependencies: strings.Join(flags.Dependencies, " "),
 	}
 
 	err = db.Db().Save(&p).Error
