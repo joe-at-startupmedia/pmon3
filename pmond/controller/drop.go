@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
@@ -27,9 +26,6 @@ func DropByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 	for _, process := range all {
 		_ = DeleteByParams(cmd, process.GetIdStr(), forced)
 	}
-
-	//reload the configuration file for possible changes
-	pmond.ReloadConf()
 
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),

@@ -18,6 +18,10 @@ func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
 func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 
 	pmond.Log.Infof("got a cmd: %s", cmd)
+
+	//reload the configuration file for possible changes
+	pmond.ReloadConf()
+
 	var cmdResp *protos.CmdResp
 	switch cmd.GetName() {
 	case "log":
