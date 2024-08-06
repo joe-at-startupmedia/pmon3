@@ -2,8 +2,6 @@
 [![Testing](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
 
 
-
-
 `pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
 
 <img width="537" alt="pmon3_ls" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5d79ad53-664d-4ee7-bfac-f3fc94c2b316">
@@ -41,7 +39,7 @@ The systemd installation process entails the following steps:
 1. create the bash completion profile (requires the bash-completion package)
 1. enable and start the `pmond` system service
 
-```shell
+```bash
 #build the project
 make build
 #install on systemd-based system
@@ -59,7 +57,7 @@ wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/rel
 
 After installing `pmon3` for the first time, both installation methods provided above should automatically enable and start the service. if the `pmond` service does not start automatically, you need to manually start the service.
 
-```shell
+```bash
 sudo systemctl start pmond
 
 # Others
@@ -79,15 +77,16 @@ Available Commands:
   completion  Generate completion script
   del         Delete process by id or name
   desc        Show process extended details
+  dgraph      Show the process queue order
   drop        Delete all processes
   exec        Spawn a new process
   help        Help about any command
-  init        Restart all stopped processes
+  init        initialize all stopped processes
   kill        Terminate all processes
   log         Display process logs by id or name
   logf        Tail process logs by id or name
   ls          List all processes
-  restart     Restart a process by id or name
+  restart     (re)start a process by id or name
   stop        Stop a process by id or name
   topn        Shows processes using the native top
   version
@@ -95,13 +94,13 @@ Available Commands:
 Flags:
   -h, --help   help for pmon3
 
-Use "pmon3 [command] --help" for more information about a command
+Use "pmon3 [command] --help" for more information about a command.
 ```
 
 <a name="pmon3_exec"></a>
 #### Running process [run/exec]
 
-```
+```bash
 pmon3 exec [application_binary] [flags]
 ```
 
@@ -113,7 +112,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 --name
 
 // Where to store logs. It will override the confuration files `logs_dir` property
---log-dir  -d
+--log-dir
 
 // The absolute path of a custom log file
 --log  -l
@@ -129,11 +128,14 @@ The starting process accepts several parameters. The parameter descriptions are 
 
 // Do not restart automatically. It will automatically restart by default.
 --no-autorestart  -n
+
+// Provide a list of process names that this process will depend on
+--dependency parent-process-name [--dependency parent-process-name2]...
 ```
 
 #### Example：
 
-```
+```bash
 pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 ```
 
@@ -143,7 +145,7 @@ Parameter arguments need to use the absolute path.
 
 #### View List  [ list/ls ]
 
-```
+```bash
 pmon3 ls
 ```
 
@@ -151,27 +153,27 @@ pmon3 ls
 
 This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
 
-```
+```bash
 pmon3 topn
 ```
 <img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
 #### (re)start the process [ restart/start ]
 
-```
+```bash
 pmon3 restart [id or name]
 ```
 
 <a name="pmon3_stop"></a>
 #### Stop the process  [ stop ]
 
-```
+```bash
 pmon3 stop [id or name]
 ```
 
 #### Process logging
 
-```
+```bash
 # view logs of the process specified
 pmon3 log [id or name]
 
@@ -184,13 +186,13 @@ pmon3 logf [id or name]
 
 #### Delete the process  [ del/delete ]
 
-```
+```bash
 pmon3 del [id or name]
 ```
 
 #### View details [ show/desc ]
 
-```
+```bash
 pmon3 show [id or name]
 ```
 
@@ -198,20 +200,37 @@ pmon3 show [id or name]
 
 <a name="pmon3_kill"></a>
 #### Terminate all running process [ kill ]
-```
+```bash
 pmon3 kill [--force]
 ```
 
 <a name="pmon3_init"></a>
-#### Restart all stopped process or start processes specified in the app config [ init ]
-```
+#### (re)start all stopped process [ init ]
+```bash
+#(re)start processes specified in the Apps Config only
+pmon3 init --apps-config-only
+
+#(re)start processes specified in the Apps Config and those which already exist in the database
 pmon3 init
 ```
 
 <a name="pmon3_drop"></a>
 #### Terminate and delete all processes [drop]
-```
+```bash
 pmon3 drop [--force]
+```
+
+<a name="pmon3_dgraph"></a>
+#### Display the dependency graph [dgraph/order]
+
+This command is useful to debug dependency resolution without (re)starting processes
+
+```bash
+#processes specified in the Apps Config only
+pmon3 dgraph --apps-config-only
+
+#processes specified in the Apps Config and the database
+pmon3 dgraph
 ```
 
 <a name="section_config"></a>
@@ -251,6 +270,8 @@ The following configuration options are available:
 #apps_config_file: /etc/pmon3/config/app.config.json
 ```
 
+All configuration changes are effective when the next command is issued - restarting pmond is unnecessary.
+
 The configuration values can be overridden using environment variables:
 
 
@@ -273,13 +294,7 @@ The configuration values can be overridden using environment variables:
 ## Application(s) Config
 
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
-
-#### Criteria
- When an application config is provided `pmond` will instead refer to the `apps` array specified based on the following criteria:
-1. When `pmond` is starting from a fresh install
-2. When `pmon3` successfully executes a [drop](#pmon3_drop) command followed by running an [init](#pmon3_init) command.
-
-If [init](#pmon3_init) is ran while there are still stopped process in the database (resulting from `pmond` daemon restart or [kill](#pmon3_kill), the Application config will *NOT* be used, and instead the previously-stopped process will be restarted.
+If applications are specified in the Apps Config, they will overwrite matching processes which already exist in the database.
 
 #### Configuration
 
@@ -473,12 +488,12 @@ If there is a path in the parameters you pass, please use the absolute path. The
 
 `pmon3` provides Bash automation. If you find that the command cannot be automatically provided, please install `bash-completion` and exit the terminal to re-enter:
 
-```shell
+```bash
 sudo yum install -y bash-completion
 ```
 
 #### Using ZSH instead of Bash
-```shell
+```bash
 autoload -U +X compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
 sudo sh -c "pmon3 completion zsh > /etc/profile.d/pmon3.sh"
@@ -489,7 +504,7 @@ source /etc/profile.d/pmon3.sh
 
 If you encounter the error above, make sure the `pmond` service has started successfully.
 
-```shell
+```bash
 sudo systemctl start pmond
 ```
 
@@ -498,13 +513,13 @@ sudo systemctl start pmond
 You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files.
 
 #### Applying permissions
-```shell
+```bash
 #This is automatically called by make systemd_install
 make systemd_permissions
 ```
 
 #### Spawn a new process as the root user without using `sudo`
-```
+```bash
 pmon3 exec /usr/local/bin/happac --user root
 ```
 
