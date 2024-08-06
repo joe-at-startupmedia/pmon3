@@ -64,6 +64,8 @@ func interruptHandler(uninterrupted *bool) {
 
 func runMonitor(uninterrupted *bool) {
 
+	controller.StartApps()
+
 	isInitializing := true
 
 	go func() {
@@ -74,8 +76,6 @@ func runMonitor(uninterrupted *bool) {
 	go monitorResponderStatus(uninterrupted, pmond.Log)
 
 	go processRequests(uninterrupted, pmond.Log)
-
-	controller.StartsAppsFromConfig()
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
@@ -134,7 +134,7 @@ func runningTask(isInitializing bool) {
 					return
 				}
 
-				err = process.Enqueue(&cur)
+				err = process.Enqueue(&cur, false)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to enqueue process(%s): %s", q.Stringify(), err)
 				}

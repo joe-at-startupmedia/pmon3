@@ -14,11 +14,11 @@ var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
 	Use:     "restart [id or name]",
-	Short:   "Restart a process by id or name",
+	Short:   "(re)start a process by id or name",
 	Aliases: []string{"start"},
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args, flag.Json())
+		cmdRun(cmd.CalledAs(), args, flag.Json())
 	},
 }
 
@@ -30,10 +30,10 @@ func init() {
 	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the processes stdout log dir")
 }
 
-func cmdRun(args []string, flags string) {
+func cmdRun(calledAs string, args []string, flags string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	sent := base.SendCmdArg2("restart", args[0], flags)
+	sent := base.SendCmdArg2(calledAs, args[0], flags)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())

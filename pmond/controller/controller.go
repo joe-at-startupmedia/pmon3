@@ -34,6 +34,8 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = List(cmd)
 	case "top":
 		cmdResp = Top(cmd)
+	case "start":
+		fallthrough
 	case "restart":
 		cmdResp = Restart(cmd)
 	case "exec":

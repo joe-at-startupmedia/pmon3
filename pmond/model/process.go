@@ -3,11 +3,15 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/joe-at-startupmedia/depgraph"
+	"github.com/sirupsen/logrus"
 	"os"
+	"os/user"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/cpu"
 	"strconv"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -228,4 +232,123 @@ func FromProtobuf(p *protos.Process) *Process {
 		Dependencies: p.GetDependencies(),
 	}
 	return &newProcess
+}
+
+func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User) *Process {
+
+	var processParams = []string{flags.Name}
+	if len(flags.Args) > 0 {
+		processParams = append(processParams, strings.Split(flags.Args, " ")...)
+	}
+
+	p := Process{
+		Pid:          0,
+		Log:          logPath,
+		Name:         flags.Name,
+		ProcessFile:  processFile,
+		Args:         strings.Join(processParams[1:], " "),
+		EnvVars:      flags.EnvVars,
+		Pointer:      nil,
+		Status:       StatusQueued,
+		AutoRestart:  !flags.NoAutoRestart,
+		Dependencies: strings.Join(flags.Dependencies, " "),
+	}
+
+	if user != nil {
+		p.Uid = conv.StrToUint32(user.Uid)
+		p.Gid = conv.StrToUint32(user.Gid)
+		p.Username = user.Username
+	}
+
+	return &p
+}
+
+func ComputeDepGraph(appsPtr *[]Process) (*[]Process, *[]Process, error) {
+
+	apps := *appsPtr
+
+	if len(apps) > 0 {
+		g := depgraph.New()
+		nonDependentApps := make([]Process, 0)
+		depAppNames := make(map[string]Process)
+		nonDepAppNames := make(map[string]Process)
+		for _, app := range apps {
+			if len(app.Dependencies) > 0 {
+				appDependencies := strings.Split(app.Dependencies, " ")
+				depAppNames[app.Name] = app
+				for _, dep := range appDependencies {
+					err := g.DependOn(app.Name, dep)
+					if err != nil {
+						logrus.Errorf("encountered error building app dependency tree: %s", err)
+						return nil, nil, err
+					}
+				}
+			} else {
+				nonDepAppNames[app.Name] = app
+			}
+		}
+
+		if len(g.Leaves()) > 0 {
+
+			dependentApps := make([]Process, 0)
+
+			topoSortedLayers := g.TopoSortedLayers()
+			for _, appNames := range topoSortedLayers {
+				for _, appName := range appNames {
+					if depAppNames[appName].ProcessFile != "" {
+						dependentApps = append(dependentApps, depAppNames[appName])
+					} else if nonDepAppNames[appName].ProcessFile != "" {
+						dependentApps = append(dependentApps, nonDepAppNames[appName])
+						delete(nonDepAppNames, appName)
+					} else if nonDepAppNames[appName].ProcessFile == "" {
+						logrus.Warnf("dependencies: %s is not a valid app name", appName)
+					}
+				}
+			}
+
+			for appName := range nonDepAppNames {
+				nonDependentApps = append(nonDependentApps, nonDepAppNames[appName])
+			}
+
+			return &nonDependentApps, &dependentApps, nil
+		} else {
+
+			return &apps, nil, nil
+		}
+
+	}
+
+	return nil, nil, nil
+}
+
+func ProcessNames(processesPtr *[]Process) []string {
+
+	if processesPtr == nil {
+		return []string{}
+	}
+
+	processes := *processesPtr
+
+	if len(processes) == 0 {
+		return []string{}
+	}
+
+	names := make([]string, len(processes))
+
+	i := 0
+	for _, p := range processes {
+		names[i] = p.Name
+		i++
+	}
+
+	return names
+}
+
+func GetProcessByName(appName string, apps *[]Process) (*Process, error) {
+	for _, app := range *apps {
+		if app.Name == appName {
+			return &app, nil
+		}
+	}
+	return nil, fmt.Errorf("could not find app in Process array with name %s", appName)
 }

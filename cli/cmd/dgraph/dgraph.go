@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/pmond/protos"
 	"strings"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	appsConfigOnly bool
 )
 
 var Cmd = &cobra.Command{
@@ -20,9 +25,20 @@ var Cmd = &cobra.Command{
 	},
 }
 
+func init() {
+	Cmd.Flags().BoolVarP(&appsConfigOnly, "apps-config-only", "c", false, "only initialize processes specified in the Apps Config file")
+}
+
 func Dgraph() {
 
-	sent := base.SendCmd("dgraph", "")
+	var sent *protos.Cmd
+
+	if appsConfigOnly {
+		sent = base.SendCmd("dgraph", "apps-config-only")
+	} else {
+		sent = base.SendCmd("dgraph", "")
+	}
+
 	newCmdResp := base.GetResponse(sent)
 
 	if len(newCmdResp.GetError()) > 0 {
