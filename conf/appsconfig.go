@@ -1,22 +1,33 @@
 package conf
 
 import (
+	"fmt"
 	"github.com/joe-at-startupmedia/depgraph"
 	"github.com/sirupsen/logrus"
+	"pmon3/pmond/model"
 )
 
-func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, error) {
+type AppsConfig struct {
+	Apps []AppsConfigApp
+}
+
+type AppsConfigApp struct {
+	File  string
+	Flags model.ExecFlags
+}
+
+func ComputeDepGraph(apps []AppsConfigApp) (nonDependentApps []AppsConfigApp, dependentApps []AppsConfigApp, err error) {
 
 	if len(apps) > 0 {
 		g := depgraph.New()
-		nonDeptApps := make([]AppsConfigApp, 0)
+		nonDependentApps = make([]AppsConfigApp, 0)
 		depAppNames := make(map[string]AppsConfigApp)
 		nonDepAppNames := make(map[string]AppsConfigApp)
 		for _, app := range apps {
 			if len(app.Flags.Dependencies) > 0 {
 				depAppNames[app.Flags.Name] = app
 				for _, dep := range app.Flags.Dependencies {
-					err := g.DependOn(app.Flags.Name, dep)
+					err = g.DependOn(app.Flags.Name, dep)
 					if err != nil {
 						logrus.Errorf("encountered error building app dependency tree: %s", err)
 						return nil, nil, err
@@ -29,15 +40,15 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 
 		if len(g.Leaves()) > 0 {
 
-			deptApps := make([]AppsConfigApp, 0)
+			dependentApps = make([]AppsConfigApp, 0)
 
 			topoSortedLayers := g.TopoSortedLayers()
 			for _, appNames := range topoSortedLayers {
 				for _, appName := range appNames {
 					if depAppNames[appName].File != "" {
-						deptApps = append(deptApps, depAppNames[appName])
+						dependentApps = append(dependentApps, depAppNames[appName])
 					} else if nonDepAppNames[appName].File != "" {
-						deptApps = append(deptApps, nonDepAppNames[appName])
+						dependentApps = append(dependentApps, nonDepAppNames[appName])
 						delete(nonDepAppNames, appName)
 					} else if nonDepAppNames[appName].File == "" {
 						logrus.Warnf("dependencies: %s is not a valid app name", appName)
@@ -46,10 +57,10 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 			}
 
 			for appName := range nonDepAppNames {
-				nonDeptApps = append(nonDeptApps, nonDepAppNames[appName])
+				nonDependentApps = append(nonDependentApps, nonDepAppNames[appName])
 			}
 
-			return nonDeptApps, deptApps, nil
+			return nonDependentApps, dependentApps, nil
 		} else {
 
 			return apps, nil, nil
@@ -60,7 +71,7 @@ func ComputeDepGraph(apps []AppsConfigApp) ([]AppsConfigApp, []AppsConfigApp, er
 	return nil, nil, nil
 }
 
-func MapKeys(appMap []AppsConfigApp) []string {
+func AppNames(appMap []AppsConfigApp) []string {
 
 	if len(appMap) == 0 {
 		return []string{}
@@ -75,4 +86,13 @@ func MapKeys(appMap []AppsConfigApp) []string {
 	}
 
 	return keys
+}
+
+func GetAppByName(appName string, apps []AppsConfigApp) (AppsConfigApp, error) {
+	for _, app := range apps {
+		if app.Flags.Name == appName {
+			return app, nil
+		}
+	}
+	return AppsConfigApp{}, fmt.Errorf("could not find app in Apps Config with name %s", appName)
 }

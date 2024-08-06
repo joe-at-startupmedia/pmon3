@@ -4,7 +4,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"
-	"pmon3/pmond/model"
 	"time"
 
 	"github.com/jinzhu/configor"
@@ -24,15 +23,6 @@ func GetConfigFile() string {
 		conf = "/etc/pmon3/config/config.yml"
 	}
 	return conf
-}
-
-type AppsConfig struct {
-	Apps []AppsConfigApp
-}
-
-type AppsConfigApp struct {
-	File  string
-	Flags model.ExecFlags
 }
 
 type Config struct {
@@ -91,8 +81,8 @@ func (c *Config) GetCmdExecResponseWait() time.Duration {
 }
 
 func (c *Config) GetDependentProcessEnqueuedWait() time.Duration {
-	if c.CmdExecResponseWait >= 0 && c.CmdExecResponseWait <= 10000 {
-		return time.Duration(c.CmdExecResponseWait) * time.Millisecond
+	if c.DependentProcessEnqueuedWait >= 0 && c.DependentProcessEnqueuedWait <= 20000 {
+		return time.Duration(c.DependentProcessEnqueuedWait) * time.Millisecond
 	} else {
 		log.Println("dependent_process_enqueued_wait configuration value must be between 0 and 10000 ms")
 		return 1000 * time.Millisecond

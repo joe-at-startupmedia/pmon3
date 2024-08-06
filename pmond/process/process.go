@@ -81,8 +81,8 @@ func updatedFromPsCmd(p *model.Process) bool {
 	return false
 }
 
-func Enqueue(p *model.Process) error {
-	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
+func Enqueue(p *model.Process, force bool) error {
+	if (!IsRunning(p.Pid) && p.Status == model.StatusQueued) || force {
 		if updatedFromPsCmd(p) {
 			return nil
 		}
@@ -115,7 +115,7 @@ func Restart(p *model.Process, isInitializing bool) error {
 		}
 
 		if isInitializing {
-			pmond.Log.Infof("(re)starting process during initialization: %s", p.Stringify())
+			pmond.Log.Infof("(re)starting process during initialization(%t): %s", isInitializing, p.Stringify())
 		} else {
 			observer.HandleEvent(&observer.Event{
 				Type:    observer.RestartEvent,
