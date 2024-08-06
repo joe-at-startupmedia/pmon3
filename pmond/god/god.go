@@ -62,8 +62,6 @@ func interruptHandler(uninterrupted *bool) {
 
 func runMonitor(uninterrupted *bool) {
 
-	go monitorResponderStatus(uninterrupted, pmond.Log)
-
 	go processRequests(uninterrupted, pmond.Log)
 
 	controller.StartApps()
@@ -140,10 +138,6 @@ func runningTask(isInitializing bool) {
 
 		}(p, key)
 	}
-}
-
-func monitorResponderStatus(uninterrupted *bool, logger *logrus.Logger) {
-	//posix_mq doest have a status, so we do nothing here
 }
 
 // HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type
