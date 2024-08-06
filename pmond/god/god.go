@@ -62,6 +62,10 @@ func interruptHandler(uninterrupted *bool) {
 
 func runMonitor(uninterrupted *bool) {
 
+	go monitorResponderStatus(uninterrupted, pmond.Log)
+
+	go processRequests(uninterrupted, pmond.Log)
+
 	controller.StartApps()
 
 	isInitializing := true
@@ -70,10 +74,6 @@ func runMonitor(uninterrupted *bool) {
 		time.Sleep(30 * time.Second)
 		isInitializing = false
 	}()
-
-	go monitorResponderStatus(uninterrupted, pmond.Log)
-
-	go processRequests(uninterrupted, pmond.Log)
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
