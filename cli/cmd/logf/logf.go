@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	numLines string
+)
+
 var Cmd = &cobra.Command{
 	Use:   "logf [id or name]",
 	Short: "Tail process logs by id or name",
@@ -19,6 +23,10 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
+}
+
+func init() {
+	Cmd.Flags().StringVarP(&numLines, "lines", "n", "10", "output the last K lines, instead of the last 10 or use -n +K to output starting with the Kth")
 }
 
 func cmdRun(args []string) {
@@ -31,7 +39,7 @@ func cmdRun(args []string) {
 }
 
 func displayLog(log string) {
-	c := exec.Command("bash", "-c", "tail -f "+log)
+	c := exec.Command("bash", "-c", "tail -f "+log+" -n "+numLines)
 	stdout, _ := c.StdoutPipe()
 	var wg sync.WaitGroup
 	wg.Add(1)

@@ -10,6 +10,7 @@ import (
 
 var (
 	logRotated bool
+	numLines   string
 )
 
 var Cmd = &cobra.Command{
@@ -23,6 +24,7 @@ var Cmd = &cobra.Command{
 
 func init() {
 	Cmd.Flags().BoolVarP(&logRotated, "all", "a", false, "output rotated/compressed log files")
+	Cmd.Flags().StringVarP(&numLines, "lines", "n", "10", "output the last K lines, instead of the last 10 or use -n +K to output starting with the Kth")
 }
 
 func cmdRun(args []string) {
@@ -38,7 +40,7 @@ func cmdRun(args []string) {
 		fmt.Println(string(output))
 	}
 
-	c := exec.Command("bash", "-c", "tail "+logFile)
+	c := exec.Command("bash", "-c", "tail "+logFile+" -n "+numLines)
 	output, _ := c.CombinedOutput()
 	fmt.Println(string(output))
 }
