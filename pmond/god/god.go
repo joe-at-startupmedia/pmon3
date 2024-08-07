@@ -64,7 +64,7 @@ func runMonitor(uninterrupted *bool) {
 
 	go processRequests(uninterrupted, pmond.Log)
 
-	controller.StartApps()
+	controller.StartAppsFromBoth(true)
 
 	isInitializing := true
 

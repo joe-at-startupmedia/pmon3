@@ -16,18 +16,18 @@ type AppsConfigApp struct {
 	Flags model.ExecFlags
 }
 
-func ComputeDepGraph(apps []AppsConfigApp) (nonDependentApps []AppsConfigApp, dependentApps []AppsConfigApp, err error) {
+func ComputeDepGraph(apps []AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigApp, error) {
 
 	if len(apps) > 0 {
 		g := depgraph.New()
-		nonDependentApps = make([]AppsConfigApp, 0)
+		nonDependentApps := make([]AppsConfigApp, 0)
 		depAppNames := make(map[string]AppsConfigApp)
 		nonDepAppNames := make(map[string]AppsConfigApp)
 		for _, app := range apps {
 			if len(app.Flags.Dependencies) > 0 {
 				depAppNames[app.Flags.Name] = app
 				for _, dep := range app.Flags.Dependencies {
-					err = g.DependOn(app.Flags.Name, dep)
+					err := g.DependOn(app.Flags.Name, dep)
 					if err != nil {
 						logrus.Errorf("encountered error building app dependency tree: %s", err)
 						return nil, nil, err
@@ -40,7 +40,7 @@ func ComputeDepGraph(apps []AppsConfigApp) (nonDependentApps []AppsConfigApp, de
 
 		if len(g.Leaves()) > 0 {
 
-			dependentApps = make([]AppsConfigApp, 0)
+			dependentApps := make([]AppsConfigApp, 0)
 
 			topoSortedLayers := g.TopoSortedLayers()
 			for _, appNames := range topoSortedLayers {
@@ -60,10 +60,10 @@ func ComputeDepGraph(apps []AppsConfigApp) (nonDependentApps []AppsConfigApp, de
 				nonDependentApps = append(nonDependentApps, nonDepAppNames[appName])
 			}
 
-			return nonDependentApps, dependentApps, nil
+			return &nonDependentApps, &dependentApps, nil
 		} else {
 
-			return apps, nil, nil
+			return &apps, nil, nil
 		}
 
 	}
@@ -71,7 +71,13 @@ func ComputeDepGraph(apps []AppsConfigApp) (nonDependentApps []AppsConfigApp, de
 	return nil, nil, nil
 }
 
-func AppNames(appMap []AppsConfigApp) []string {
+func AppNames(appMapPtr *[]AppsConfigApp) []string {
+
+	if appMapPtr == nil {
+		return []string{}
+	}
+
+	appMap := *appMapPtr
 
 	if len(appMap) == 0 {
 		return []string{}

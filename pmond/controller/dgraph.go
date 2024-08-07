@@ -7,7 +7,6 @@ import (
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
-	"slices"
 	"strings"
 )
 
@@ -36,31 +35,20 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 		var qPs []model.Process
 		qNm := map[string]bool{}
 
-		dbProcessNames := model.ProcessNames(&all)
-
 		for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
-
 			processName := appConfigApp.Flags.Name
-
-			if slices.Contains(dbProcessNames, processName) {
-				p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil)
-				qPs = append(qPs, *p)
-				pmond.Log.Infof("overwrite with conf: pushing to stack %s", processName)
-				qNm[processName] = true
-			} else {
-				dbPs, _ := model.GetProcessByName(processName, &all)
-				if dbPs != nil {
-					qPs = append(qPs, *dbPs)
-					qNm[processName] = true
-					pmond.Log.Infof("append from db: pushing to stack %s", processName)
-				}
-			}
+			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil)
+			qPs = append(qPs, *p)
+			qNm[processName] = true
 		}
 
 		for _, dbPs := range all {
-			if !qNm[dbPs.Name] {
+			processName := dbPs.Name
+			if !qNm[processName] {
 				qPs = append(qPs, dbPs)
-				pmond.Log.Infof("append reamainder from db: pushing to stack %s", dbPs.Name)
+				pmond.Log.Infof("append reamainder from db: pushing to stack %s", processName)
+			} else {
+				pmond.Log.Infof("overwritten with apps conf %s", processName)
 			}
 		}
 
