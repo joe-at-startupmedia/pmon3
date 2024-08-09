@@ -18,7 +18,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 	)
 
 	if cmd.GetArg1() == "apps-config-only" {
-		nonDependentApps, dependentApps, err := conf.ComputeDepGraph(pmond.Config.AppsConfig.Apps)
+		nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
 		if err != nil {
 			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}

@@ -16,11 +16,12 @@ type AppsConfigApp struct {
 	Flags model.ExecFlags
 }
 
-func ComputeDepGraph(apps []AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigApp, error) {
+func ComputeDepGraph(appsPtr *[]AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigApp, error) {
 
-	if len(apps) > 0 {
+	apps := *appsPtr
+
+	if len(apps) > 1 {
 		g := depgraph.New()
-		nonDependentApps := make([]AppsConfigApp, 0)
 		depAppNames := make(map[string]AppsConfigApp)
 		nonDepAppNames := make(map[string]AppsConfigApp)
 		for _, app := range apps {
@@ -42,33 +43,34 @@ func ComputeDepGraph(apps []AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigApp, 
 
 			dependentApps := make([]AppsConfigApp, 0)
 
-			topoSortedLayers := g.TopoSortedLayers()
-			for _, appNames := range topoSortedLayers {
-				for _, appName := range appNames {
-					if depAppNames[appName].File != "" {
-						dependentApps = append(dependentApps, depAppNames[appName])
-					} else if nonDepAppNames[appName].File != "" {
-						dependentApps = append(dependentApps, nonDepAppNames[appName])
-						delete(nonDepAppNames, appName)
-					} else if nonDepAppNames[appName].File == "" {
-						logrus.Warnf("dependencies: %s is not a valid app name", appName)
-					}
+			topoSorted := g.TopoSorted()
+			for _, appName := range topoSorted {
+				if depAppNames[appName].File != "" {
+					dependentApps = append(dependentApps, depAppNames[appName])
+				} else if nonDepAppNames[appName].File != "" {
+					dependentApps = append(dependentApps, nonDepAppNames[appName])
+					delete(nonDepAppNames, appName)
+				} else if nonDepAppNames[appName].File == "" {
+					logrus.Warnf("dependencies: %s is not a valid app name", appName)
 				}
 			}
 
+			nonDependentApps := make([]AppsConfigApp, len(nonDepAppNames))
+			i := 0
 			for appName := range nonDepAppNames {
-				nonDependentApps = append(nonDependentApps, nonDepAppNames[appName])
+				nonDependentApps[i] = nonDepAppNames[appName]
+				i++
 			}
 
 			return &nonDependentApps, &dependentApps, nil
 		} else {
 
-			return &apps, nil, nil
+			return appsPtr, nil, nil
 		}
 
 	}
 
-	return nil, nil, nil
+	return appsPtr, nil, nil
 }
 
 func AppNames(appMapPtr *[]AppsConfigApp) []string {

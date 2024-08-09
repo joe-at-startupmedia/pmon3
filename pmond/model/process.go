@@ -267,9 +267,8 @@ func ComputeDepGraph(appsPtr *[]Process) (*[]Process, *[]Process, error) {
 
 	apps := *appsPtr
 
-	if len(apps) > 0 {
+	if len(apps) > 1 {
 		g := depgraph.New()
-		nonDependentApps := make([]Process, 0)
 		depAppNames := make(map[string]Process)
 		nonDepAppNames := make(map[string]Process)
 		for _, app := range apps {
@@ -292,33 +291,34 @@ func ComputeDepGraph(appsPtr *[]Process) (*[]Process, *[]Process, error) {
 
 			dependentApps := make([]Process, 0)
 
-			topoSortedLayers := g.TopoSortedLayers()
-			for _, appNames := range topoSortedLayers {
-				for _, appName := range appNames {
-					if depAppNames[appName].ProcessFile != "" {
-						dependentApps = append(dependentApps, depAppNames[appName])
-					} else if nonDepAppNames[appName].ProcessFile != "" {
-						dependentApps = append(dependentApps, nonDepAppNames[appName])
-						delete(nonDepAppNames, appName)
-					} else if nonDepAppNames[appName].ProcessFile == "" {
-						logrus.Warnf("dependencies: %s is not a valid app name", appName)
-					}
+			topoSorted := g.TopoSorted()
+			for _, appName := range topoSorted {
+				if depAppNames[appName].ProcessFile != "" {
+					dependentApps = append(dependentApps, depAppNames[appName])
+				} else if nonDepAppNames[appName].ProcessFile != "" {
+					dependentApps = append(dependentApps, nonDepAppNames[appName])
+					delete(nonDepAppNames, appName)
+				} else if nonDepAppNames[appName].ProcessFile == "" {
+					logrus.Warnf("dependencies: %s is not a valid app name", appName)
 				}
 			}
 
+			nonDependentApps := make([]Process, len(nonDepAppNames))
+			i := 0
 			for appName := range nonDepAppNames {
-				nonDependentApps = append(nonDependentApps, nonDepAppNames[appName])
+				nonDependentApps[i] = nonDepAppNames[appName]
+				i++
 			}
 
 			return &nonDependentApps, &dependentApps, nil
 		} else {
 
-			return &apps, nil, nil
+			return appsPtr, nil, nil
 		}
 
 	}
 
-	return nil, nil, nil
+	return appsPtr, nil, nil
 }
 
 func ProcessNames(processesPtr *[]Process) []string {

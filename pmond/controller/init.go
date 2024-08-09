@@ -41,7 +41,7 @@ func StartsAppsFromConfig(blocking bool) error {
 		return nil
 	}
 
-	nonDependentApps, dependentApps, err := conf.ComputeDepGraph(pmond.Config.AppsConfig.Apps)
+	nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
 	if err != nil {
 		return err
 	}
