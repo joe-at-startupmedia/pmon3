@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/goinbox/shell"
 	"os"
-	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
 	"pmon3/pmond/utils/conv"
@@ -24,16 +23,11 @@ func isPmondRunning() bool {
 }
 
 func main() {
-	err := pmond.Instance(conf.GetConfigFile())
-	if err != nil {
-		panic(err)
-	}
+	pmond.ReloadConf()
 
 	if isPmondRunning() {
 		pmond.Log.Fatal("pmond is already running")
 	}
-	if err != nil {
-		pmond.Log.Fatal(err)
-	}
+
 	god.New()
 }

@@ -81,8 +81,8 @@ func updatedFromPsCmd(p *model.Process) bool {
 	return false
 }
 
-func Enqueue(p *model.Process) error {
-	if !IsRunning(p.Pid) && p.Status == model.StatusQueued {
+func Enqueue(p *model.Process, force bool) error {
+	if (!IsRunning(p.Pid) && p.Status == model.StatusQueued) || force {
 		if updatedFromPsCmd(p) {
 			return nil
 		}
@@ -115,7 +115,7 @@ func Restart(p *model.Process, isInitializing bool) error {
 		}
 
 		if isInitializing {
-			pmond.Log.Infof("(re)starting process during initialization: %s", p.Stringify())
+			pmond.Log.Infof("(re)starting process during initialization(%t): %s", isInitializing, p.Stringify())
 		} else {
 			observer.HandleEvent(&observer.Event{
 				Type:    observer.RestartEvent,
@@ -202,7 +202,7 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 func workerRestart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
 	if err != nil {
 		return "", err
 	}
@@ -217,7 +217,7 @@ func workerRestart(p *model.Process) (string, error) {
 
 func workerStart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
 	if err != nil {
 		return "", err
 	}

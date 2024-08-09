@@ -8,11 +8,17 @@ import (
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"strconv"
 	"time"
 
 	"github.com/eiannone/keyboard"
 	"github.com/gosuri/uilive"
 	"github.com/spf13/cobra"
+)
+
+var (
+	seconds   int
+	sortField string
 )
 
 var Cmd = &cobra.Command{
@@ -24,6 +30,11 @@ var Cmd = &cobra.Command{
 		Topn()
 		base.CloseSender()
 	},
+}
+
+func init() {
+	Cmd.Flags().IntVarP(&seconds, "seconds", "s", 1, "refresh every (n) seconds")
+	Cmd.Flags().StringVarP(&sortField, "sort-field", "o", "%CPU", "the column to sort processes by")
 }
 
 func Topn() {
@@ -79,21 +90,20 @@ func displayTopLoop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx con
 			return
 		default:
 			go displayTop(writer, pidsCsv, sortBit)
-			time.Sleep(1 * time.Second)
+			time.Sleep(time.Duration(seconds) * time.Second)
 		}
 	}
 }
 
 func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool) {
 	var cmd *exec.Cmd
-	var sortField string
 
 	if sortBit {
 		sortField = "%CPU"
 	} else {
 		sortField = "%MEM"
 	}
-	cmd = exec.Command("top", "-p", pidsCsv, "-o", sortField, "-b", "-n 1")
+	cmd = exec.Command("top", "-p", pidsCsv, "-o", sortField, "-d", strconv.Itoa(seconds), "-b")
 	//fmt.Printf("%s", cmd.String())
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

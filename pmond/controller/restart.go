@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
@@ -22,36 +23,64 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 	// kill the process and insert a new record with "queued" status
 
 	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
+
+	//the process doesn't exist,  so we'll look in the AppConfig
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
-	}
-	if process.IsRunning(p.Pid) {
-		if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
-			return ErroredCmdResp(cmd, errors.New(err.Error()))
+
+		app, err := conf.GetAppByName(idOrName, pmond.Config.AppsConfig.Apps)
+		if err != nil {
+			return ErroredCmdResp(cmd, fmt.Errorf("command error: start process error: %w", err))
 		}
-	}
-	execflags := model.ExecFlags{}
-	parsedFlags, err := execflags.Parse(flags)
-	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
-	} else {
-		pmond.Log.Debugf("update as queued: %v", flags)
-		err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)
-		newProcess := protos.Process{
-			Log: p.Log,
+		// get exec abs file path
+		execPath, err := getExecFileAbsPath(app.File)
+		if err != nil {
+			return ErroredCmdResp(cmd, fmt.Errorf("command error: file argument error: %w", err))
 		}
+
+		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
+		if p, err = insertAsQueued(execPath, &app.Flags); err != nil {
+			return ErroredCmdResp(cmd, fmt.Errorf("could not start process: %w", err))
+		}
+
 		newCmdResp := protos.CmdResp{
 			Id:      cmd.GetId(),
 			Name:    cmd.GetName(),
-			Process: &newProcess,
-		}
-		if err != nil {
-			newCmdResp.Error = err.Error()
-		} else if incrementCounter {
-			p.IncrRestartCount()
+			Process: p.ToProtobuf(),
 		}
 		return &newCmdResp
+	} else {
+		if process.IsRunning(p.Pid) {
+			if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
+				return ErroredCmdResp(cmd, errors.New(err.Error()))
+			}
+		}
+		execFlags := model.ExecFlags{}
+		parsedFlags, err := execFlags.Parse(flags)
+		if err != nil {
+			return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
+		}
+		if err != nil {
+			return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
+		} else {
+			pmond.Log.Debugf("update as queued: %v", flags)
+			err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)
+			newProcess := protos.Process{
+				Log: p.Log,
+			}
+			newCmdResp := protos.CmdResp{
+				Id:      cmd.GetId(),
+				Name:    cmd.GetName(),
+				Process: &newProcess,
+			}
+			if err != nil {
+				newCmdResp.Error = err.Error()
+			} else if incrementCounter && cmd.GetName() == "restart" {
+				p.IncrRestartCount()
+			}
+			return &newCmdResp
+		}
 	}
+
 }
 
 func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags) error {

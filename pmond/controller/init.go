@@ -1,11 +1,15 @@
 package controller
 
 import (
-	"fmt"
+	"os/user"
+	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
+	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"strings"
+	"time"
 )
 
 func Initialize(cmd *protos.Cmd) *protos.CmdResp {
@@ -15,58 +19,172 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 		Name: cmd.GetName(),
 	}
 
-	startedFromConfig := StartsAppsFromConfig()
-	if startedFromConfig {
-		return &newCmdResp
+	blocking := cmd.GetArg2() == "blocking"
+
+	var err error
+
+	if cmd.GetArg1() == "apps-config-only" {
+		err = StartsAppsFromConfig(blocking)
 	} else {
-		var all []model.Process
-		err := db.Db().Find(&all, "status = ?", model.StatusStopped).Error
-		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("Error finding stopped processes: %w", err))
-		} else if len(all) == 0 {
-			return ErroredCmdResp(cmd, fmt.Errorf("Could not find any stopped processes"))
-		}
-
-		var (
-			cr       *protos.CmdResp
-			hasError bool = false
-		)
-
-		for _, process := range all {
-			pmond.Log.Debugf("restart: %s", process.GetIdStr())
-			cr := RestartByParams(cmd, process.GetIdStr(), "{}", false)
-			if len(cr.GetError()) > 0 {
-				pmond.Log.Debugf("encountered error attempting to restart: %s", cr.GetError())
-				hasError = true
-				break
-			}
-		}
-
-		if hasError {
-			newCmdResp.Error = cr.GetError()
-		}
-		return &newCmdResp
+		err = StartAppsFromBoth(blocking)
 	}
+	if err != nil {
+		newCmdResp.Error = err.Error()
+	}
+
+	return &newCmdResp
 }
 
-func StartsAppsFromConfig() bool {
+func StartsAppsFromConfig(blocking bool) error {
 
+	if pmond.Config.AppsConfig == nil || len(pmond.Config.AppsConfig.Apps) == 0 {
+		return nil
+	}
+
+	nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
+	if err != nil {
+		return err
+	}
+
+	if blocking {
+		err = appConfAppEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+	} else {
+		go appConfAppEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+	}
+
+	return err
+}
+
+func StartAppsFromBoth(blocking bool) error {
+	nonDependentApps, dependentApps, err := getQueueableFromBoth()
+	if err != nil {
+		return err
+	}
+
+	if blocking {
+		err = processEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+	} else {
+		go processEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+	}
+
+	return err
+}
+
+func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 	var all []model.Process
 	err := db.Db().Find(&all).Error
-	if err != nil || len(all) > 0 || pmond.Config.AppsConfig == nil {
-		for _, process := range all {
-			pmond.Log.Debugf("config start: %s", process.Stringify())
-		}
-		return false
+	if err != nil {
+		return nil, nil, err
 	}
-	apps := pmond.Config.AppsConfig.Apps
-	if len(apps) > 0 {
-		for _, app := range apps {
+
+	var qPs []model.Process
+	qNm := map[string]bool{}
+
+	for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
+		processName := appConfigApp.Flags.Name
+		appLog, _ := getAppsConfigAppLogPath(&appConfigApp)
+		appUser, _ := getAppsConfigAppUser(&appConfigApp)
+		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser)
+		qPs = append(qPs, *p)
+		qNm[processName] = true
+	}
+
+	for _, dbPs := range all {
+		processName := dbPs.Name
+		if !qNm[processName] {
+			qPs = append(qPs, dbPs)
+			pmond.Log.Infof("append reamainder from db: pushing to stack %s", processName)
+		} else {
+			pmond.Log.Infof("overwritten with apps conf: %s", processName)
+		}
+	}
+
+	nonDependentApps, dependentApps, err := model.ComputeDepGraph(&qPs)
+	if err != nil {
+		pmond.Log.Errorf("encountered error attempting to prioritize databse processes from dep graph: %s", err)
+		return nil, nil, err
+	}
+
+	return nonDependentApps, dependentApps, nil
+}
+
+func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]conf.AppsConfigApp, dependentApps *[]conf.AppsConfigApp) error {
+
+	var retErr error
+
+	if dependentApps != nil {
+		for _, app := range *dependentApps {
+			pmond.Log.Infof("launch dependent %s", strings.Join(conf.AppNames(dependentApps), " "))
+			err := EnqueueProcess(app.File, &app.Flags)
+			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
+			if err != nil {
+				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
+				retErr = err
+			}
+		}
+	}
+
+	if nonDependentApps != nil {
+		pmond.Log.Infof("launch independent %s", strings.Join(conf.AppNames(nonDependentApps), " "))
+
+		for _, app := range *nonDependentApps {
 			err := EnqueueProcess(app.File, &app.Flags)
 			if err != nil {
 				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
+				retErr = err
 			}
 		}
 	}
-	return true
+
+	return retErr
+}
+
+func processEnqueueUsingDepGraphResults(nonDependentApps *[]model.Process, dependentApps *[]model.Process) error {
+
+	var retErr error
+
+	if dependentApps != nil {
+		pmond.Log.Infof("launch dependent %s", strings.Join(model.ProcessNames(dependentApps), " "))
+
+		for _, app := range *dependentApps {
+			pmond.Log.Infof("enqueue dependent and wait %s %d", app.Name, pmond.Config.GetDependentProcessEnqueuedWait())
+			err := process.Enqueue(&app, true)
+			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
+			if err != nil {
+				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
+				retErr = err
+			}
+		}
+	}
+
+	if nonDependentApps != nil {
+		pmond.Log.Infof("launch independent %s", strings.Join(model.ProcessNames(nonDependentApps), " "))
+
+		for _, app := range *nonDependentApps {
+			pmond.Log.Infof("enqueue nondependent %s", app.Name)
+			err := process.Enqueue(&app, true)
+			if err != nil {
+				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
+				retErr = err
+			}
+		}
+	}
+
+	return retErr
+}
+
+func getAppsConfigAppLogPath(app *conf.AppsConfigApp) (string, error) {
+	logPath, err := process.GetLogPath(app.Flags.LogDir, app.Flags.Log, app.File, app.Flags.Name)
+	if err != nil {
+		return "", err
+	}
+	return logPath, nil
+}
+
+func getAppsConfigAppUser(app *conf.AppsConfigApp) (*user.User, error) {
+	u, _, err := process.SetUser(app.Flags.User)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }

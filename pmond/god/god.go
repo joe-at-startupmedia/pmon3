@@ -37,8 +37,6 @@ func handleOpenError(e error) {
 	}
 }
 
-var uninterrupted bool = true
-
 func interruptHandler(uninterrupted *bool) {
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,
@@ -64,18 +62,16 @@ func interruptHandler(uninterrupted *bool) {
 
 func runMonitor(uninterrupted *bool) {
 
+	go processRequests(uninterrupted, pmond.Log)
+
+	controller.StartAppsFromBoth(true)
+
 	isInitializing := true
 
 	go func() {
 		time.Sleep(30 * time.Second)
 		isInitializing = false
 	}()
-
-	go monitorResponderStatus(uninterrupted, pmond.Log)
-
-	go processRequests(uninterrupted, pmond.Log)
-
-	controller.StartsAppsFromConfig()
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
@@ -134,7 +130,7 @@ func runningTask(isInitializing bool) {
 					return
 				}
 
-				err = process.Enqueue(&cur)
+				err = process.Enqueue(&cur, false)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to enqueue process(%s): %s", q.Stringify(), err)
 				}
@@ -142,10 +138,6 @@ func runningTask(isInitializing bool) {
 
 		}(p, key)
 	}
-}
-
-func monitorResponderStatus(uninterrupted *bool, logger *logrus.Logger) {
-	//posix_mq doest have a status, so we do nothing here
 }
 
 // HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type

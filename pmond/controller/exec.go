@@ -10,7 +10,6 @@ import (
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
 	"strings"
 )
 
@@ -75,44 +74,26 @@ func EnqueueProcess(execFile string, flags *model.ExecFlags) error {
 		err = UpdateAsQueued(p, execPath, flags)
 	} else {
 		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
-		err = insertAsQueued(execPath, flags)
+		_, err = insertAsQueued(execPath, flags)
 	}
 	return err
 }
 
-func insertAsQueued(processFile string, flags *model.ExecFlags) error {
-
-	var processParams = []string{flags.Name}
-	if len(flags.Args) > 0 {
-		processParams = append(processParams, strings.Split(flags.Args, " ")...)
-	}
+func insertAsQueued(processFile string, flags *model.ExecFlags) (*model.Process, error) {
 
 	logPath, err := process.GetLogPath(flags.LogDir, flags.Log, processFile, flags.Name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user, _, err := process.SetUser(flags.User)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	p := model.Process{
-		Pid:         0,
-		Log:         logPath,
-		Name:        flags.Name,
-		ProcessFile: processFile,
-		Args:        strings.Join(processParams[1:], " "),
-		EnvVars:     flags.EnvVars,
-		Pointer:     nil,
-		Status:      model.StatusQueued,
-		Uid:         conv.StrToUint32(user.Uid),
-		Gid:         conv.StrToUint32(user.Gid),
-		Username:    user.Username,
-		AutoRestart: !flags.NoAutoRestart,
-	}
+	p := model.FromFileAndExecFlags(processFile, flags, logPath, user)
 
 	err = db.Db().Save(&p).Error
 
-	return err
+	return p, err
 }

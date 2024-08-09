@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"os"
 	"pmon3/conf"
 	"pmon3/pmond"
@@ -42,7 +43,7 @@ func Db() *gorm.DB {
 		var pmondModel model.Pmond
 		err = initDb.First(&pmondModel).Error
 		if err != nil {
-			if err == gorm.ErrRecordNotFound { // first version
+			if errors.Is(err, gorm.ErrRecordNotFound) { // first version
 				initDb.Create(&model.Pmond{Version: conf.Version})
 			}
 		}

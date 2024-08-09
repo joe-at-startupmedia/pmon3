@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
+	"pmon3/cli/cmd/dgraph"
 	"pmon3/cli/cmd/drop"
 	"pmon3/cli/cmd/exec"
 	initialize "pmon3/cli/cmd/init"
@@ -46,6 +47,7 @@ func Exec() error {
 		initialize.Cmd,
 		drop.Cmd,
 		topn.Cmd,
+		dgraph.Cmd,
 		verCmd,
 	)
 
