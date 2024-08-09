@@ -67,7 +67,7 @@ sudo /usr/local/pmon3/bin/pmond &
 <a name="section_commands"></a>
 ## Commands
 
-#### Help
+### Help
 
 ```
 Usage:
@@ -98,7 +98,7 @@ Use "pmon3 [command] --help" for more information about a command.
 ```
 
 <a name="pmon3_exec"></a>
-#### Running process [run/exec]
+### Running process [run/exec]
 
 ```bash
 pmon3 exec [application_binary] [flags]
@@ -143,13 +143,13 @@ pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
 
 Parameter arguments need to use the absolute path.
 
-#### View List  [ list/ls ]
+### View List  [ list/ls ]
 
 ```bash
 pmon3 ls
 ```
 
-#### Top Native [ topn ]
+### Top Native [ topn ]
 
 This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
 
@@ -158,20 +158,20 @@ pmon3 topn
 ```
 <img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
-#### (re)start the process [ restart/start ]
+### (re)start the process [ restart/start ]
 
 ```bash
 pmon3 restart [id or name]
 ```
 
 <a name="pmon3_stop"></a>
-#### Stop the process  [ stop ]
+### Stop the process  [ stop ]
 
 ```bash
 pmon3 stop [id or name]
 ```
 
-#### Process logging
+### Process logging
 
 ```bash
 # view logs of the process specified
@@ -184,13 +184,13 @@ pmon3 log -a [id or name]
 pmon3 logf [id or name]
 ```
 
-#### Delete the process  [ del/delete ]
+### Delete the process  [ del/delete ]
 
 ```bash
 pmon3 del [id or name]
 ```
 
-#### View details [ show/desc ]
+### View details [ show/desc ]
 
 ```bash
 pmon3 show [id or name]
@@ -199,13 +199,13 @@ pmon3 show [id or name]
 <img width="475" alt="pmon3_show" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6b564a1c-0e26-468c-bd01-6dabce0c7620">
 
 <a name="pmon3_kill"></a>
-#### Terminate all running process [ kill ]
+### Terminate all running process [ kill ]
 ```bash
 pmon3 kill [--force]
 ```
 
 <a name="pmon3_init"></a>
-#### (re)start all stopped process [ init ]
+### (re)start all stopped process [ init ]
 ```bash
 #(re)start processes specified in the Apps Config only
 pmon3 init --apps-config-only
@@ -215,13 +215,13 @@ pmon3 init
 ```
 
 <a name="pmon3_drop"></a>
-#### Terminate and delete all processes [drop]
+### Terminate and delete all processes [drop]
 ```bash
 pmon3 drop [--force]
 ```
 
 <a name="pmon3_dgraph"></a>
-#### Display the dependency graph [dgraph/order]
+### Display the dependency graph [dgraph/order]
 
 This command is useful to debug dependency resolution without (re)starting processes
 
@@ -296,7 +296,7 @@ The configuration values can be overridden using environment variables:
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
 If applications are specified in the Apps Config, they will overwrite matching processes which already exist in the database.
 
-#### Configuration
+### Configuration
 
 #### /etc/pmon3/config/config.yml
 ```yaml
@@ -341,6 +341,13 @@ apps_config_file: /etc/pmon3/config/apps.config.json
 }
 ```
 
+### Dependencies
+
+Depenencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependecy resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable which currently defaults to 2 seconds.
+
+
+### Flags
+
 All possible `flags` values matching those specified in the [exec](#exec_flags) command:
 
 * user
@@ -362,13 +369,13 @@ on_process_restart_exec: ""
 on_process_failure_exec: ""
 ```
 
-#### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
+### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
 #### /etc/pmond/config/config.yml
 ```yaml
 on_process_restart_exec: "/etc/pmon3/bin/on_restart.bash"
 ```
 
-#### 2. create the script to accept the json-escaped process details:
+### 2. create the script to accept the json-escaped process details:
 #### /etc/pmon3/bin/on_restart.bash
 ```bash
 PROCESS_JSON="$1"
@@ -377,7 +384,7 @@ PROCESS_NAME=$(echo "${PROCESS_JSON}" | jq '.name')
 echo "process restarted: ${PROCESS_ID} - ${PROCESS_NAME}" >> /var/log/pmond/output.log
 ```
 
-#### 3. start pmond in debug mode
+### 3. start pmond in debug mode
 ```bash 
 $ PMON3_DEBUG=true pmond
 INFO/vagrant/go_src/pmon3/pmond/observer/observer.go:29 pmon3/pmond/observer.HandleEvent() Received event: &{restarted 0xc0001da630}
@@ -385,7 +392,7 @@ WARN/vagrant/go_src/pmon3/pmond/observer/observer.go:47 pmon3/pmond/observer.onR
 DEBU/vagrant/go_src/pmon3/pmond/observer/observer.go:70 pmon3/pmond/observer.onEventExec() Attempting event executor(restarted): /etc/pmon3/bin/on_restart.bash "{\"id\":3,\"created_at\":\"2024-05-03T05:44:25.114957302Z\",\"updated_at\":\"2024-05-03T06:09:18.71222185Z\",\"pid\":4952,\"log\":\"/var/log/pmond/acf3f83.log\",\"name\":\"happac3\",\"process_file\":\"/usr/local/bin/happac\",\"args\":\"-h startup-patroni-1.node.consul -p 5557 -r 5002\",\"status\":2,\"auto_restart\":true,\"uid\":1000,\"username\":\"vagrant\",\"gid\":1000}"
 ```
 
-#### 4. confirm the script executed successfully
+### 4. confirm the script executed successfully
 ```bash
 $ tail /var/log/pmond/output.log
 process restarted: 4 - "happac4"
