@@ -5,10 +5,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math/rand"
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/eiannone/keyboard"
@@ -42,15 +44,17 @@ func Topn() {
 	sent := base.SendCmd("top", "")
 	newCmdResp := base.GetResponse(sent)
 	pidsCsv := newCmdResp.GetValueStr()
-	if len(pidsCsv) == 0 {
+	pids := strings.Split(pidsCsv, ",")
+	pidLen := len(pids)
+	if pidLen == 0 {
 		//this should never happen because it should always return at least the pmond pid
 		cli.Log.Error("process list was empty")
 	} else {
-		handleKeyPressEvents(pidsCsv)
+		handleKeyPressEvents(pidsCsv, &pids, pidLen)
 	}
 }
 
-func handleKeyPressEvents(pidsCsv string) {
+func handleKeyPressEvents(pidsCsv string, pids *[]string, pidLen int) {
 	if err := keyboard.Open(); err != nil {
 		panic(err)
 	}
@@ -62,7 +66,11 @@ func handleKeyPressEvents(pidsCsv string) {
 	}()
 	ctx, cancel := context.WithCancel(context.Background())
 	sortBit := false
-	go displayTopLoop(writer, pidsCsv, false, ctx)
+	if pidLen > 20 {
+		go displayLargeTopLoop(writer, pids, sortBit, ctx)
+	} else {
+		go displayTopLoop(writer, pidsCsv, sortBit, ctx)
+	}
 
 	for {
 		char, key, err := keyboard.GetKey()
@@ -77,7 +85,11 @@ func handleKeyPressEvents(pidsCsv string) {
 			sortBit = !sortBit
 			cancel()
 			ctx, cancel = context.WithCancel(context.Background())
-			go displayTopLoop(writer, pidsCsv, sortBit, ctx)
+			if pidLen > 20 {
+				go displayLargeTopLoop(writer, pids, sortBit, ctx)
+			} else {
+				go displayTopLoop(writer, pidsCsv, sortBit, ctx)
+			}
 		}
 	}
 }
@@ -95,7 +107,31 @@ func displayTopLoop(writer *uilive.Writer, pidsCsv string, sortBit bool, ctx con
 	}
 }
 
+func getRandomizedLargePidList(pidsPtr *[]string) string {
+	pids := *pidsPtr
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	for n := len(pids); n > 0; n-- {
+		randIndex := r.Intn(n)
+		pids[n-1], pids[randIndex] = pids[randIndex], pids[n-1]
+	}
+	return strings.Join(pids[:20], ",")
+}
+
+func displayLargeTopLoop(writer *uilive.Writer, pids *[]string, sortBit bool, ctx context.Context) {
+	for {
+		select {
+		// case context is done.
+		case <-ctx.Done():
+			return
+		default:
+			go displayTop(writer, getRandomizedLargePidList(pids), sortBit)
+			time.Sleep(time.Duration(seconds) * time.Second)
+		}
+	}
+}
+
 func displayTop(writer *uilive.Writer, pidsCsv string, sortBit bool) {
+
 	var cmd *exec.Cmd
 
 	if sortBit {
