@@ -14,13 +14,13 @@ require (
 	github.com/jinzhu/configor v1.2.2
 	github.com/joe-at-startupmedia/depgraph v0.0.1
 	github.com/joe-at-startupmedia/sqlite v0.0.1
-	github.com/joe-at-startupmedia/xipc v0.0.9
+	github.com/joe-at-startupmedia/xipc v0.0.10
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/struCoder/pidusage v0.2.1
 	github.com/tabalt/gracehttp v1.3.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.34.2
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.25.10
 )
@@ -47,7 +47,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joe-at-startupmedia/gipc v0.0.1 // indirect
 	github.com/joe-at-startupmedia/posix_mq v0.2.1 // indirect
-	github.com/joe-at-startupmedia/shmemipc v0.0.8 // indirect
+	github.com/joe-at-startupmedia/shmemipc v0.0.9 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
@@ -74,7 +74,7 @@ require (
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.11.0 // indirect
