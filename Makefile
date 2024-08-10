@@ -99,7 +99,7 @@ run_test:
 	$(TEST_VARS) ./bin/cli desc 4
 	#
 	@printf "\n\n\033[1mtests del command removes an application from process list\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli del 1
+	$(TEST_VARS) ./bin/cli del 3 #this is a process id that doesnt exist in the config
 	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	#
 	@printf "\n\n\033[1mtests kill command result in stopping all processes\033[0m\n\n"
@@ -107,7 +107,7 @@ run_test:
 	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
 	#
 	@printf "\n\n\033[1mtests init command restarts all apps\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli init
+	$(TEST_VARS) ./bin/cli init all blocking #this will restart all processes (including those speced in the apps config)
 	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	#
 	@printf "\n\n\033[1mtests drop command removes all applications\033[0m\n\n"
@@ -115,7 +115,7 @@ run_test:
 	$(TEST_VARS) ./bin/cli ls_assert 0
 	#
 	@printf "\n\n\033[1mtests init commands boots pmond from app config\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli init
+	$(TEST_VARS) ./bin/cli init all blocking
 	$(TEST_VARS) ./bin/cli ls_assert 2 running
 	#
 	@printf "\n\n\033[1mtests that starting and stopping an app works\033[0m\n\n"
