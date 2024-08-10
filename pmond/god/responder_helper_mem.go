@@ -13,7 +13,7 @@ func connectResponder() {
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       "pmon3_mem",
 		BasePath:   pmond.Config.ShmemDir,
-		MaxMsgSize: 4096,
+		MaxMsgSize: 32768,
 		Flags:      os.O_RDWR | os.O_CREATE | os.O_TRUNC,
 		Mode:       0666,
 	}
