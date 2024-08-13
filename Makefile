@@ -28,35 +28,35 @@ fmt_check:
 .PHONY: lint
 lint:
 	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u golang.org/x/lint/golint; \
+		$(GO) install golang.org/x/lint/golint@latest
 	fi
 	for PKG in $(PACKAGES); do golint -set_exit_status $$PKG || exit 1; done;
 
 .PHONY: misspell_check
 misspell_check:
 	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/client9/misspell/cmd/misspell; \
+		$(GO) install github.com/client9/misspell/cmd/misspell@latest; \
 	fi
 	misspell -error $(GOFILES)
 
 .PHONY: misspell
 misspell:
 	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/client9/misspell/cmd/misspell; \
+		$(GO) install github.com/client9/misspell/cmd/misspell@latest; \
 	fi
 	misspell -w $(GOFILES)
 
 .PHONY: betteralign_check
 betteralign_check:
 	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/dkorunic/betteralign/cmd/betteralign; \
+		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
 	betteralign ./...
 
 .PHONY: betteralign
 betteralign:
 	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/dkorunic/betteralign/cmd/betteralign; \
+		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
 	betteralign -apply ./...
 
