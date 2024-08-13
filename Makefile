@@ -46,13 +46,28 @@ misspell:
 	fi
 	misspell -w $(GOFILES)
 
+.PHONY: betteralign_check
+betteralign_check:
+	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		$(GO) get -u github.com/dkorunic/betteralign/cmd/betteralign; \
+	fi
+	betteralign ./...
+
+.PHONY: betteralign
+betteralign:
+	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		$(GO) get -u github.com/dkorunic/betteralign/cmd/betteralign; \
+	fi
+	betteralign -apply ./...
+
 .PHONY: tools
 tools:
 	$(GO) install golang.org/x/lint/golint@latest
 	$(GO) install github.com/client9/misspell/cmd/misspell@latest
+	$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest
 
 .PHONY: base_build
-base_build: 
+base_build: misspell_check betteralign_check
 	$(GO) mod tidy
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
