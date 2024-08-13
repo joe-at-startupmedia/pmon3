@@ -76,6 +76,7 @@ type Process struct {
 	Args         string        `json:"args"`
 	EnvVars      string        `json:"env_vars"`
 	Username     string        `json:"username"`
+	Dependencies string        `json:"dependencies"`
 	Status       ProcessStatus `json:"status"`
 	ID           uint32        `gorm:"primary_key" json:"id"`
 	Pid          uint32        `gorm:"column:pid" json:"pid"`
@@ -83,7 +84,6 @@ type Process struct {
 	Gid          uint32        `gorm:"column:gid" json:"gid"`
 	RestartCount uint32        `gorm:"-" json:"-"`
 	AutoRestart  bool          `json:"auto_restart"`
-	Dependencies string        `json:"dependencies"`
 }
 
 func (p Process) NoAutoRestartStr() string {

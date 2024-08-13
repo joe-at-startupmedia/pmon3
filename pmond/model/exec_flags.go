@@ -12,8 +12,8 @@ type ExecFlags struct {
 	Args          string   `json:"args"`
 	EnvVars       string   `json:"env_vars"`
 	Name          string   `json:"name"`
-	NoAutoRestart bool     `json:"no_auto_restart"`
 	Dependencies  []string `json:"dependencies"`
+	NoAutoRestart bool     `json:"no_auto_restart"`
 }
 
 func (e *ExecFlags) Parse(jsonStr string) (*ExecFlags, error) {
