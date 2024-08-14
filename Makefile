@@ -34,31 +34,31 @@ lint:
 
 .PHONY: misspell_check
 misspell_check:
-	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+	@hash $(GOBIN)/misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) install github.com/client9/misspell/cmd/misspell@latest; \
 	fi
-	misspell -error $(GOFILES)
+	$(GOBIN)/misspell -error $(GOFILES)
 
 .PHONY: misspell
 misspell:
-	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+	@hash $(GOBIN)/misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) install github.com/client9/misspell/cmd/misspell@latest; \
 	fi
-	misspell -w $(GOFILES)
+	$(GOBIN)/misspell -w $(GOFILES)
 
 .PHONY: betteralign_check
 betteralign_check:
-	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+	@hash $(GOBIN)/betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
-	betteralign ./...
+	$(GOBIN)/betteralign ./...
 
 .PHONY: betteralign
 betteralign:
-	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+	@hash $(GOBIN)/betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
-	betteralign -apply ./...
+	$(GOBIN)/betteralign -apply ./...
 
 .PHONY: tools
 tools:
