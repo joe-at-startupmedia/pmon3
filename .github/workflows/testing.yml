@@ -30,7 +30,10 @@ jobs:
       shell: bash
 
     - name: Docker Testing
-      run: docker build -t pmon3 .
+      run: |
+        GOPATH_BIN=$(go env GOPATH)/bin
+        export PATH="${GOPATH_BIN}:${PATH}"
+        docker build -t pmon3 .
 
   build:
     name: Build
