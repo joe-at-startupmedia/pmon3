@@ -1,6 +1,8 @@
 module pmon3
 
-go 1.21
+go 1.22
+
+toolchain go1.22.4
 
 require (
 	github.com/charmbracelet/bubbletea v0.26.0
