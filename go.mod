@@ -16,7 +16,7 @@ require (
 	github.com/jinzhu/configor v1.2.2
 	github.com/joe-at-startupmedia/depgraph v0.0.1
 	github.com/joe-at-startupmedia/sqlite v0.0.1
-	github.com/joe-at-startupmedia/xipc v0.0.11
+	github.com/joe-at-startupmedia/xipc v0.0.12
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -52,7 +52,7 @@ require (
 	github.com/joe-at-startupmedia/gipc v0.0.1 // indirect
 	github.com/joe-at-startupmedia/go-arrow v0.0.1 // indirect
 	github.com/joe-at-startupmedia/posix_mq v0.2.1 // indirect
-	github.com/joe-at-startupmedia/shmemipc v0.0.10 // indirect
+	github.com/joe-at-startupmedia/shmemipc v0.0.12 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect

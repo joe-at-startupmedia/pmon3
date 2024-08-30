@@ -81,12 +81,12 @@ github.com/joe-at-startupmedia/go-arrow v0.0.1 h1:PKSX9vBE5aIiEMuAqea6zSrCJqadFN
 github.com/joe-at-startupmedia/go-arrow v0.0.1/go.mod h1:E8kMKt8ha0UqLyFEtPrArmipY4OArTpdxqzaMGpsopw=
 github.com/joe-at-startupmedia/posix_mq v0.2.1 h1:Ir6IjNiXOwjI16GCIG19vzlvKV1/Q8uorq49cpCc9fc=
 github.com/joe-at-startupmedia/posix_mq v0.2.1/go.mod h1:GophHPEoG4aMbaFcb/2UyXKR7wWyWL4AW+1BoynoIdU=
-github.com/joe-at-startupmedia/shmemipc v0.0.10 h1:PEUeQLt8xDcz/grBAaRFFF4QOwIbv8lQDnwzr9564Nc=
-github.com/joe-at-startupmedia/shmemipc v0.0.10/go.mod h1:7WyKrzdmQEHKZGM9BKzkEKR8AH0/4rZ29r3Vy5BD8sU=
+github.com/joe-at-startupmedia/shmemipc v0.0.12 h1:K7Uxq5mK9yIhd2+Mx8CHl5fF5KzwAZArCesEP1RZxZg=
+github.com/joe-at-startupmedia/shmemipc v0.0.12/go.mod h1:7WyKrzdmQEHKZGM9BKzkEKR8AH0/4rZ29r3Vy5BD8sU=
 github.com/joe-at-startupmedia/sqlite v0.0.1 h1:icVtthRliO/RoFniW7MNkPK8KOuDX0LEzwX2aHaTEoM=
 github.com/joe-at-startupmedia/sqlite v0.0.1/go.mod h1:8OmR/zkldw8ZSL5SQ/ej7UO4PJTCNpH9CdD7B9ulMYo=
-github.com/joe-at-startupmedia/xipc v0.0.11 h1:sIEj2njpSCtJqwbuwIkMnlRPTRB3rYQbJG+7TrAmOOg=
-github.com/joe-at-startupmedia/xipc v0.0.11/go.mod h1:EyL0q1+iAa5Xea43ZaNJW/bX+rm/rQ4GvWIq+SPryEA=
+github.com/joe-at-startupmedia/xipc v0.0.12 h1:4/fcgQHTkPkqlpT1cPuzh4Q/fDbzscnnlrHnGCdpNfE=
+github.com/joe-at-startupmedia/xipc v0.0.12/go.mod h1:Ub7Ev8LECOW2CyzN7D+GiwZw1etrdLwJD0i4P5OgHWs=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
