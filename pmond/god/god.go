@@ -1,6 +1,7 @@
 package god
 
 import (
+	"context"
 	"github.com/joe-at-startupmedia/xipc"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -20,63 +21,63 @@ var xr xipc.IResponder
 
 func New() {
 
-	uninterrupted := true
-	if pmond.Config.HandleInterrupts {
-		pmond.Log.Debugf("Capturing interrupts.")
-		interruptHandler(&uninterrupted)
-	}
-
+	var wg sync.WaitGroup
+	wg.Add(1)
+	ctx := interruptHandler(pmond.Config.HandleInterrupts, &wg)
 	connectResponder()
-
-	runMonitor(&uninterrupted)
+	runMonitor(ctx)
+	wg.Wait() //wait for the interrupt handler to complete
 }
 
-func handleOpenError(e error) {
-	if e != nil {
-		pmond.Log.Fatal("could not initialize sender: ", e.Error())
-	}
-}
-
-func interruptHandler(uninterrupted *bool) {
+func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,
 		syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
+
 	go func() {
 		s := <-sigc
-		pmond.Log.Infof("Captured interrupt: %s", s)
-		*uninterrupted = false
-		time.Sleep(1 * time.Second) //wait for the infinity loop to break
-		emptyCmd := protos.Cmd{}
-		controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-		err := closeResponder()
-		if err != nil {
-			pmond.Log.Warnf("Error closing queues: %-v", err)
+		pmond.Log.Infof("Captured interrupt: %s, should close(%t)", s, shouldCloseOnInterrupt)
+		cancel() // terminate the runMonitor loop
+		if shouldCloseOnInterrupt {
+			time.Sleep(1 * time.Second) //wait for the runMonitor loop to break
+			emptyCmd := protos.Cmd{}
+			controller.KillByParams(&emptyCmd, true, model.StatusClosed)
+			err := closeResponder()
+			if err != nil {
+				pmond.Log.Warnf("Error closing queues: %-v", err)
+			}
+			time.Sleep(1 * time.Second) //wait for responder to close before exiting
 		}
-		time.Sleep(1 * time.Second) //wait for responder to close before exiting
-		os.Exit(0)
+		wg.Done()
 	}()
+
+	return ctx
 }
 
-func runMonitor(uninterrupted *bool) {
+func runMonitor(ctx context.Context) {
 
-	go processRequests(uninterrupted, pmond.Log)
+	go processRequests(ctx, pmond.Log)
 
 	controller.StartAppsFromBoth(true)
 
-	isInitializing := true
-
-	go func() {
-		time.Sleep(30 * time.Second)
-		isInitializing = false
-	}()
+	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
 
 	timer := time.NewTicker(time.Millisecond * 500)
 	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-initCtx.Done():
+			runningTask(false)
+		default:
+			runningTask(true)
+		}
 		<-timer.C
-		runningTask(isInitializing)
 	}
 }
 
@@ -96,9 +97,9 @@ func runningTask(isInitializing bool) {
 	}
 
 	for _, p := range all {
-		key := "process_id:" + p.GetIdStr()
-		_, ok := pendingTask.LoadOrStore(key, p.ID)
-		if ok {
+		key := p.GetIdStr()
+		_, loaded := pendingTask.LoadOrStore(key, p.ID)
+		if loaded { //a goroutine is still working for this pid
 			return
 		}
 
@@ -108,7 +109,7 @@ func runningTask(isInitializing bool) {
 				pendingTask.Delete(key)
 			}()
 
-			err := db.Db().First(&cur, q.ID).Error
+			err = db.Db().First(&cur, q.ID).Error
 			if err != nil {
 				pmond.Log.Infof("Task monitor could not find process in database: %d", q.ID)
 				return
@@ -119,7 +120,6 @@ func runningTask(isInitializing bool) {
 					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", q.Stringify())
 					return
 				}
-
 				err = process.Restart(&cur, isInitializing)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", q.Stringify(), err)
@@ -140,6 +140,12 @@ func runningTask(isInitializing bool) {
 	}
 }
 
+func handleOpenError(e error) {
+	if e != nil {
+		pmond.Log.Fatal("could not initialize sender: ", e.Error())
+	}
+}
+
 // HandleCmdRequest provides a concrete implementation of HandleRequestFromProto using the local Cmd protobuf type
 func handleCmdRequest(mqr xipc.IResponder) error {
 	cmd := &protos.Cmd{}
@@ -148,15 +154,17 @@ func handleCmdRequest(mqr xipc.IResponder) error {
 	})
 }
 
-func processRequests(uninterrupted *bool, logger *logrus.Logger) {
+func processRequests(ctx context.Context, logger *logrus.Logger) {
 	for {
-		if !*uninterrupted {
-			break
-		}
-		logger.Debug("running request handler")
-		err := handleCmdRequest(xr) //blocking
-		if err != nil {
-			logger.Errorf("Error handling request: %-v", err)
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			logger.Debug("running request handler")
+			err := handleCmdRequest(xr) //blocking
+			if err != nil {
+				logger.Errorf("Error handling request: %-v", err)
+			}
 		}
 	}
 }
