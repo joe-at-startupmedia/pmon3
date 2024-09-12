@@ -37,10 +37,12 @@ type Config struct {
 	LogLevel                     string `yaml:"log_level" default:"info"`
 	OnProcessRestartExec         string `yaml:"on_process_restart_exec"`
 	OnProcessFailureExec         string `yaml:"on_process_failure_exec"`
-	CmdExecResponseWait          int64  `yaml:"cmd_exec_response_wait" default:"1500"`
-	IpcConnectionWait            int64  `yaml:"ipc_connection_wait"`
+	CmdExecResponseWait          int32  `yaml:"cmd_exec_response_wait" default:"1500"`
+	IpcConnectionWait            int32  `yaml:"ipc_connection_wait"`
 	HandleInterrupts             bool   `yaml:"handle_interrupts" default:"true"`
-	DependentProcessEnqueuedWait int64  `yaml:"dependent_process_enqueued_wait" default:"1000"`
+	InitializationPeriod         int16  `yaml:"initialization_period" default:"30"`
+	ProcessMonitorInterval       int32  `yaml:"process_monitor_interval" default:"500"`
+	DependentProcessEnqueuedWait int32  `yaml:"dependent_process_enqueued_wait" default:"1000"`
 }
 
 func Load(configFile string) (*Config, error) {
@@ -95,6 +97,15 @@ func (c *Config) GetIpcConnectionWait() time.Duration {
 	} else {
 		log.Println("ipc_connection_wait configuration value must be between 0 and 5000 ms")
 		return 200 * time.Millisecond
+	}
+}
+
+func (c *Config) GetInitializationPeriod() time.Duration {
+	if c.InitializationPeriod >= 5 {
+		return time.Duration(c.InitializationPeriod) * time.Second
+	} else {
+		log.Println("initialization_period configuration value must be greater than 5 seconds")
+		return 30 * time.Second
 	}
 }
 

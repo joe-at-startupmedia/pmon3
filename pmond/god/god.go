@@ -41,17 +41,16 @@ func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.C
 	go func() {
 		s := <-sigc
 		pmond.Log.Infof("Captured interrupt: %s, should close(%t)", s, shouldCloseOnInterrupt)
-		cancel() // terminate the runMonitor loop
+		cancel()                    // terminate the runMonitor loop
+		time.Sleep(1 * time.Second) //wait for the runMonitor loop to break
 		if shouldCloseOnInterrupt {
-			time.Sleep(1 * time.Second) //wait for the runMonitor loop to break
-			emptyCmd := protos.Cmd{}
-			controller.KillByParams(&emptyCmd, true, model.StatusClosed)
-			err := closeResponder()
-			if err != nil {
-				pmond.Log.Warnf("Error closing queues: %-v", err)
-			}
-			time.Sleep(1 * time.Second) //wait for responder to close before exiting
+			controller.KillByParams(&protos.Cmd{}, true, model.StatusClosed)
 		}
+		err := closeResponder()
+		if err != nil {
+			pmond.Log.Warnf("Error closing queues: %-v", err)
+		}
+		time.Sleep(1 * time.Second) //wait for responder to close before exiting
 		wg.Done()
 	}()
 
@@ -64,10 +63,10 @@ func runMonitor(ctx context.Context) {
 
 	controller.StartAppsFromBoth(true)
 
-	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	initCtx, cancel := context.WithTimeout(ctx, pmond.Config.GetInitializationPeriod())
 	defer cancel()
 
-	timer := time.NewTicker(time.Millisecond * 500)
+	timer := time.NewTicker(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval))
 	for {
 		select {
 		case <-ctx.Done():
