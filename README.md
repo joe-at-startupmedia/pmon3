@@ -2,7 +2,7 @@
 [![Testing](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
 
 
-`pmon3` is a process manager for Golang applications. It allows you to keep applications alive forever and to reload them without downtime.
+`pmon3` is a process manager which allows you to keep applications alive forever. Processes can be simply declared directly via the command line or declared in a configuration file. `pmon3` allows you to get started quickly while also providing configuration granularity at both the system and process level.
 
 <img width="537" alt="pmon3_ls" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5d79ad53-664d-4ee7-bfac-f3fc94c2b316">
 
@@ -23,7 +23,7 @@ Golang currently has no officially supported process management tools. For the d
 
 Each method has certain advantages and disadvantages. We hope to provide a convenient and easy-to-use tool for Golang process deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
 
-Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by separating the `pmond` daemon process from the `pmon3` agent.
+Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` CLI management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI agent.
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
@@ -279,6 +279,8 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_LOGSDIR`
 * `CONFIGOR_LOGLEVEL`
 * `CONFIGOR_HANDLEINTERRUPTS`
+* `CONFIGOR_INITIALIZATIONPERIOD`
+* `CONFIGOR_PROCESSMONITORINTERVAL`
 * `CONFIGOR_CMDEXECRESPONSEWAIT`
 * `CONFIGOR_IPCCONNECTIONWAIT`
 * `CONFIGOR_DEPENDENTPROCESSENQUEUEDWAIT`

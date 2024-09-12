@@ -38,11 +38,13 @@ func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.C
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 
+	processMonitorInterval := time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)
+
 	go func() {
 		s := <-sigc
 		pmond.Log.Infof("Captured interrupt: %s, should close(%t)", s, shouldCloseOnInterrupt)
-		cancel()                    // terminate the runMonitor loop
-		time.Sleep(1 * time.Second) //wait for the runMonitor loop to break
+		cancel()                               // terminate the runMonitor loop
+		time.Sleep(2 * processMonitorInterval) //wait for the runMonitor loop to break
 		if shouldCloseOnInterrupt {
 			controller.KillByParams(&protos.Cmd{}, true, model.StatusClosed)
 		}
@@ -50,7 +52,7 @@ func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.C
 		if err != nil {
 			pmond.Log.Warnf("Error closing queues: %-v", err)
 		}
-		time.Sleep(1 * time.Second) //wait for responder to close before exiting
+		time.Sleep(3 * processMonitorInterval) //wait for responder to close and requestProcessor to break before exiting
 		wg.Done()
 	}()
 
@@ -155,12 +157,12 @@ func handleCmdRequest(mqr xipc.IResponder) error {
 
 func processRequests(ctx context.Context, logger *logrus.Logger) {
 	for {
+		err := handleCmdRequest(xr) //blocking
 		select {
 		case <-ctx.Done():
+			logger.Infof("request process is terminated.")
 			return
 		default:
-			logger.Debug("running request handler")
-			err := handleCmdRequest(xr) //blocking
 			if err != nil {
 				logger.Errorf("Error handling request: %-v", err)
 			}
