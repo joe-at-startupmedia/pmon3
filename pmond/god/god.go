@@ -116,14 +116,25 @@ func runningTask(isInitializing bool) {
 				return
 			}
 
+			var flapDetector *process.FlapDetector
+			if pmond.Config.FlapDetectionEnabled {
+				flapDetector = process.GetFlapDetectorByProcessId(cur.ID, pmond.Config)
+
+				if flapDetector.ShouldBackOff(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)) {
+					return
+				}
+			}
+
 			if cur.Status == model.StatusRunning || cur.Status == model.StatusFailed || cur.Status == model.StatusClosed {
 				if time.Since(cur.UpdatedAt).Seconds() <= 5 {
 					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", q.Stringify())
 					return
 				}
-				err = process.Restart(&cur, isInitializing)
+				restarted, err := process.Restart(&cur, isInitializing)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", q.Stringify(), err)
+				} else if restarted && pmond.Config.FlapDetectionEnabled {
+					flapDetector.RestartProcess()
 				}
 			} else if cur.Status == model.StatusQueued {
 				if time.Since(cur.UpdatedAt).Seconds() <= 1 {
