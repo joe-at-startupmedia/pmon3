@@ -87,11 +87,12 @@ var pendingTask sync.Map
 func runningTask(isInitializing bool) {
 
 	var all []model.Process
-	err := db.Db().Find(&all, "status in (?, ?, ?, ?)",
+	err := db.Db().Find(&all, "status in (?, ?, ?, ?, ?)",
 		model.StatusRunning,
 		model.StatusFailed,
 		model.StatusQueued,
-		model.StatusClosed, //closes on pmond handled interrupts
+		model.StatusClosed,
+		model.StatusBackoff,
 	).Error
 	if err != nil {
 		return
@@ -116,14 +117,18 @@ func runningTask(isInitializing bool) {
 				return
 			}
 
+			flapDetector := detectFlapping(&cur)
+
 			if cur.Status == model.StatusRunning || cur.Status == model.StatusFailed || cur.Status == model.StatusClosed {
 				if time.Since(cur.UpdatedAt).Seconds() <= 5 {
 					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", q.Stringify())
 					return
 				}
-				err = process.Restart(&cur, isInitializing)
+				restarted, err := process.Restart(&cur, isInitializing)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", q.Stringify(), err)
+				} else if restarted && pmond.Config.FlapDetectionEnabled {
+					flapDetector.RestartProcess()
 				}
 			} else if cur.Status == model.StatusQueued {
 				if time.Since(cur.UpdatedAt).Seconds() <= 1 {
@@ -139,6 +144,23 @@ func runningTask(isInitializing bool) {
 
 		}(p, key)
 	}
+}
+
+func detectFlapping(p *model.Process) *process.FlapDetector {
+	var flapDetector *process.FlapDetector
+	if pmond.Config.FlapDetectionEnabled {
+		flapDetector = process.GetFlapDetectorByProcessId(p.ID, pmond.Config)
+
+		if flapDetector.ShouldBackOff(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)) {
+			if p.Status != model.StatusBackoff {
+				p.UpdateStatus(db.Db(), model.StatusBackoff)
+			}
+		} else if p.Status == model.StatusBackoff {
+			//set it back to failed so process evaluation can resume
+			p.Status = model.StatusFailed
+		}
+	}
+	return flapDetector
 }
 
 func handleOpenError(e error) {

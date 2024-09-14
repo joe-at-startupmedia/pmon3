@@ -10,7 +10,6 @@ import (
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"pmon3/pmond/utils/cpu"
-	"strconv"
 	"strings"
 	"time"
 
@@ -28,6 +27,7 @@ const (
 	StatusStopped
 	StatusFailed
 	StatusClosed
+	StatusBackoff
 )
 
 func (s ProcessStatus) String() string {
@@ -44,6 +44,8 @@ func (s ProcessStatus) String() string {
 		return "failed"
 	case StatusClosed:
 		return "closed"
+	case StatusBackoff:
+		return "backoff"
 	}
 	return "unknown"
 }
@@ -62,6 +64,8 @@ func StringToProcessStatus(s string) ProcessStatus {
 		return StatusFailed
 	case "closed":
 		return StatusClosed
+	case "backoff":
+		return StatusBackoff
 	}
 	return StatusFailed
 }
@@ -86,14 +90,6 @@ type Process struct {
 	AutoRestart  bool          `json:"auto_restart"`
 }
 
-func (p Process) NoAutoRestartStr() string {
-	return strconv.FormatBool(!p.AutoRestart)
-}
-
-func (Process) TableName() string {
-	return "process"
-}
-
 func (p *Process) RenderTable() []string {
 	cpuVal, memVal := "0%", "0.0 MB"
 	if p.Status == StatusRunning {
@@ -113,9 +109,9 @@ func (p *Process) RenderTable() []string {
 	}
 }
 
-func FindProcessByFileAndName(db *gorm.DB, process_file string, name string) (error, *Process) {
+func FindProcessByFileAndName(db *gorm.DB, processFile string, name string) (error, *Process) {
 	var process Process
-	err := db.First(&process, "process_file = ? AND name = ?", process_file, name).Error
+	err := db.First(&process, "process_file = ? AND name = ?", processFile, name).Error
 	if err != nil {
 		return err, nil
 	}
@@ -133,21 +129,26 @@ func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
 	return nil, &process
 }
 
-func (process *Process) Save(db *gorm.DB) (string, error) {
-	err, originOne := FindProcessByFileAndName(db, process.ProcessFile, process.Name)
+func (p *Process) Save(db *gorm.DB) (string, error) {
+	err, originOne := FindProcessByFileAndName(db, p.ProcessFile, p.Name)
 	if err == nil && originOne.ID > 0 { // process already exists
-		process.ID = originOne.ID
+		p.ID = originOne.ID
 	}
 
-	err = db.Save(&process).Error
+	err = db.Save(&p).Error
 	if err != nil {
 		return "", fmt.Errorf("pmon3 run err: %w", err)
 	}
-	output, err := json.Marshal(process.RenderTable())
+	output, err := json.Marshal(p.RenderTable())
 	return string(output), err
 }
 
-func (p Process) Stringify() string {
+func (p *Process) UpdateStatus(db *gorm.DB, status ProcessStatus) error {
+	p.Status = status
+	return db.Save(&p).Error
+}
+
+func (p *Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }
 

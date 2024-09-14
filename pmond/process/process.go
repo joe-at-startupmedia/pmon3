@@ -96,10 +96,11 @@ func Enqueue(p *model.Process, force bool) error {
 	return nil
 }
 
-func Restart(p *model.Process, isInitializing bool) error {
+func Restart(p *model.Process, isInitializing bool) (bool, error) {
+	restarted := false
 	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
-			return nil
+			return false, nil
 		}
 
 		if !p.AutoRestart {
@@ -108,10 +109,9 @@ func Restart(p *model.Process, isInitializing bool) error {
 					Type:    observer.FailedEvent,
 					Process: p,
 				})
-				p.Status = model.StatusFailed
-				db.Db().Save(&p)
+				p.UpdateStatus(db.Db(), model.StatusFailed)
 			}
-			return nil
+			return false, nil
 		}
 
 		if isInitializing {
@@ -123,9 +123,11 @@ func Restart(p *model.Process, isInitializing bool) error {
 			})
 		}
 
+		restarted = true
+
 		_, err := proxyWorker(p, "restart")
 		if err != nil {
-			return err
+			return restarted, err
 		} else {
 			if p.Status != model.StatusClosed {
 				p.IncrRestartCount()
@@ -133,7 +135,7 @@ func Restart(p *model.Process, isInitializing bool) error {
 		}
 	}
 
-	return nil
+	return restarted, nil
 }
 
 func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool) error {
@@ -149,9 +151,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 		pmond.Log.Warn(err)
 	}
 
-	p.Status = status
-
-	return db.Db().Save(p).Error
+	return p.UpdateStatus(db.Db(), status)
 }
 
 func SetUser(runUser string) (*user.User, []string, error) {

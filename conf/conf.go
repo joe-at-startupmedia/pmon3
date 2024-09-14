@@ -26,23 +26,27 @@ func GetConfigFile() string {
 }
 
 type Config struct {
-	AppsConfig                   *AppsConfig
-	AppsConfigFile               string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
-	DataDir                      string `yaml:"data_dir" default:"/etc/pmon3/data"`
-	LogsDir                      string `yaml:"logs_dir" default:"/var/log/pmond"`
-	PosixMessageQueueDir         string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
-	ShmemDir                     string `yaml:"shmem_dir" default:"/dev/shm/"`
-	MessageQueueUser             string `yaml:"mq_user"`
-	MessageQueueGroup            string `yaml:"mq_group"`
-	LogLevel                     string `yaml:"log_level" default:"info"`
-	OnProcessRestartExec         string `yaml:"on_process_restart_exec"`
-	OnProcessFailureExec         string `yaml:"on_process_failure_exec"`
-	CmdExecResponseWait          int32  `yaml:"cmd_exec_response_wait" default:"1500"`
-	IpcConnectionWait            int32  `yaml:"ipc_connection_wait"`
-	HandleInterrupts             bool   `yaml:"handle_interrupts" default:"true"`
-	InitializationPeriod         int16  `yaml:"initialization_period" default:"30"`
-	ProcessMonitorInterval       int32  `yaml:"process_monitor_interval" default:"500"`
-	DependentProcessEnqueuedWait int32  `yaml:"dependent_process_enqueued_wait" default:"1000"`
+	AppsConfig                      *AppsConfig
+	AppsConfigFile                  string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
+	DataDir                         string `yaml:"data_dir" default:"/etc/pmon3/data"`
+	LogsDir                         string `yaml:"logs_dir" default:"/var/log/pmond"`
+	PosixMessageQueueDir            string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
+	ShmemDir                        string `yaml:"shmem_dir" default:"/dev/shm/"`
+	MessageQueueUser                string `yaml:"mq_user"`
+	MessageQueueGroup               string `yaml:"mq_group"`
+	LogLevel                        string `yaml:"log_level" default:"info"`
+	OnProcessRestartExec            string `yaml:"on_process_restart_exec"`
+	OnProcessFailureExec            string `yaml:"on_process_failure_exec"`
+	CmdExecResponseWait             int32  `yaml:"cmd_exec_response_wait" default:"1500"`
+	IpcConnectionWait               int32  `yaml:"ipc_connection_wait"`
+	HandleInterrupts                bool   `yaml:"handle_interrupts" default:"true"`
+	InitializationPeriod            int16  `yaml:"initialization_period" default:"30"`
+	ProcessMonitorInterval          int32  `yaml:"process_monitor_interval" default:"500"`
+	FlapDetectionEnabled            bool   `yaml:"flap_detection_enabled" default:"false"`
+	FlapDetectionThresholdRestarted int16  `yaml:"flap_detection_threshold_restarted" default:"5"`
+	FlapDetectionThresholdCountdown int32  `yaml:"flap_detection_threshold_countdown" default:"120"`
+	FlapDetectionThresholdDecrement int32  `yaml:"flap_detection_threshold_decrement" default:"60"`
+	DependentProcessEnqueuedWait    int32  `yaml:"dependent_process_enqueued_wait" default:"1000"`
 }
 
 func Load(configFile string) (*Config, error) {
