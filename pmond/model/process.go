@@ -81,6 +81,7 @@ type Process struct {
 	EnvVars      string        `json:"env_vars"`
 	Username     string        `json:"username"`
 	Dependencies string        `json:"dependencies"`
+	Groups       []*Group      `gorm:"many2many:process_groups;"`
 	Status       ProcessStatus `json:"status"`
 	ID           uint32        `gorm:"primary_key" json:"id"`
 	Pid          uint32        `gorm:"column:pid" json:"pid"`
@@ -183,6 +184,17 @@ func (p *Process) IncrRestartCount() {
 	restartCount[p.ID] += 1
 }
 
+/*
+func (p *Process) GetGroups() string {
+	var s strings.Builder
+	for g := range p.Groups {
+		group := p.Groups[g]
+		s.WriteString(fmt.Sprintf(" %s", group.Name))
+	}
+	return s.String()
+}
+*/
+
 func (p *Process) ToProtobuf() *protos.Process {
 	newProcess := protos.Process{
 		Id:           p.ID,
@@ -201,11 +213,12 @@ func (p *Process) ToProtobuf() *protos.Process {
 		Gid:          p.Gid,
 		RestartCount: p.GetRestartCount(),
 		Dependencies: p.Dependencies,
+		Groups:       GroupsArrayToProtobuf(p.Groups),
 	}
 	return &newProcess
 }
 
-func FromProtobuf(p *protos.Process) *Process {
+func ProcessFromProtobuf(p *protos.Process) *Process {
 	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
 	if error != nil {
 		fmt.Println(error)
@@ -231,6 +244,7 @@ func FromProtobuf(p *protos.Process) *Process {
 		Gid:          p.GetGid(),
 		RestartCount: p.GetRestartCount(),
 		Dependencies: p.GetDependencies(),
+		Groups:       GroupsArrayFromProtobuf(p.GetGroups()),
 	}
 	return &newProcess
 }
@@ -343,13 +357,4 @@ func ProcessNames(processesPtr *[]Process) []string {
 	}
 
 	return names
-}
-
-func GetProcessByName(appName string, apps *[]Process) (*Process, error) {
-	for _, app := range *apps {
-		if app.Name == appName {
-			return &app, nil
-		}
-	}
-	return nil, fmt.Errorf("could not find app in Process array with name %s", appName)
 }

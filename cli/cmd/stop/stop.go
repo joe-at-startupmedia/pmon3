@@ -42,6 +42,6 @@ func cmdRun(args []string) {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	p := model.FromProtobuf(newCmdResp.GetProcess())
+	p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
 }

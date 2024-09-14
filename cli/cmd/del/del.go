@@ -41,6 +41,6 @@ func runCmd(args []string) {
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
-	p := model.FromProtobuf(newCmdResp.GetProcess())
+	p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
 }

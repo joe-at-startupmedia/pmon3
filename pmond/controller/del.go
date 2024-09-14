@@ -19,7 +19,7 @@ func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdRe
 	if len(stopCmdResp.GetError()) > 0 {
 		return ErroredCmdResp(cmd, errors.New(stopCmdResp.GetError()))
 	}
-	process := model.FromProtobuf(stopCmdResp.GetProcess())
+	process := model.ProcessFromProtobuf(stopCmdResp.GetProcess())
 	err := db.Db().Delete(process).Error
 	_ = os.Remove(process.Log)
 	newCmdResp := protos.CmdResp{

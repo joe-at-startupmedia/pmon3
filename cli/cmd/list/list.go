@@ -26,7 +26,7 @@ func Show() {
 	all := newCmdResp.GetProcessList().GetProcesses()
 	var allProcess [][]string
 	for _, p := range all {
-		process := model.FromProtobuf(p)
+		process := model.ProcessFromProtobuf(p)
 		allProcess = append(allProcess, process.RenderTable())
 	}
 	table_list.Render(allProcess)

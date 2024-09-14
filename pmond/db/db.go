@@ -1,9 +1,7 @@
 package db
 
 import (
-	"errors"
 	"os"
-	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"sync"
@@ -35,17 +33,8 @@ func Db() *gorm.DB {
 			initDb.Migrator().CreateTable(&model.Process{})
 		}
 
-		if !initDb.Migrator().HasTable(&model.Pmond{}) {
-			initDb.Migrator().CreateTable(&model.Pmond{})
-		}
-
-		// sync data
-		var pmondModel model.Pmond
-		err = initDb.First(&pmondModel).Error
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) { // first version
-				initDb.Create(&model.Pmond{Version: conf.Version})
-			}
+		if !initDb.Migrator().HasTable(&model.Group{}) {
+			initDb.Migrator().CreateTable(&model.Group{})
 		}
 
 		db = initDb

@@ -13,6 +13,7 @@ type ExecFlags struct {
 	EnvVars       string   `json:"env_vars"`
 	Name          string   `json:"name"`
 	Dependencies  []string `json:"dependencies"`
+	Groups        []string `json:"groups"`
 	NoAutoRestart bool     `json:"no_auto_restart"`
 }
 
