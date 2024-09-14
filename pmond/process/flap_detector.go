@@ -39,10 +39,10 @@ func (fd *FlapDetector) ShouldBackOff(evaluationInterval time.Duration) bool {
 		fd.restarted = 0
 	} else if fd.countdown > 1 {
 		fd.countdown--
-		pmond.Log.Infof("BACKOFF decremented: %d", fd.countdown)
+		pmond.Log.Debugf("BACKOFF decremented: %d", fd.countdown)
 
-		if fd.restarted > 0 && time.Since(fd.lastForgiven) > time.Duration(fd.thresholdDecrement)*evaluationInterval {
-			pmond.Log.Infof("FORGIVE decrements restarted: %d, time since %d %d", fd.countdown, time.Since(fd.lastForgiven), time.Duration(fd.thresholdDecrement)*time.Millisecond*time.Duration(pmond.Config.ProcessMonitorInterval))
+		if fd.thresholdDecrement > 0 && fd.restarted > 0 && time.Since(fd.lastForgiven) > time.Duration(fd.thresholdDecrement)*evaluationInterval {
+			pmond.Log.Infof("BACKOFF decrementing restarted: %d, time since %d %d", fd.countdown, time.Since(fd.lastForgiven), time.Duration(fd.thresholdDecrement)*time.Millisecond*time.Duration(pmond.Config.ProcessMonitorInterval))
 			fd.restarted--
 			fd.lastForgiven = time.Now()
 		}

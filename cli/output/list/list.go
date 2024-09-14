@@ -52,15 +52,17 @@ const (
 func GetStatusColor(status string) string {
 	switch status {
 	case "running":
-		return "#16ff16"
+		return "#16ff16" //lightgreen
 	case "stopped":
-		return "#ffff00"
+		return "#ffff00" //lightyellow
 	case "failed":
-		return "#ff0000"
+		return "#ff0000" //red
 	case "init":
-		return "#808080"
+		return "#808080" //grey
+	case "backoff":
+		return "#f44336" //orange
 	}
-	return "#646464"
+	return "#646464" //darkergrey
 }
 
 func NewModel(tbData [][]string) Model {

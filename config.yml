@@ -22,7 +22,7 @@
 #flap_detection_threshold_restarted: 5
 # the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
 #flap_detection_threshold_countdown: 120
-# the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented
+# the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
 #flap_detection_threshold_decrement: 60
 # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
 #cmd_exec_response_wait: 1500

@@ -109,8 +109,7 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 					Type:    observer.FailedEvent,
 					Process: p,
 				})
-				p.Status = model.StatusFailed
-				db.Db().Save(&p)
+				p.UpdateStatus(db.Db(), model.StatusFailed)
 			}
 			return false, nil
 		}
@@ -152,9 +151,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 		pmond.Log.Warn(err)
 	}
 
-	p.Status = status
-
-	return db.Db().Save(p).Error
+	return p.UpdateStatus(db.Db(), status)
 }
 
 func SetUser(runUser string) (*user.User, []string, error) {
