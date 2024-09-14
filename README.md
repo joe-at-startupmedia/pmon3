@@ -248,6 +248,18 @@ The following configuration options are available:
 #log_level: info
 # kill processes on termination
 #handle_interrupts: true
+# poll processes every [n] milliseconds
+#process_monitor_interval: 500
+# wait [n] seconds before monitoring process statuses
+#initialization_period: 30
+# enable flap detection
+#flap_detection_enabled: false
+# the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
+#flap_detection_threshold_restarted: 5
+# the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
+#flap_detection_threshold_countdown: 120
+# the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
+#flap_detection_threshold_decrement: 60
 # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
 #cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
