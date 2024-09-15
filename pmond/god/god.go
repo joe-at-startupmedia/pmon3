@@ -18,11 +18,17 @@ import (
 )
 
 var xr xipc.IResponder
+var pendingTask sync.Map
 
 func New() {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
+
+	//viewer.SetConfiguration(viewer.WithTheme(viewer.ThemeWesteros), viewer.WithLinkAddr("goprofiler.test:8080"))
+	//mgr := statsview.New()
+	//go mgr.Start()
+
 	ctx := interruptHandler(pmond.Config.HandleInterrupts, &wg)
 	connectResponder()
 	runMonitor(ctx)
@@ -84,8 +90,6 @@ func runMonitor(ctx context.Context) {
 	}
 }
 
-var pendingTask sync.Map
-
 func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 
 	all, err := processRepo.FindForMonitor()
@@ -94,19 +98,14 @@ func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 	}
 
 	for _, p := range all {
-		_, loaded := pendingTask.LoadOrStore(p.GetIdStr(), p.ID)
+		_, loaded := pendingTask.LoadOrStore(p.ID, p.ID)
 		if loaded { //a goroutine is still working for this pid
 			return
 		}
 
-		go func(q model.Process) {
+		go func(cur *model.Process) {
 
-			defer pendingTask.Delete(q.GetIdStr())
-
-			cur, err := processRepo.FindById(q.ID)
-			if err != nil {
-				return
-			}
+			defer pendingTask.Delete(cur.ID)
 
 			flapDetector := detectFlapping(cur)
 
@@ -133,7 +132,7 @@ func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 				}
 			}
 
-		}(p)
+		}(&p)
 	}
 }
 
