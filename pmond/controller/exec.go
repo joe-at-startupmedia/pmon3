@@ -6,10 +6,10 @@ import (
 	"path"
 	"path/filepath"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"strings"
 )
 
@@ -67,7 +67,7 @@ func EnqueueProcess(execFile string, flags *model.ExecFlags) error {
 		name = filepath.Base(execFile)
 		flags.Name = name
 	}
-	err, p := model.FindProcessByFileAndName(db.Db(), execPath, name)
+	p, err := repo.Process().FindByFileAndName(execPath, name)
 	//if process exists
 	if err == nil {
 		pmond.Log.Debugf("updating as queued with flags: %v", flags)
@@ -93,7 +93,7 @@ func insertAsQueued(processFile string, flags *model.ExecFlags) (*model.Process,
 
 	p := model.FromFileAndExecFlags(processFile, flags, logPath, user)
 
-	err = db.Db().Save(&p).Error
+	err = repo.ProcessOf(p).Save()
 
 	return p, err
 }

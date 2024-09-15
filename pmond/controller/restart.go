@@ -5,10 +5,10 @@ import (
 	"github.com/pkg/errors"
 	"pmon3/conf"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"pmon3/pmond/utils/conv"
 	"strings"
 )
@@ -22,7 +22,7 @@ func Restart(cmd *protos.Cmd) *protos.CmdResp {
 func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCounter bool) *protos.CmdResp {
 	// kill the process and insert a new record with "queued" status
 
-	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
+	p, err := repo.Process().FindByIdOrName(idOrName)
 
 	//the process doesn't exist,  so we'll look in the AppConfig
 	if err != nil {
@@ -119,5 +119,5 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 	m.Status = model.StatusQueued
 	m.ProcessFile = processFile
 
-	return db.Db().Save(&m).Error
+	return repo.ProcessOf(m).Save()
 }

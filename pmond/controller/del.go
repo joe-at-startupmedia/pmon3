@@ -3,9 +3,9 @@ package controller
 import (
 	"github.com/pkg/errors"
 	"os"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 )
 
 func Delete(cmd *protos.Cmd) *protos.CmdResp {
@@ -20,7 +20,7 @@ func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdRe
 		return ErroredCmdResp(cmd, errors.New(stopCmdResp.GetError()))
 	}
 	process := model.ProcessFromProtobuf(stopCmdResp.GetProcess())
-	err := db.Db().Delete(process).Error
+	err := repo.ProcessOf(process).Delete()
 	_ = os.Remove(process.Log)
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),

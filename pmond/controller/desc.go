@@ -2,14 +2,13 @@ package controller
 
 import (
 	"fmt"
-	"pmon3/pmond/db"
-	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 )
 
 func Desc(cmd *protos.Cmd) *protos.CmdResp {
 	val := cmd.GetArg1()
-	err, p := model.FindProcessByIdOrName(db.Db(), val)
+	p, err := repo.Process().FindByIdOrName(val)
 	if err != nil {
 		newCmdResp := protos.CmdResp{
 			Id:    cmd.GetId(),

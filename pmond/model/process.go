@@ -12,8 +12,6 @@ import (
 	"pmon3/pmond/utils/cpu"
 	"strings"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type ProcessStatus int64
@@ -110,45 +108,6 @@ func (p *Process) RenderTable() []string {
 	}
 }
 
-func FindProcessByFileAndName(db *gorm.DB, processFile string, name string) (error, *Process) {
-	var process Process
-	err := db.First(&process, "process_file = ? AND name = ?", processFile, name).Error
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, &process
-}
-
-func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
-	var process Process
-	err := db.First(&process, "id = ? or name = ?", idOrName, idOrName).Error
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, &process
-}
-
-func (p *Process) Save(db *gorm.DB) (string, error) {
-	err, originOne := FindProcessByFileAndName(db, p.ProcessFile, p.Name)
-	if err == nil && originOne.ID > 0 { // process already exists
-		p.ID = originOne.ID
-	}
-
-	err = db.Save(&p).Error
-	if err != nil {
-		return "", fmt.Errorf("pmon3 run err: %w", err)
-	}
-	output, err := json.Marshal(p.RenderTable())
-	return string(output), err
-}
-
-func (p *Process) UpdateStatus(db *gorm.DB, status ProcessStatus) error {
-	p.Status = status
-	return db.Save(&p).Error
-}
-
 func (p *Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }
@@ -183,17 +142,6 @@ func (p *Process) ResetRestartCount() {
 func (p *Process) IncrRestartCount() {
 	restartCount[p.ID] += 1
 }
-
-/*
-func (p *Process) GetGroups() string {
-	var s strings.Builder
-	for g := range p.Groups {
-		group := p.Groups[g]
-		s.WriteString(fmt.Sprintf(" %s", group.Name))
-	}
-	return s.String()
-}
-*/
 
 func (p *Process) ToProtobuf() *protos.Process {
 	newProcess := protos.Process{

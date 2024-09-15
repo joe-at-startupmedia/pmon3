@@ -3,7 +3,6 @@ package db
 import (
 	"os"
 	"pmon3/pmond"
-	"pmon3/pmond/model"
 	"sync"
 
 	"gorm.io/gorm"
@@ -26,15 +25,6 @@ func Db() *gorm.DB {
 		initDb, err := openDb(pmondDbDir)
 		if err != nil {
 			pmond.Log.Panicf("%s", err)
-		}
-
-		// init table
-		if !initDb.Migrator().HasTable(&model.Process{}) {
-			initDb.Migrator().CreateTable(&model.Process{})
-		}
-
-		if !initDb.Migrator().HasTable(&model.Group{}) {
-			initDb.Migrator().CreateTable(&model.Group{})
 		}
 
 		db = initDb

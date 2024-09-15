@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"time"
 )
 
@@ -18,9 +18,9 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 }
 
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
-	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
+	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
+		return ErroredCmdResp(cmd, err)
 	}
 
 	// check process is running
@@ -28,7 +28,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	//if process is not currently running
 	if os.IsNotExist(err) {
 		if p.Status != status {
-			if err := p.UpdateStatus(db.Db(), status); err != nil {
+			if err := repo.ProcessOf(p).UpdateStatus(status); err != nil {
 				return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 			}
 		}

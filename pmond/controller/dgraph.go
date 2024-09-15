@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"pmon3/conf"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"strings"
 )
 
@@ -26,8 +26,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 		nonDeptAppNames = strings.Join(conf.AppNames(nonDependentApps), "\n")
 		deptAppNames = strings.Join(conf.AppNames(dependentApps), "\n")
 	} else {
-		var all []model.Process
-		err := db.Db().Find(&all).Error
+		all, err := repo.Process().FindAll()
 		if err != nil {
 			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
