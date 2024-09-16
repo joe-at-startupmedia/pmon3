@@ -20,7 +20,7 @@ func Group() *GroupRepo {
 	groupOnce.Do(func() {
 		dbInst := db.Db()
 		if !dbInst.Migrator().HasTable(&model.Group{}) {
-			dbInst.Migrator().CreateTable(&model.Group{})
+			dbInst.AutoMigrate(&model.Group{})
 		}
 		groupRepo = &GroupRepo{
 			db: dbInst,
@@ -57,7 +57,7 @@ func (gr *GroupRepo) Delete(idOrName string) error {
 
 func (gr *GroupRepo) FindById(id uint32) (*model.Group, error) {
 	var found model.Group
-	err := gr.db.First(&found, id).Error
+	err := gr.db.Preload("Processes").First(&found, id).Error
 	if err != nil {
 		pmond.Log.Infof("could not find group in database: %d %-v", id, err)
 		return nil, err
@@ -67,7 +67,7 @@ func (gr *GroupRepo) FindById(id uint32) (*model.Group, error) {
 
 func (gr *GroupRepo) FindByIdOrName(idOrName string) (*model.Group, error) {
 	var found model.Group
-	err := gr.db.First(&found, "id = ? or name = ?", idOrName, idOrName).Error
+	err := gr.db.Preload("Processes").First(&found, "id = ? or name = ?", idOrName, idOrName).Error
 	if err != nil {
 		pmond.Log.Infof("could not find group in database: %s %-v", idOrName, err)
 		return nil, err
@@ -82,4 +82,22 @@ func (gr *GroupRepo) FindAll() ([]model.Group, error) {
 		pmond.Log.Infof("cant find groups: %v", err)
 	}
 	return all, err
+}
+
+func (gr *GroupRepo) AssignProcess(process *model.Process) error {
+	err := gr.db.Model(&gr.cur).Association("Processes").Append(process)
+	if err != nil {
+		pmond.Log.Infof("cant assign %s to %s: %-v", gr.cur.Name, process.Name, err)
+		return err
+	}
+	return nil
+}
+
+func (gr *GroupRepo) RemoveProcess(process *model.Process) error {
+	err := gr.db.Model(&gr.cur).Association("Processes").Delete(process)
+	if err != nil {
+		pmond.Log.Infof("cant delete %s from %s: %-v", process.Name, gr.cur.Name, err)
+		return err
+	}
+	return nil
 }

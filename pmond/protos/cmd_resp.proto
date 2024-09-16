@@ -6,12 +6,15 @@ option go_package = "pmond/protos";
 
 import "pmond/protos/process.proto";
 
+import "pmond/protos/group.proto";
+
 message CmdResp {
       string id  = 1;
       string name = 2;
       string value_str  = 3;
       process.Process process = 4;
       process.ProcessList process_list = 5;
-      process.GroupList group_list = 6;
-      string error = 7;
+      pgroup.Group group = 6;
+      pgroup.GroupList group_list = 7;
+      string error = 8;
 }

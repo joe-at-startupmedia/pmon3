@@ -11,7 +11,7 @@ import (
 var Cmd = &cobra.Command{
 	Use:     "ls",
 	Aliases: []string{"list"},
-	Short:   "List all groups",
+	Short:   "list all groups",
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		Show()

@@ -45,12 +45,18 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = Drop(cmd)
 	case "dgraph":
 		cmdResp = Dgraph(cmd)
+	case "group_desc":
+		cmdResp = group.Desc(cmd)
 	case "group_create":
 		cmdResp = group.Create(cmd)
 	case "group_del":
 		cmdResp = group.Delete(cmd)
 	case "group_list":
 		cmdResp = group.List(cmd)
+	case "group_assign":
+		cmdResp = group.Assign(cmd)
+	case "group_remove":
+		cmdResp = group.Remove(cmd)
 	}
 
 	data, err := proto.Marshal(cmdResp)

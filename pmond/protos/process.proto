@@ -4,14 +4,7 @@ package process;
 
 option go_package = "pmond/protos";
 
-message Group {
-      uint32 id = 1;
-      string name = 2;
-}
-
-message GroupList {
-      repeated Group groups = 1;
-}
+import "pmond/protos/group.proto";
 
 message Process {
       uint32 id = 1;
@@ -30,7 +23,7 @@ message Process {
       uint32 gid = 14;
       uint32 restart_count = 15;
       string dependencies = 16;
-      repeated Group groups = 17;
+      repeated pgroup.Group groups = 17;
 }
 
 message ProcessList {
