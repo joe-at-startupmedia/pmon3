@@ -2,7 +2,7 @@ package list
 
 import (
 	"pmon3/cli/cmd/base"
-	table_list "pmon3/cli/output/list"
+	"pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
 
 	"github.com/spf13/cobra"

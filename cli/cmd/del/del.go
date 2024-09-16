@@ -3,7 +3,7 @@ package del
 import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	table_one "pmon3/cli/output/one"
+	"pmon3/cli/output/process/one"
 	"pmon3/pmond/protos"
 
 	"pmon3/pmond/model"

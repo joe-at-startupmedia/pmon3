@@ -2,7 +2,7 @@ package desc
 
 import (
 	"pmon3/cli/cmd/base"
-	table_desc "pmon3/cli/output/desc"
+	"pmon3/cli/output/process/desc"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 

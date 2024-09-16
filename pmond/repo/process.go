@@ -106,7 +106,7 @@ func (pr *ProcessRepo) FindAll() ([]model.Process, error) {
 	var all []model.Process
 	err := pr.db.Find(&all).Error
 	if err != nil {
-		pmond.Log.Infof("pmon3 can find processes: %v", err)
+		pmond.Log.Infof("cant find processes: %v", err)
 	}
 	return all, err
 }

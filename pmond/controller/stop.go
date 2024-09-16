@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -20,7 +21,7 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
 	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
-		return ErroredCmdResp(cmd, err)
+		return base.ErroredCmdResp(cmd, err)
 	}
 
 	// check process is running
@@ -29,7 +30,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	if os.IsNotExist(err) {
 		if p.Status != status {
 			if err := repo.ProcessOf(p).UpdateStatus(status); err != nil {
-				return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
+				return base.ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 			}
 		}
 	}
@@ -39,7 +40,7 @@ func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.Pr
 	// try to kill the process
 	err = process.SendOsKillSignal(p, status, forced)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
+		return base.ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
 	}
 
 	pmond.Log.Infof("stop process %s success", p.Stringify())

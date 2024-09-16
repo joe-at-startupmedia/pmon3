@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
@@ -21,9 +22,9 @@ func KillByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 
 	all, err := repo.Process().FindByStatus(model.StatusRunning)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("error finding running processes: %w", err))
+		return base.ErroredCmdResp(cmd, fmt.Errorf("error finding running processes: %w", err))
 	} else if len(all) == 0 {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not find running processes"))
+		return base.ErroredCmdResp(cmd, fmt.Errorf("could not find running processes"))
 	}
 
 	for _, process := range all {

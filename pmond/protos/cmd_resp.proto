@@ -12,5 +12,6 @@ message CmdResp {
       string value_str  = 3;
       process.Process process = 4;
       process.ProcessList process_list = 5;
-      string error = 6;
+      process.GroupList group_list = 6;
+      string error = 7;
 }

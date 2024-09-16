@@ -3,7 +3,7 @@ package table_desc
 import (
 	"log"
 	"os"
-	table_list "pmon3/cli/output/list"
+	"pmon3/cli/output/process/list"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"

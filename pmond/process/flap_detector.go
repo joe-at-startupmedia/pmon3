@@ -3,6 +3,7 @@ package process
 import (
 	"pmon3/conf"
 	"pmon3/pmond"
+	"sync"
 	"time"
 )
 
@@ -15,9 +16,11 @@ type FlapDetector struct {
 	thresholdDecrement int
 }
 
+var mutex = sync.Mutex{}
 var flapDetectors = map[uint32]*FlapDetector{}
 
 func GetFlapDetectorByProcessId(processId uint32, conf *conf.Config) *FlapDetector {
+	mutex.Lock()
 	fd := flapDetectors[processId]
 	if fd == nil {
 		fd = &FlapDetector{
@@ -30,6 +33,7 @@ func GetFlapDetectorByProcessId(processId uint32, conf *conf.Config) *FlapDetect
 		}
 		flapDetectors[processId] = fd
 	}
+	mutex.Unlock()
 	return fd
 }
 

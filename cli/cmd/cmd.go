@@ -8,6 +8,7 @@ import (
 	"pmon3/cli/cmd/dgraph"
 	"pmon3/cli/cmd/drop"
 	"pmon3/cli/cmd/exec"
+	"pmon3/cli/cmd/group"
 	initialize "pmon3/cli/cmd/init"
 	"pmon3/cli/cmd/kill"
 	"pmon3/cli/cmd/list"
@@ -48,6 +49,7 @@ func Exec() error {
 		drop.Cmd,
 		topn.Cmd,
 		dgraph.Cmd,
+		group.Cmd,
 		verCmd,
 	)
 

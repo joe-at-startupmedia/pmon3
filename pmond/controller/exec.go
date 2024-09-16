@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -37,7 +38,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("command error: could not parse flags: %w, flags: %s", err, flags))
+		return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not parse flags: %w, flags: %s", err, flags))
 	}
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
@@ -46,7 +47,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	err = EnqueueProcess(execFile, parsedFlags)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "command error:") {
-			return ErroredCmdResp(cmd, err)
+			return base.ErroredCmdResp(cmd, err)
 		} else {
 			newCmdResp.Error = err.Error()
 		}

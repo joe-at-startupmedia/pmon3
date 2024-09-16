@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"pmon3/conf"
 	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
@@ -29,17 +30,17 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 
 		app, err := conf.GetAppByName(idOrName, pmond.Config.AppsConfig.Apps)
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: start process error: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: start process error: %w", err))
 		}
 		// get exec abs file path
 		execPath, err := getExecFileAbsPath(app.File)
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: file argument error: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: file argument error: %w", err))
 		}
 
 		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
 		if p, err = insertAsQueued(execPath, &app.Flags); err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("could not start process: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("could not start process: %w", err))
 		}
 
 		newCmdResp := protos.CmdResp{
@@ -51,16 +52,16 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 	} else {
 		if process.IsRunning(p.Pid) {
 			if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
-				return ErroredCmdResp(cmd, errors.New(err.Error()))
+				return base.ErroredCmdResp(cmd, errors.New(err.Error()))
 			}
 		}
 		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
 		}
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("could not parse flags: %w", err))
 		} else {
 			pmond.Log.Debugf("update as queued: %v", flags)
 			err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)

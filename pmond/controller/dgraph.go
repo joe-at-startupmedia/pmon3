@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"pmon3/conf"
 	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
@@ -20,7 +21,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 	if cmd.GetArg1() == "apps-config-only" {
 		nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
 		nonDeptAppNames = strings.Join(conf.AppNames(nonDependentApps), "\n")
@@ -28,7 +29,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 	} else {
 		all, err := repo.Process().FindAll()
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
 		var qPs []model.Process

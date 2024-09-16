@@ -3,6 +3,7 @@ package model
 import (
 	"gorm.io/gorm"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/utils/conv"
 )
 
 type Group struct {
@@ -46,4 +47,16 @@ func GroupsArrayFromProtobuf(groups []*protos.Group) []*Group {
 	}
 
 	return pgs
+}
+
+func (g *Group) GetIdStr() string {
+	return conv.Uint32ToStr(g.ID)
+}
+
+func (g *Group) RenderTable() []string {
+
+	return []string{
+		g.GetIdStr(),
+		g.Name,
+	}
 }
