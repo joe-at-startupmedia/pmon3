@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
@@ -17,6 +18,10 @@ func Desc(cmd *protos.Cmd) *protos.CmdResp {
 		}
 		return &newCmdResp
 	}
+	return listProcesses(cmd, g)
+}
+
+func listProcesses(cmd *protos.Cmd, g *model.Group) *protos.CmdResp {
 	newProcessList := protos.ProcessList{}
 	for _, p := range g.Processes {
 		newProcessList.Processes = append(newProcessList.Processes, p.ToProtobuf())
