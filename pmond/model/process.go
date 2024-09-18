@@ -279,13 +279,13 @@ func (p *Process) ToProtobuf() *protos.Process {
 }
 
 func ProcessFromProtobuf(p *protos.Process) *Process {
-	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
-	if error != nil {
-		fmt.Println(error)
+	createdAt, err := time.Parse(dateTimeFormat, p.GetCreatedAt())
+	if err != nil {
+		fmt.Println(err)
 	}
-	updatedAt, error := time.Parse(dateTimeFormat, p.GetUpdatedAt())
-	if error != nil {
-		fmt.Println(error)
+	updatedAt, err := time.Parse(dateTimeFormat, p.GetUpdatedAt())
+	if err != nil {
+		fmt.Println(err)
 	}
 	newProcess := Process{
 		ID:           p.GetId(),
