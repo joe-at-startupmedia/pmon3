@@ -61,6 +61,8 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = group.Stop(cmd)
 	case "group_restart":
 		cmdResp = group.Restart(cmd)
+	case "group_drop":
+		cmdResp = group.Drop(cmd)
 	}
 
 	data, err := proto.Marshal(cmdResp)

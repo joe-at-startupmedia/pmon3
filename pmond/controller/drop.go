@@ -10,7 +10,7 @@ import (
 )
 
 func Drop(cmd *protos.Cmd) *protos.CmdResp {
-	forced := (cmd.GetArg1() == "force")
+	forced := cmd.GetArg1() == "force"
 	return DropByParams(cmd, forced, model.StatusStopped)
 }
 

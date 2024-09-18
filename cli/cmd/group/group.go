@@ -6,6 +6,7 @@ import (
 	"pmon3/cli/cmd/group/create"
 	"pmon3/cli/cmd/group/del"
 	"pmon3/cli/cmd/group/desc"
+	"pmon3/cli/cmd/group/drop"
 	"pmon3/cli/cmd/group/list"
 	"pmon3/cli/cmd/group/remove"
 	"pmon3/cli/cmd/group/restart"
@@ -26,4 +27,5 @@ func init() {
 	Cmd.AddCommand(desc.Cmd)
 	Cmd.AddCommand(stop.Cmd)
 	Cmd.AddCommand(restart.Cmd)
+	Cmd.AddCommand(drop.Cmd)
 }
