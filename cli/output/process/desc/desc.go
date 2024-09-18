@@ -35,11 +35,13 @@ func NewModel(tbData [][]string) Model {
 				columnKeyProperty:    row[0],
 				columnKeyDescription: table.NewStyledCell(row[1], lipgloss.NewStyle().Foreground(lipgloss.Color(table_list.GetStatusColor(row[1])))),
 			}))
-		} else {
+		} else if len(row[1]) > 0 {
 			rows = append(rows, table.NewRow(table.RowData{
 				columnKeyProperty:    row[0],
 				columnKeyDescription: row[1],
 			}))
+		} else {
+			continue
 		}
 
 		//peak finder
