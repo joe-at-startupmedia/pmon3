@@ -16,20 +16,17 @@ type ProcessRepo struct {
 }
 
 var processOnce sync.Once
-var processRepo *ProcessRepo
 
 func Process() *ProcessRepo {
+	dbInst := db.Db()
 	processOnce.Do(func() {
-		dbInst := db.Db()
 		if !dbInst.Migrator().HasTable(&model.Process{}) {
 			dbInst.Migrator().CreateTable(&model.Process{})
 		}
-		processRepo = &ProcessRepo{
-			db: dbInst,
-		}
 	})
-	processRepo.cur = nil
-	return processRepo
+	return &ProcessRepo{
+		db: dbInst,
+	}
 }
 
 func ProcessOf(p *model.Process) *ProcessRepo {

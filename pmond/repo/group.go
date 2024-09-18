@@ -14,20 +14,17 @@ type GroupRepo struct {
 }
 
 var groupOnce sync.Once
-var groupRepo *GroupRepo
 
 func Group() *GroupRepo {
+	dbInst := db.Db()
 	groupOnce.Do(func() {
-		dbInst := db.Db()
 		if !dbInst.Migrator().HasTable(&model.Group{}) {
 			dbInst.AutoMigrate(&model.Group{})
 		}
-		groupRepo = &GroupRepo{
-			db: dbInst,
-		}
 	})
-	groupRepo.cur = nil
-	return groupRepo
+	return &GroupRepo{
+		db: dbInst,
+	}
 }
 
 func GroupOf(p *model.Group) *GroupRepo {

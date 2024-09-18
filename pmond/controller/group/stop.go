@@ -1,4 +1,4 @@
-package controller
+package group
 
 import (
 	"pmon3/pmond/controller/base"
@@ -15,20 +15,18 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 }
 
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
-	p, err := repo.Process().FindByIdOrName(idOrName)
+	g, err := repo.Group().FindByIdOrName(idOrName)
 	if err != nil {
 		return base.ErroredCmdResp(cmd, err)
 	}
 
-	err = stop.ByProcess(p, forced, status)
-	if err != nil {
-		return base.ErroredCmdResp(cmd, err)
+	for i := range g.Processes {
+		p := g.Processes[i]
+		// check process is running
+		err = stop.ByProcess(p, forced, status)
+		if err != nil {
+			return base.ErroredCmdResp(cmd, err)
+		}
 	}
-
-	newCmdResp := protos.CmdResp{
-		Id:      cmd.GetId(),
-		Name:    cmd.GetName(),
-		Process: p.ToProtobuf(),
-	}
-	return &newCmdResp
+	return listProcesses(cmd, g)
 }
