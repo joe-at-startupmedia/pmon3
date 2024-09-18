@@ -14,8 +14,9 @@ import (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "group",
-	Short: "group level commands",
+	Use:     "group",
+	Aliases: []string{"groups"},
+	Short:   "group level commands",
 }
 
 func init() {

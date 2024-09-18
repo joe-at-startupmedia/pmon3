@@ -23,7 +23,7 @@ const (
 func NewModel(tbData [][]string) Model {
 
 	//min column sizing
-	widthData := [9]int{
+	widthData := [2]int{
 		15,
 		15,
 	}
@@ -46,7 +46,7 @@ func NewModel(tbData [][]string) Model {
 
 		//peak finder
 		n := 0
-		for n < 2 {
+		for n < len(widthData) {
 			colLength := len(row[n]) + 1
 			if colLength > widthData[n] {
 				widthData[n] = colLength
