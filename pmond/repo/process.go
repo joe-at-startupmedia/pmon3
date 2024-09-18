@@ -68,6 +68,16 @@ func (pr *ProcessRepo) FindByIdOrName(idOrName string) (*model.Process, error) {
 	return &found, nil
 }
 
+func (pr *ProcessRepo) FindByIdOrNameWithGroups(idOrName string) (*model.Process, error) {
+	var found model.Process
+	err := pr.db.Preload("Groups").First(&found, "id = ? or name = ?", idOrName, idOrName).Error
+	if err != nil {
+		pmond.Log.Infof("could not find process in database: %s %-v", idOrName, err)
+		return nil, err
+	}
+	return &found, nil
+}
+
 func (pr *ProcessRepo) FindByFileAndName(processFile string, name string) (*model.Process, error) {
 	var found model.Process
 	err := pr.db.First(&found, "process_file = ? AND name = ?", processFile, name).Error

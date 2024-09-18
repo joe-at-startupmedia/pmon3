@@ -31,6 +31,20 @@ func GroupsArrayToProtobuf(groups []*Group) []*protos.Group {
 	return pgs
 }
 
+func (g *Group) GetIdStr() string {
+	return conv.Uint32ToStr(g.ID)
+}
+
+func (g *Group) RenderTable() []string {
+
+	return []string{
+		g.GetIdStr(),
+		g.Name,
+	}
+}
+
+// protobuf method begin
+
 func GroupFromProtobuf(p *protos.Group) *Group {
 	return &Group{
 		ID:   p.GetId(),
@@ -47,16 +61,4 @@ func GroupsArrayFromProtobuf(groups []*protos.Group) []*Group {
 	}
 
 	return pgs
-}
-
-func (g *Group) GetIdStr() string {
-	return conv.Uint32ToStr(g.ID)
-}
-
-func (g *Group) RenderTable() []string {
-
-	return []string{
-		g.GetIdStr(),
-		g.Name,
-	}
 }

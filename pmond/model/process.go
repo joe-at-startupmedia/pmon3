@@ -143,60 +143,6 @@ func (p *Process) IncrRestartCount() {
 	restartCount[p.ID] += 1
 }
 
-func (p *Process) ToProtobuf() *protos.Process {
-	newProcess := protos.Process{
-		Id:           p.ID,
-		CreatedAt:    p.CreatedAt.Format(dateTimeFormat),
-		UpdatedAt:    p.UpdatedAt.Format(dateTimeFormat),
-		Pid:          p.Pid,
-		Log:          p.Log,
-		Name:         p.Name,
-		ProcessFile:  p.ProcessFile,
-		Args:         p.Args,
-		EnvVars:      p.EnvVars,
-		Status:       p.Status.String(),
-		AutoRestart:  p.AutoRestart,
-		Uid:          p.Uid,
-		Username:     p.Username,
-		Gid:          p.Gid,
-		RestartCount: p.GetRestartCount(),
-		Dependencies: p.Dependencies,
-		Groups:       GroupsArrayToProtobuf(p.Groups),
-	}
-	return &newProcess
-}
-
-func ProcessFromProtobuf(p *protos.Process) *Process {
-	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
-	if error != nil {
-		fmt.Println(error)
-	}
-	updatedAt, error := time.Parse(dateTimeFormat, p.GetUpdatedAt())
-	if error != nil {
-		fmt.Println(error)
-	}
-	newProcess := Process{
-		ID:           p.GetId(),
-		CreatedAt:    createdAt,
-		UpdatedAt:    updatedAt,
-		Pid:          p.GetPid(),
-		Log:          p.GetLog(),
-		Name:         p.GetName(),
-		ProcessFile:  p.GetProcessFile(),
-		Args:         p.GetArgs(),
-		EnvVars:      p.GetEnvVars(),
-		Status:       StringToProcessStatus(p.GetStatus()),
-		AutoRestart:  p.GetAutoRestart(),
-		Uid:          p.GetUid(),
-		Username:     p.GetUsername(),
-		Gid:          p.GetGid(),
-		RestartCount: p.GetRestartCount(),
-		Dependencies: p.GetDependencies(),
-		Groups:       GroupsArrayFromProtobuf(p.GetGroups()),
-	}
-	return &newProcess
-}
-
 func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User) *Process {
 
 	var processParams = []string{flags.Name}
@@ -305,4 +251,73 @@ func ProcessNames(processesPtr *[]Process) []string {
 	}
 
 	return names
+}
+
+//protobuf methods begin
+
+func (p *Process) ToProtobuf() *protos.Process {
+	newProcess := protos.Process{
+		Id:           p.ID,
+		CreatedAt:    p.CreatedAt.Format(dateTimeFormat),
+		UpdatedAt:    p.UpdatedAt.Format(dateTimeFormat),
+		Pid:          p.Pid,
+		Log:          p.Log,
+		Name:         p.Name,
+		ProcessFile:  p.ProcessFile,
+		Args:         p.Args,
+		EnvVars:      p.EnvVars,
+		Status:       p.Status.String(),
+		AutoRestart:  p.AutoRestart,
+		Uid:          p.Uid,
+		Username:     p.Username,
+		Gid:          p.Gid,
+		RestartCount: p.GetRestartCount(),
+		Dependencies: p.Dependencies,
+		Groups:       GroupsArrayToProtobuf(p.Groups),
+	}
+	return &newProcess
+}
+
+func ProcessFromProtobuf(p *protos.Process) *Process {
+	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
+	if error != nil {
+		fmt.Println(error)
+	}
+	updatedAt, error := time.Parse(dateTimeFormat, p.GetUpdatedAt())
+	if error != nil {
+		fmt.Println(error)
+	}
+	newProcess := Process{
+		ID:           p.GetId(),
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
+		Pid:          p.GetPid(),
+		Log:          p.GetLog(),
+		Name:         p.GetName(),
+		ProcessFile:  p.GetProcessFile(),
+		Args:         p.GetArgs(),
+		EnvVars:      p.GetEnvVars(),
+		Status:       StringToProcessStatus(p.GetStatus()),
+		AutoRestart:  p.GetAutoRestart(),
+		Uid:          p.GetUid(),
+		Username:     p.GetUsername(),
+		Gid:          p.GetGid(),
+		RestartCount: p.GetRestartCount(),
+		Dependencies: p.GetDependencies(),
+		Groups:       GroupsArrayFromProtobuf(p.GetGroups()),
+	}
+	return &newProcess
+}
+
+func GetGroupString(p *protos.Process) string {
+	var processNamesStr string
+	groupLength := len(p.Groups)
+	if groupLength > 0 {
+		processNameArray := make([]string, groupLength)
+		for i := range p.Groups {
+			processNameArray[i] = p.Groups[i].Name
+		}
+		processNamesStr = strings.Join(processNameArray, ", ")
+	}
+	return processNamesStr
 }
