@@ -29,11 +29,16 @@ jobs:
       run: go vet ./...
       shell: bash
 
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+
     - name: Docker Testing
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --build-arg GIT_BRANCH=${GITHUB_REF_NAME} -t pmon3 .
+        docker build --build-arg GIT_BRANCH=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
 
   build:
     name: Build
