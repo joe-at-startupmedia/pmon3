@@ -38,7 +38,7 @@ jobs:
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --env GIT_BRANCH=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
+        docker build --build-arg GIT_BRANCH=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
 
   build:
     name: Build
