@@ -1,5 +1,7 @@
 FROM golang:1.22-alpine
 
+ENV GIT_BRANCH=${GIT_BRANCH}
+
 RUN apk --update add build-base && \
   apk add --no-cache git && \
   mkdir -p /usr/src/pmon3 && \

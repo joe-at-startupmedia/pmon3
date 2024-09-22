@@ -31,10 +31,9 @@ jobs:
 
     - name: Docker Testing
       run: |
-        GIT_BRANCH=${GITHUB_REF_NAME}
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build -t pmon3 .
+        docker build --build-arg GIT_BRANCH=${GITHUB_REF_NAME} -t pmon3 .
 
   build:
     name: Build
