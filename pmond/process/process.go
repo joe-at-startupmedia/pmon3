@@ -203,7 +203,7 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 func workerRestart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies, p.Groups)
 	if err != nil {
 		return "", err
 	}
@@ -218,7 +218,7 @@ func workerRestart(p *model.Process) (string, error) {
 
 func workerStart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies, p.Groups)
 	if err != nil {
 		return "", err
 	}

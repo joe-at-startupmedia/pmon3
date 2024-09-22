@@ -8,7 +8,7 @@ import (
 
 func Desc(cmd *protos.Cmd) *protos.CmdResp {
 	val := cmd.GetArg1()
-	p, err := repo.Process().FindByIdOrNameWithGroups(val)
+	p, err := repo.Process().FindByIdOrName(val)
 	if err != nil {
 		newCmdResp := protos.CmdResp{
 			Id:    cmd.GetId(),

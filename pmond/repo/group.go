@@ -33,8 +33,10 @@ func GroupOf(p *model.Group) *GroupRepo {
 	return gr
 }
 
-func (gr *GroupRepo) Create(name string) error {
-	return gr.db.Save(&model.Group{Name: name}).Error
+func (gr *GroupRepo) Create(name string) (*model.Group, error) {
+	group := &model.Group{Name: name}
+	err := gr.db.Save(group).Error
+	return group, err
 }
 
 func (gr *GroupRepo) Save() error {
@@ -70,6 +72,33 @@ func (gr *GroupRepo) FindByIdOrName(idOrName string) (*model.Group, error) {
 		return nil, err
 	}
 	return &found, nil
+}
+
+func (gr *GroupRepo) FindOrInsertByNames(names []string) ([]*model.Group, error) {
+	if len(names) > 0 {
+		groups := make([]*model.Group, len(names))
+		for i := range names {
+			name := names[i]
+			var found model.Group
+			err := gr.db.First(&found, "name = ?", name).Error
+			if err != nil {
+				pmond.Log.Infof("inserting group in database: %s %-v", name, err)
+				group, err := gr.Create(name)
+				if err != nil {
+					pmond.Log.Infof("could not insert group in database: %s %-v", name, err)
+					return nil, err
+				} else {
+					groups[i] = group
+				}
+			} else {
+				groups[i] = &found
+			}
+		}
+
+		return groups, nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (gr *GroupRepo) FindAll() ([]model.Group, error) {

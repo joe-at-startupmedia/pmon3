@@ -9,7 +9,7 @@ import (
 
 func Create(cmd *protos.Cmd) *protos.CmdResp {
 	groupName := cmd.GetArg1()
-	err := repo.Group().Create(groupName)
+	_, err := repo.Group().Create(groupName)
 	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
