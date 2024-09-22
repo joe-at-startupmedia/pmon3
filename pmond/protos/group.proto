@@ -1,0 +1,14 @@
+syntax="proto3";
+
+package pgroup;
+
+option go_package = "pmond/protos";
+
+message Group {
+  uint32 id = 1;
+  string name = 2;
+}
+
+message GroupList {
+  repeated Group groups = 1;
+}

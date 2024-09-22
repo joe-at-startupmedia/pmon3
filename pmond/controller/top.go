@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"os"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
-	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 )
 
 func Top(cmd *protos.Cmd) *protos.CmdResp {
-	var all []model.Process
-	err := db.Db().Find(&all).Error
+	all, err := repo.Process().FindAll()
 	if err != nil {
 		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
 	}

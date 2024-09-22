@@ -4,16 +4,9 @@ import (
 	"fmt"
 	"google.golang.org/protobuf/proto"
 	"pmon3/pmond"
+	"pmon3/pmond/controller/group"
 	"pmon3/pmond/protos"
 )
-
-func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
-	return &protos.CmdResp{
-		Id:    cmd.GetId(),
-		Name:  cmd.GetName(),
-		Error: fmt.Sprintf("%s, %s", cmd.GetName(), err),
-	}
-}
 
 func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 
@@ -52,6 +45,24 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = Drop(cmd)
 	case "dgraph":
 		cmdResp = Dgraph(cmd)
+	case "group_desc":
+		cmdResp = group.Desc(cmd)
+	case "group_create":
+		cmdResp = group.Create(cmd)
+	case "group_del":
+		cmdResp = group.Delete(cmd)
+	case "group_list":
+		cmdResp = group.List(cmd)
+	case "group_assign":
+		cmdResp = group.Assign(cmd)
+	case "group_remove":
+		cmdResp = group.Remove(cmd)
+	case "group_stop":
+		cmdResp = group.Stop(cmd)
+	case "group_restart":
+		cmdResp = group.Restart(cmd)
+	case "group_drop":
+		cmdResp = group.Drop(cmd)
 	}
 
 	data, err := proto.Marshal(cmdResp)

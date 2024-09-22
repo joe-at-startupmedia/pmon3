@@ -8,21 +8,27 @@ import (
 	"os/signal"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"sync"
 	"syscall"
 	"time"
 )
 
 var xr xipc.IResponder
+var pendingTask sync.Map
 
 func New() {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
+
+	//viewer.SetConfiguration(viewer.WithTheme(viewer.ThemeWesteros), viewer.WithLinkAddr("goprofiler.test:8080"))
+	//mgr := statsview.New()
+	//go mgr.Start()
+
 	ctx := interruptHandler(pmond.Config.HandleInterrupts, &wg)
 	connectResponder()
 	runMonitor(ctx)
@@ -68,81 +74,65 @@ func runMonitor(ctx context.Context) {
 	initCtx, cancel := context.WithTimeout(ctx, pmond.Config.GetInitializationPeriod())
 	defer cancel()
 
+	processRepo := repo.Process()
+
 	timer := time.NewTicker(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval))
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-initCtx.Done():
-			runningTask(false)
+			runningTask(processRepo, false)
 		default:
-			runningTask(true)
+			runningTask(processRepo, true)
 		}
 		<-timer.C
 	}
 }
 
-var pendingTask sync.Map
+func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 
-func runningTask(isInitializing bool) {
-
-	var all []model.Process
-	err := db.Db().Find(&all, "status in (?, ?, ?, ?, ?)",
-		model.StatusRunning,
-		model.StatusFailed,
-		model.StatusQueued,
-		model.StatusClosed,
-		model.StatusBackoff,
-	).Error
+	all, err := processRepo.FindForMonitor()
 	if err != nil {
 		return
 	}
 
 	for _, p := range all {
-		key := p.GetIdStr()
-		_, loaded := pendingTask.LoadOrStore(key, p.ID)
+		_, loaded := pendingTask.LoadOrStore(p.ID, p.ID)
 		if loaded { //a goroutine is still working for this pid
 			return
 		}
 
-		go func(q model.Process, key string) {
-			var cur model.Process
-			defer func() {
-				pendingTask.Delete(key)
-			}()
+		go func(cur *model.Process) {
 
-			err = db.Db().First(&cur, q.ID).Error
-			if err != nil {
-				pmond.Log.Infof("Task monitor could not find process in database: %d", q.ID)
-				return
-			}
+			defer pendingTask.Delete(cur.ID)
 
-			flapDetector := detectFlapping(&cur)
+			flapDetector := detectFlapping(cur)
 
 			if cur.Status == model.StatusRunning || cur.Status == model.StatusFailed || cur.Status == model.StatusClosed {
 				if time.Since(cur.UpdatedAt).Seconds() <= 5 {
-					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", q.Stringify())
+					pmond.Log.Debugf("Only processes older than 5 seconds can be restarted: %s", cur.Stringify())
 					return
 				}
-				restarted, err := process.Restart(&cur, isInitializing)
+				restarted, err := process.Restart(cur, isInitializing)
 				if err != nil {
-					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", q.Stringify(), err)
+					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", cur.Stringify(), err)
 				} else if restarted && pmond.Config.FlapDetectionEnabled {
 					flapDetector.RestartProcess()
 				}
 			} else if cur.Status == model.StatusQueued {
 				if time.Since(cur.UpdatedAt).Seconds() <= 1 {
-					pmond.Log.Debugf("Only processes older than 1 second can be enqueued: %s", q.Stringify())
+					pmond.Log.Debugf("Only processes older than 1 second can be enqueued: %s", cur.Stringify())
 					return
 				}
 
-				err = process.Enqueue(&cur, false)
+				err = process.Enqueue(cur, false)
 				if err != nil {
-					pmond.Log.Errorf("task monitor encountered error attempting to enqueue process(%s): %s", q.Stringify(), err)
+					pmond.Log.Errorf("task monitor encountered error attempting to enqueue process(%s): %s", cur.Stringify(), err)
 				}
 			}
 
-		}(p, key)
+		}(&p)
 	}
 }
 
@@ -153,7 +143,7 @@ func detectFlapping(p *model.Process) *process.FlapDetector {
 
 		if flapDetector.ShouldBackOff(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)) {
 			if p.Status != model.StatusBackoff {
-				p.UpdateStatus(db.Db(), model.StatusBackoff)
+				repo.ProcessOf(p).UpdateStatus(model.StatusBackoff)
 			}
 		} else if p.Status == model.StatusBackoff {
 			//set it back to failed so process evaluation can resume

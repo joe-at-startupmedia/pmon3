@@ -4,10 +4,10 @@ import (
 	"os/user"
 	"pmon3/conf"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"strings"
 	"time"
 )
@@ -71,8 +71,7 @@ func StartAppsFromBoth(blocking bool) error {
 }
 
 func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
-	var all []model.Process
-	err := db.Db().Find(&all).Error
+	all, err := repo.Process().FindAll()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,7 +83,9 @@ func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 		processName := appConfigApp.Flags.Name
 		appLog, _ := getAppsConfigAppLogPath(&appConfigApp)
 		appUser, _ := getAppsConfigAppUser(&appConfigApp)
-		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser)
+		groupFlags := appConfigApp.Flags.Groups
+		groups, _ := repo.Group().FindOrInsertByNames(groupFlags)
+		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser, groups)
 		qPs = append(qPs, *p)
 		qNm[processName] = true
 	}

@@ -26,7 +26,6 @@ func init() {
 	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "force kill before deleting processes")
 }
 
-// show all process list
 func Drop() {
 	base.OpenSender()
 	defer base.CloseSender()

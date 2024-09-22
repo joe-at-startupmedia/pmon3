@@ -1,12 +1,12 @@
 package desc
 
 import (
+	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	table_desc "pmon3/cli/output/desc"
+	"pmon3/cli/output/process/desc"
+	"pmon3/pmond/model"
 	"pmon3/pmond/utils/conv"
 	"strconv"
-
-	"github.com/spf13/cobra"
 )
 
 var Cmd = &cobra.Command{
@@ -25,6 +25,7 @@ func cmdRun(args []string) {
 	sent := base.SendCmd("desc", args[0])
 	newCmdResp := base.GetResponse(sent)
 	process := newCmdResp.GetProcess()
+
 	rel := [][]string{
 		{"status", process.Status},
 		{"id", conv.Uint32ToStr(process.Id)},
@@ -38,6 +39,7 @@ func cmdRun(args []string) {
 		{"log", process.Log},
 		{"no-autorestart", strconv.FormatBool(!process.AutoRestart)},
 		{"dependencies", process.Dependencies},
+		{"groups", model.GetGroupString(process)},
 		{"created_at", process.CreatedAt},
 		{"updated_at", process.UpdatedAt},
 	}

@@ -3,7 +3,7 @@ package table_desc
 import (
 	"log"
 	"os"
-	table_list "pmon3/cli/output/list"
+	"pmon3/cli/output/process/list"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,7 +23,7 @@ const (
 func NewModel(tbData [][]string) Model {
 
 	//min column sizing
-	widthData := [9]int{
+	widthData := [2]int{
 		15,
 		15,
 	}
@@ -35,16 +35,18 @@ func NewModel(tbData [][]string) Model {
 				columnKeyProperty:    row[0],
 				columnKeyDescription: table.NewStyledCell(row[1], lipgloss.NewStyle().Foreground(lipgloss.Color(table_list.GetStatusColor(row[1])))),
 			}))
-		} else {
+		} else if len(row[1]) > 0 {
 			rows = append(rows, table.NewRow(table.RowData{
 				columnKeyProperty:    row[0],
 				columnKeyDescription: row[1],
 			}))
+		} else {
+			continue
 		}
 
 		//peak finder
 		n := 0
-		for n < 2 {
+		for n < len(widthData) {
 			colLength := len(row[n]) + 1
 			if colLength > widthData[n] {
 				widthData[n] = colLength

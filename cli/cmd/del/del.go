@@ -3,7 +3,7 @@ package del
 import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	table_one "pmon3/cli/output/one"
+	"pmon3/cli/output/process/one"
 	"pmon3/pmond/protos"
 
 	"pmon3/pmond/model"
@@ -41,6 +41,6 @@ func runCmd(args []string) {
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
-	p := model.FromProtobuf(newCmdResp.GetProcess())
+	p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
 	table_one.Render(p.RenderTable())
 }

@@ -1,6 +1,8 @@
 package table_one
 
-import table_list "pmon3/cli/output/list"
+import (
+	"pmon3/cli/output/process/list"
+)
 
 // render single one table row
 func Render(data []string) {

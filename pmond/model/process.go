@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/go-set/v2"
 	"github.com/joe-at-startupmedia/depgraph"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -12,13 +13,13 @@ import (
 	"pmon3/pmond/utils/cpu"
 	"strings"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type ProcessStatus int64
 
 const dateTimeFormat = "2006-01-02 15:04:05"
+
+var restartCount = make(map[uint32]uint32)
 
 const (
 	StatusQueued ProcessStatus = iota
@@ -81,6 +82,7 @@ type Process struct {
 	EnvVars      string        `json:"env_vars"`
 	Username     string        `json:"username"`
 	Dependencies string        `json:"dependencies"`
+	Groups       []*Group      `gorm:"many2many:process_groups;"`
 	Status       ProcessStatus `json:"status"`
 	ID           uint32        `gorm:"primary_key" json:"id"`
 	Pid          uint32        `gorm:"column:pid" json:"pid"`
@@ -109,45 +111,6 @@ func (p *Process) RenderTable() []string {
 	}
 }
 
-func FindProcessByFileAndName(db *gorm.DB, processFile string, name string) (error, *Process) {
-	var process Process
-	err := db.First(&process, "process_file = ? AND name = ?", processFile, name).Error
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, &process
-}
-
-func FindProcessByIdOrName(db *gorm.DB, idOrName string) (error, *Process) {
-	var process Process
-	err := db.First(&process, "id = ? or name = ?", idOrName, idOrName).Error
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, &process
-}
-
-func (p *Process) Save(db *gorm.DB) (string, error) {
-	err, originOne := FindProcessByFileAndName(db, p.ProcessFile, p.Name)
-	if err == nil && originOne.ID > 0 { // process already exists
-		p.ID = originOne.ID
-	}
-
-	err = db.Save(&p).Error
-	if err != nil {
-		return "", fmt.Errorf("pmon3 run err: %w", err)
-	}
-	output, err := json.Marshal(p.RenderTable())
-	return string(output), err
-}
-
-func (p *Process) UpdateStatus(db *gorm.DB, status ProcessStatus) error {
-	p.Status = status
-	return db.Save(&p).Error
-}
-
 func (p *Process) Stringify() string {
 	return fmt.Sprintf("%s (%d)", p.Name, p.ID)
 }
@@ -165,8 +128,6 @@ func (p *Process) GetPidStr() string {
 	return conv.Uint32ToStr(p.Pid)
 }
 
-var restartCount = make(map[uint32]uint32)
-
 func (p *Process) GetRestartCount() uint32 {
 	return restartCount[p.ID]
 }
@@ -183,59 +144,13 @@ func (p *Process) IncrRestartCount() {
 	restartCount[p.ID] += 1
 }
 
-func (p *Process) ToProtobuf() *protos.Process {
-	newProcess := protos.Process{
-		Id:           p.ID,
-		CreatedAt:    p.CreatedAt.Format(dateTimeFormat),
-		UpdatedAt:    p.UpdatedAt.Format(dateTimeFormat),
-		Pid:          p.Pid,
-		Log:          p.Log,
-		Name:         p.Name,
-		ProcessFile:  p.ProcessFile,
-		Args:         p.Args,
-		EnvVars:      p.EnvVars,
-		Status:       p.Status.String(),
-		AutoRestart:  p.AutoRestart,
-		Uid:          p.Uid,
-		Username:     p.Username,
-		Gid:          p.Gid,
-		RestartCount: p.GetRestartCount(),
-		Dependencies: p.Dependencies,
-	}
-	return &newProcess
+func (p *Process) GetGroupHashSet() *set.HashSet[*Group, string] {
+	return set.HashSetFrom[*Group, string](p.Groups)
 }
 
-func FromProtobuf(p *protos.Process) *Process {
-	createdAt, error := time.Parse(dateTimeFormat, p.GetCreatedAt())
-	if error != nil {
-		fmt.Println(error)
-	}
-	updatedAt, error := time.Parse(dateTimeFormat, p.GetUpdatedAt())
-	if error != nil {
-		fmt.Println(error)
-	}
-	newProcess := Process{
-		ID:           p.GetId(),
-		CreatedAt:    createdAt,
-		UpdatedAt:    updatedAt,
-		Pid:          p.GetPid(),
-		Log:          p.GetLog(),
-		Name:         p.GetName(),
-		ProcessFile:  p.GetProcessFile(),
-		Args:         p.GetArgs(),
-		EnvVars:      p.GetEnvVars(),
-		Status:       StringToProcessStatus(p.GetStatus()),
-		AutoRestart:  p.GetAutoRestart(),
-		Uid:          p.GetUid(),
-		Username:     p.GetUsername(),
-		Gid:          p.GetGid(),
-		RestartCount: p.GetRestartCount(),
-		Dependencies: p.GetDependencies(),
-	}
-	return &newProcess
-}
+//non-receiver methods begin
 
-func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User) *Process {
+func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User, groups []*Group) *Process {
 
 	var processParams = []string{flags.Name}
 	if len(flags.Args) > 0 {
@@ -253,6 +168,7 @@ func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, 
 		Status:       StatusQueued,
 		AutoRestart:  !flags.NoAutoRestart,
 		Dependencies: strings.Join(flags.Dependencies, " "),
+		Groups:       groups,
 	}
 
 	if user != nil {
@@ -345,11 +261,71 @@ func ProcessNames(processesPtr *[]Process) []string {
 	return names
 }
 
-func GetProcessByName(appName string, apps *[]Process) (*Process, error) {
-	for _, app := range *apps {
-		if app.Name == appName {
-			return &app, nil
-		}
+//protobuf methods begin
+
+func (p *Process) ToProtobuf() *protos.Process {
+	newProcess := protos.Process{
+		Id:           p.ID,
+		CreatedAt:    p.CreatedAt.Format(dateTimeFormat),
+		UpdatedAt:    p.UpdatedAt.Format(dateTimeFormat),
+		Pid:          p.Pid,
+		Log:          p.Log,
+		Name:         p.Name,
+		ProcessFile:  p.ProcessFile,
+		Args:         p.Args,
+		EnvVars:      p.EnvVars,
+		Status:       p.Status.String(),
+		AutoRestart:  p.AutoRestart,
+		Uid:          p.Uid,
+		Username:     p.Username,
+		Gid:          p.Gid,
+		RestartCount: p.GetRestartCount(),
+		Dependencies: p.Dependencies,
+		Groups:       GroupsArrayToProtobuf(p.Groups),
 	}
-	return nil, fmt.Errorf("could not find app in Process array with name %s", appName)
+	return &newProcess
+}
+
+func ProcessFromProtobuf(p *protos.Process) *Process {
+	createdAt, err := time.Parse(dateTimeFormat, p.GetCreatedAt())
+	if err != nil {
+		fmt.Println(err)
+	}
+	updatedAt, err := time.Parse(dateTimeFormat, p.GetUpdatedAt())
+	if err != nil {
+		fmt.Println(err)
+	}
+	newProcess := Process{
+		ID:           p.GetId(),
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
+		Pid:          p.GetPid(),
+		Log:          p.GetLog(),
+		Name:         p.GetName(),
+		ProcessFile:  p.GetProcessFile(),
+		Args:         p.GetArgs(),
+		EnvVars:      p.GetEnvVars(),
+		Status:       StringToProcessStatus(p.GetStatus()),
+		AutoRestart:  p.GetAutoRestart(),
+		Uid:          p.GetUid(),
+		Username:     p.GetUsername(),
+		Gid:          p.GetGid(),
+		RestartCount: p.GetRestartCount(),
+		Dependencies: p.GetDependencies(),
+		Groups:       GroupsArrayFromProtobuf(p.GetGroups()),
+	}
+	return &newProcess
+}
+
+func GetGroupString(p *protos.Process) string {
+	var processNamesStr string
+	groupLength := len(p.Groups)
+	if groupLength > 0 {
+		processNameArray := make([]string, groupLength)
+		for i := range p.Groups {
+			processNameArray[i] = p.Groups[i].Name
+		}
+		processNamesStr = strings.Join(processNameArray, ", ")
+	}
+	return processNamesStr
 }

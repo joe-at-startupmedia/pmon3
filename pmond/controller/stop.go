@@ -1,14 +1,11 @@
 package controller
 
 import (
-	"fmt"
-	"os"
-	"pmon3/pmond"
-	"pmon3/pmond/db"
+	"pmon3/pmond/controller/base"
+	"pmon3/pmond/controller/base/stop"
 	"pmon3/pmond/model"
-	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
-	"time"
+	"pmon3/pmond/repo"
 )
 
 func Stop(cmd *protos.Cmd) *protos.CmdResp {
@@ -18,33 +15,15 @@ func Stop(cmd *protos.Cmd) *protos.CmdResp {
 }
 
 func StopByParams(cmd *protos.Cmd, idOrName string, forced bool, status model.ProcessStatus) *protos.CmdResp {
-	err, p := model.FindProcessByIdOrName(db.Db(), idOrName)
+	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("could not find process: %w", err))
+		return base.ErroredCmdResp(cmd, err)
 	}
 
-	// check process is running
-	_, err = os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-	//if process is not currently running
-	if os.IsNotExist(err) {
-		if p.Status != status {
-			if err := p.UpdateStatus(db.Db(), status); err != nil {
-				return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
-			}
-		}
-	}
-
-	//we need to wait for the process to save before killing it to avoid a restart race condition
-	time.Sleep(200 * time.Millisecond)
-	// try to kill the process
-	err = process.SendOsKillSignal(p, status, forced)
+	err = stop.ByProcess(p, forced, status)
 	if err != nil {
-		return ErroredCmdResp(cmd, fmt.Errorf("stop process error: %w", err))
+		return base.ErroredCmdResp(cmd, err)
 	}
-
-	pmond.Log.Infof("stop process %s success", p.Stringify())
-
-	p.ResetRestartCount()
 
 	newCmdResp := protos.CmdResp{
 		Id:      cmd.GetId(),

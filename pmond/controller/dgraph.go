@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"pmon3/conf"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/pmond/repo"
 	"strings"
 )
 
@@ -20,16 +21,15 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 	if cmd.GetArg1() == "apps-config-only" {
 		nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
 		nonDeptAppNames = strings.Join(conf.AppNames(nonDependentApps), "\n")
 		deptAppNames = strings.Join(conf.AppNames(dependentApps), "\n")
 	} else {
-		var all []model.Process
-		err := db.Db().Find(&all).Error
+		all, err := repo.Process().FindAll()
 		if err != nil {
-			return ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
 		var qPs []model.Process
@@ -37,7 +37,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 
 		for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
 			processName := appConfigApp.Flags.Name
-			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil)
+			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil, nil)
 			qPs = append(qPs, *p)
 			qNm[processName] = true
 		}

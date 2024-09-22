@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"os/user"
 	"pmon3/pmond"
-	"pmon3/pmond/db"
 	"pmon3/pmond/model"
 	"pmon3/pmond/observer"
+	"pmon3/pmond/repo"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 	"strings"
@@ -75,7 +75,8 @@ func updatedFromPsCmd(p *model.Process) bool {
 		}
 		p.Pid = newPid
 		p.Status = model.StatusRunning
-		return db.Db().Save(&p).Error == nil
+		err := repo.ProcessOf(p).Save()
+		return err == nil
 	}
 
 	return false
@@ -109,7 +110,7 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 					Type:    observer.FailedEvent,
 					Process: p,
 				})
-				p.UpdateStatus(db.Db(), model.StatusFailed)
+				repo.ProcessOf(p).UpdateStatus(model.StatusFailed)
 			}
 			return false, nil
 		}
@@ -151,7 +152,7 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 		pmond.Log.Warn(err)
 	}
 
-	return p.UpdateStatus(db.Db(), status)
+	return repo.ProcessOf(p).UpdateStatus(status)
 }
 
 func SetUser(runUser string) (*user.User, []string, error) {
@@ -202,7 +203,7 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 func workerRestart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies, p.Groups)
 	if err != nil {
 		return "", err
 	}
@@ -211,13 +212,13 @@ func workerRestart(p *model.Process) (string, error) {
 	execP.CreatedAt = p.CreatedAt
 	execP.UpdatedAt = time.Now()
 
-	waitData := NewProcStat(execP).Wait()
-	return waitData.Save(db.Db())
+	process := NewProcStat(execP).Wait()
+	return repo.ProcessOf(process).FindAndSave()
 }
 
 func workerStart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies)
+	execP, err := Exec(p.ProcessFile, p.Log, p.Name, p.Args, p.EnvVars, p.Username, p.AutoRestart, p.Dependencies, p.Groups)
 	if err != nil {
 		return "", err
 	}
@@ -225,6 +226,6 @@ func workerStart(p *model.Process) (string, error) {
 	execP.CreatedAt = time.Now()
 	execP.UpdatedAt = time.Now()
 
-	waitData := NewProcStat(execP).Wait()
-	return waitData.Save(db.Db())
+	process := NewProcStat(execP).Wait()
+	return repo.ProcessOf(process).FindAndSave()
 }

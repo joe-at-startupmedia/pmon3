@@ -2,7 +2,7 @@ package list
 
 import (
 	"pmon3/cli/cmd/base"
-	table_list "pmon3/cli/output/list"
+	"pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
 
 	"github.com/spf13/cobra"
@@ -26,7 +26,7 @@ func Show() {
 	all := newCmdResp.GetProcessList().GetProcesses()
 	var allProcess [][]string
 	for _, p := range all {
-		process := model.FromProtobuf(p)
+		process := model.ProcessFromProtobuf(p)
 		allProcess = append(allProcess, process.RenderTable())
 	}
 	table_list.Render(allProcess)
