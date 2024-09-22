@@ -40,7 +40,12 @@ func InsertAsQueued(processFile string, flags *model.ExecFlags) (*model.Process,
 		return nil, err
 	}
 
-	p := model.FromFileAndExecFlags(processFile, flags, logPath, user)
+	groups, err := repo.Group().FindOrInsertByNames(flags.Groups)
+	if err != nil {
+		return nil, err
+	}
+
+	p := model.FromFileAndExecFlags(processFile, flags, logPath, user, groups)
 
 	err = repo.ProcessOf(p).Save()
 

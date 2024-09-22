@@ -83,7 +83,9 @@ func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 		processName := appConfigApp.Flags.Name
 		appLog, _ := getAppsConfigAppLogPath(&appConfigApp)
 		appUser, _ := getAppsConfigAppUser(&appConfigApp)
-		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser)
+		groupFlags := appConfigApp.Flags.Groups
+		groups, _ := repo.Group().FindOrInsertByNames(groupFlags)
+		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser, groups)
 		qPs = append(qPs, *p)
 		qNm[processName] = true
 	}

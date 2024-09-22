@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/go-set/v2"
 	"github.com/joe-at-startupmedia/depgraph"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -17,6 +18,8 @@ import (
 type ProcessStatus int64
 
 const dateTimeFormat = "2006-01-02 15:04:05"
+
+var restartCount = make(map[uint32]uint32)
 
 const (
 	StatusQueued ProcessStatus = iota
@@ -125,8 +128,6 @@ func (p *Process) GetPidStr() string {
 	return conv.Uint32ToStr(p.Pid)
 }
 
-var restartCount = make(map[uint32]uint32)
-
 func (p *Process) GetRestartCount() uint32 {
 	return restartCount[p.ID]
 }
@@ -143,7 +144,13 @@ func (p *Process) IncrRestartCount() {
 	restartCount[p.ID] += 1
 }
 
-func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User) *Process {
+func (p *Process) GetGroupHashSet() *set.HashSet[*Group, string] {
+	return set.HashSetFrom[*Group, string](p.Groups)
+}
+
+//non-receiver methods begin
+
+func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User, groups []*Group) *Process {
 
 	var processParams = []string{flags.Name}
 	if len(flags.Args) > 0 {
@@ -161,6 +168,7 @@ func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, 
 		Status:       StatusQueued,
 		AutoRestart:  !flags.NoAutoRestart,
 		Dependencies: strings.Join(flags.Dependencies, " "),
+		Groups:       groups,
 	}
 
 	if user != nil {

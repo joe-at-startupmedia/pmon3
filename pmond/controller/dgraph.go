@@ -37,7 +37,7 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 
 		for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
 			processName := appConfigApp.Flags.Name
-			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil)
+			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil, nil)
 			qPs = append(qPs, *p)
 			qNm[processName] = true
 		}

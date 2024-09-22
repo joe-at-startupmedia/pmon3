@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Exec(processFile string, customLogFile string, processName string, extArgs string, envVars string, username string, autoRestart bool, dependencies string) (*model.Process, error) {
+func Exec(processFile string, customLogFile string, processName string, extArgs string, envVars string, username string, autoRestart bool, dependencies string, groups []*model.Group) (*model.Process, error) {
 	user, groupIds, err := SetUser(username)
 	if err != nil {
 		return nil, err
@@ -70,6 +70,7 @@ func Exec(processFile string, customLogFile string, processName string, extArgs 
 		Username:     user.Username,
 		AutoRestart:  autoRestart,
 		Dependencies: dependencies,
+		Groups:       groups,
 	}
 
 	return &pModel, nil

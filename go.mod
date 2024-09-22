@@ -13,6 +13,7 @@ require (
 	github.com/goinbox/shell v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/gosuri/uilive v0.0.4
+	github.com/hashicorp/go-set/v2 v2.1.0
 	github.com/jinzhu/configor v1.2.2
 	github.com/joe-at-startupmedia/depgraph v0.0.1
 	github.com/joe-at-startupmedia/sqlite v0.0.1
