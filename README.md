@@ -89,6 +89,7 @@ Available Commands:
   log         Display process logs by id or name
   logf        Tail process logs by id or name
   ls          List all processes
+  reset       reset the process(es) restart counter
   restart     (re)start a process by id or name
   stop        Stop a process by id or name
   topn        Shows processes using the native top
@@ -221,13 +222,13 @@ pmon3 init
 ```
 
 <a name="pmon3_drop"></a>
-### Terminate and delete all processes [drop]
+### Terminate and delete all processes [ drop ]
 ```bash
 pmon3 drop [--force]
 ```
 
 <a name="pmon3_dgraph"></a>
-### Display the dependency graph [dgraph/order]
+### Display the dependency graph [ dgraph/order ]
 
 This command is useful to debug dependency resolution without (re)starting processes
 
@@ -239,6 +240,19 @@ pmon3 dgraph --apps-config-only
 pmon3 dgraph
 ```
 
+
+<a name="pmon3_reset"></a>
+### Reset the restart counter(s) [ reset ]
+
+This command will reset the restart counter back to 0. This is useful to establish a clean slate without having to restart the pmond process.
+
+```bash
+#reset the restart counter on all processes
+pmon3 reset
+
+#reset the restart counter on a specific process
+pmon3 reset -p [id_or_name]
+```
 <a name="section_config"></a>
 ## Configuration
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
