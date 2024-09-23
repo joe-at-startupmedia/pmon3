@@ -13,6 +13,7 @@
 * [Application Config](#section_appconfig)
 * [Groups](#section_groups)
 * [Event Handling](#section_events)
+* [Flap Detection/Prevention](#section_flapping)
 * [Debugging](#section_debugging)
 * [Performance](#section_performance)
 * [Problems](#section_problems)
@@ -289,8 +290,10 @@ The following configuration options are available:
 
 All configuration changes are effective when the next command is issued - restarting pmond is unnecessary.
 
-The configuration values can be overridden using environment variables:
+<a name="section_config_envvars"></a>
+### Environment Variables
 
+The configuration values can be overridden using environment variables:
 
 * `CONFIGOR_DATADIR`
 * `CONFIGOR_LOGSDIR`
@@ -298,6 +301,10 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_HANDLEINTERRUPTS`
 * `CONFIGOR_INITIALIZATIONPERIOD`
 * `CONFIGOR_PROCESSMONITORINTERVAL`
+* `CONFIGOR_FLAPDETECTIONENABLED`
+* `CONFIGOR_FLAPDETECTIONTHRESHOLDRESTARTED`
+* `CONFIGOR_FLAPDETECTIONTHRESHOLDCOUNTDOWN`
+* `CONFIGOR_FLAPDETECTIONTHRESHOLDDECREMENT`
 * `CONFIGOR_CMDEXECRESPONSEWAIT`
 * `CONFIGOR_IPCCONNECTIONWAIT`
 * `CONFIGOR_DEPENDENTPROCESSENQUEUEDWAIT`
@@ -441,9 +448,9 @@ This groups is no longer useful, lets delete it while keeping the processes inta
 pmon3 group del happac
 ```
 
-### Reloading From Application Config
+### Reloading Application Config Changes
 
-If you make a change to the group in the [Application Config](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command will not affect or restart processes which are already running and healthy but it will apply changes from the application config file.
+If you make a change to the group in the [Application Config](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command should not restart processes which are already running but it will apply changes from the application config file.
 ```
 pmon3 init
 ```
@@ -486,6 +493,40 @@ DEBU/vagrant/go_src/pmon3/pmond/observer/observer.go:70 pmon3/pmond/observer.onE
 $ tail /var/log/pmond/output.log
 process restarted: 4 - "happac4"
 ```
+
+<a name="section_flapping"></a>
+## Flap Detection/Prevention
+
+Flap Detection provides the ability to detect processes which are in a perpetually-failed state resulting in excessive restarts which can affect system performance among other things. To prevent excessive restarts you can enable flap detection in the configuration file. You can control the behavior by setting various [threshold parameters](#section_config) which ultimately affect how often a perpetually-failed process can restart within a given time interval.
+
+
+### Enabling
+```yaml
+flap_detection_enabled: true
+```
+
+### Restart Threshold
+Defaulted to `5`, is the amount of application restarts before the flap prevention process begins at which point the process will cease restarts and enter the backoff state.
+```yaml
+flap_detection_threshold_restarted: 5
+```
+
+### Countdown Threshold
+Defaulted to `120`, is the amount of process monitor intervals until the flap prevention process (backoff state) ends and the application (if still in a perpectually failed state) will resume restarting as normal until the restart threshold is met again. The process monitor interval can also be set in the [configuration file](#section_config) which would affect the time in which it would take to countdown back to zero.
+```yaml
+flap_detection_threshold_countdown: 120
+```
+
+### Decrement Threshold
+Defaulted to `60`, disabled with `0`, is the amount the amount of process monitor intervals during the flap prevention process (backoff state) until the application restart counter is decremented. This can affect how the countdown is reached effectively staggering application restarts during the countdown process. This is useful when you don't want to completely back off and allow for intermittent restarts during the flap prevention process (backoff state).
+```yaml
+flap_detection_threshold_decrement: 60
+```
+
+### Example 
+Using the defaults provided above: since the process monitor interval defaults to `500` milliseconds, when a process enters the perpetually failed state and restarts the 5th time, it will enter the backoff state. At this point the flap prevention process will begin the countdown from `120` to `0`. Since the process monitor interval is `500` milliseconds, it will take `120` multiplied by `500` milliseconds which equals `60` seconds.
+
+There is however one caveat: because the decrement threshold is `60`, the restart count will decrement from `5` to `4` after `60` multiplied by `500` milliseconds which equals `30` seconds. Instead, it will instead restart `30` seconds into the backoff state instead of `60` seconds. After the restart, the flap detection process will continue counting down to zero until exiting the flap detection process. If the application remains in a perpetually failed state, it will take `5` restarts to repeat this process all over again.
 
 <a name="section_debugging"></a>
 ## Debugging
