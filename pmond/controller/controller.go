@@ -45,6 +45,8 @@ func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 		cmdResp = Drop(cmd)
 	case "dgraph":
 		cmdResp = Dgraph(cmd)
+	case "reset":
+		cmdResp = ResetCounter(cmd)
 	case "group_desc":
 		cmdResp = group.Desc(cmd)
 	case "group_create":
