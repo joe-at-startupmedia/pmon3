@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group/list"
+	"pmon3/cli/cmd/group/desc"
 	"time"
 )
 
@@ -25,6 +25,5 @@ func Remove(args []string) {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
-	list.Show()
+	desc.Desc([]string{args[0]})
 }

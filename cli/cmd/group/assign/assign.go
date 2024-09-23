@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/cli/cmd/group/desc"
 	"time"
 )
 
@@ -18,11 +19,11 @@ var Cmd = &cobra.Command{
 
 func Assign(args []string) {
 	base.OpenSender()
-	defer base.CloseSender()
 	sent := base.SendCmdArg2("group_assign", args[0], args[1])
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	time.Sleep(cli.Config.GetCmdExecResponseWait())
+	desc.Desc([]string{args[0]})
 }
