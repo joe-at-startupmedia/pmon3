@@ -244,48 +244,46 @@ pmon3 dgraph
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
 The following configuration options are available:
 ```yaml
-# All commented values are the default when empty or omitted
-#
 # directory where the database is stored
-#data_dir: /etc/pmon3/data
+data_dir: /etc/pmon3/data
 # directory where the logs are stored
-#logs_dir: /var/log/pmond
+logs_dir: /var/log/pmond
 # log levels: debug/info/warn/error
-#log_level: info
+log_level: info
 # kill processes on termination
-#handle_interrupts: true
+handle_interrupts: true
 # poll processes every [n] milliseconds
-#process_monitor_interval: 500
+process_monitor_interval: 500
 # wait [n] seconds before monitoring process statuses
-#initialization_period: 30
+initialization_period: 30
 # enable flap detection
-#flap_detection_enabled: false
+flap_detection_enabled: false
 # the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
-#flap_detection_threshold_restarted: 5
+flap_detection_threshold_restarted: 5
 # the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
-#flap_detection_threshold_countdown: 120
+flap_detection_threshold_countdown: 120
 # the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
-#flap_detection_threshold_decrement: 60
+flap_detection_threshold_decrement: 60
 # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
-#cmd_exec_response_wait: 1500
+cmd_exec_response_wait: 1500
 # wait [n] milliseconds after connecting to IPC client before issuing commands
-#ipc_connection_wait: 0
+ipc_connection_wait: 0
 # wait [n] milliseconds after enqueueing a dependent process
-#dependent_process_enqueued_wait: 2000
+dependent_process_enqueued_wait: 2000
 # a script to execute when a process is restarted which accepts the process details json as the first argument
-#on_process_restart_exec:
+on_process_restart_exec:
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
-#on_process_failure_exec:
+on_process_failure_exec:
 # specify a custom posix_mq directory in order to apply the appropriate permissions
 #posix_mq_dir: /dev/mqueue/
 # specify a custom shared memory directory in order to apply the appropriate permissions
-#shmem_dir: /dev/shm/
+shmem_dir: /dev/shm/
 # specify a custom user to access files in posix_mq_dir  or shmem_dir
 #mq_user:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
 #mq_group:
 # a JSON configuration file to specify a list of apps to start on the first initialization
-#apps_config_file: /etc/pmon3/config/app.config.json
+apps_config_file: /etc/pmon3/config/app.config.json
 ```
 
 All configuration changes are effective when the next command is issued - restarting pmond is unnecessary.
