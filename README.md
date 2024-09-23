@@ -10,7 +10,8 @@
 * [Installation](#section_install)
 * [Commands](#section_commands)
 * [Configuration](#section_config)
-* [Application(s) Config](#section_appconfig)
+* [Application Config](#section_appconfig)
+* [Groups](#section_groups)
 * [Event Handling](#section_events)
 * [Debugging](#section_debugging)
 * [Performance](#section_performance)
@@ -80,6 +81,7 @@ Available Commands:
   dgraph      Show the process queue order
   drop        Delete all processes
   exec        Spawn a new process
+  group       group level commands
   help        Help about any command
   init        initialize all stopped processes
   kill        Terminate all processes
@@ -130,7 +132,10 @@ The starting process accepts several parameters. The parameter descriptions are 
 --no-autorestart  -n
 
 // Provide a list of process names that this process will depend on
---dependency parent-process-name [--dependency parent-process-name2]...
+--dependencies parent-process-name [--dependencies parent-process-name2]...
+
+//provide a list of group names this process is associated to
+--groups group-name-one [--groups group-name-2]
 ```
 
 #### Example：
@@ -305,7 +310,7 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_APPSCONFIGFILE`
 
 <a name="section_appconfig"></a>
-## Application(s) Config
+## Application Config
 
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
 If applications are specified in the Apps Config, they will overwrite matching processes which already exist in the database.
@@ -329,7 +334,8 @@ apps_config_file: /etc/pmon3/config/apps.config.json
         "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
         "user": "vagrant",
         "log_dir": "/var/log/custom/",
-        "dependencies": ["happac2"]
+        "dependencies": ["happac2"],
+        "groups": ["happac"]
       }
     },
     {
@@ -339,7 +345,8 @@ apps_config_file: /etc/pmon3/config/apps.config.json
         "log": "/var/log/happac2.log",
         "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
         "user": "vagrant",
-        "no_auto_restart": true
+        "no_auto_restart": true,
+        "groups": ["happac"]
       }
     },
     {
@@ -372,6 +379,74 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 * env_vars
 * name
 * dependencies
+* groups
+
+<a name="section_groups"></a>
+## Groups
+
+Groups are useful when dealing with a large ammount of related processes. Like processes, they are stored in the database and provide many-to-many cardinality. This allows the ability to addociate multiple groups to one or more processes and vice versa. Groups can be managed via configuration and through the command line interface.
+
+### Commands
+```
+group level commands
+
+Usage:
+  pmon3 group [command]
+
+Aliases:
+  group, groups
+
+Available Commands:
+  assign      assign a group(s) to process(es)
+  create      create a new group
+  del         del a group
+  desc        Show group details and associated processes
+  drop        delete all processes associated to a group
+  ls          list all groups
+  remove      remove process(es) from group(s)
+  restart     (re)start processes by group id or name
+  stop        stop all processes associated to a group
+
+Flags:
+  -h, --help   help for group
+
+Use "pmon3 group [command] --help" for more information about a command.
+```
+
+### Examples
+
+First lets create a group
+```
+pmon3 group create happac
+```
+
+Next, lets assign it to processes with ids 3 and 4
+```
+pmon3 group assign happac 3,4
+```
+
+Now, lets confirm that it was associated to the correct processes:
+```
+pmon3 group desc happac
+```
+![Screenshot Groups Desc](https://github.com/user-attachments/assets/446dbb6d-0ae5-47d2-bf99-6b5d9c314428)
+
+Oops, process 4 should not be associated with the happac group, lets remove the association:
+```
+pmon3 group remove happac 4
+```
+
+This groups is no longer useful, lets delete it while keeping the processes intact:
+```
+pmon3 group del happac
+```
+
+### Reloading From Application Config
+
+If you make a change to the group in the [Application Config](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command will not affect or restart processes which are already running and healthy but it will apply changes from the application config file.
+```
+pmon3 init
+```
 
 <a name="section_events"></a>
 ## Event Handling With Custom Scripts
@@ -543,4 +618,3 @@ make systemd_permissions
 ```bash
 pmon3 exec /usr/local/bin/happac --user root
 ```
-
