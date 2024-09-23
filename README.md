@@ -497,6 +497,9 @@ process restarted: 4 - "happac4"
 <a name="section_flapping"></a>
 ## Flap Detection/Prevention
 
+![Screenshot Backkoff](https://github.com/user-attachments/assets/ec0d482f-9afe-438d-a5fd-18293a5c9ba2)
+
+
 Flap Detection provides the ability to detect processes which are in a perpetually-failed state resulting in excessive restarts which can affect system performance among other things. To prevent excessive restarts you can enable flap detection in the configuration file. You can control the behavior by setting various [threshold parameters](#section_config) which ultimately affect how often a perpetually-failed process can restart within a given time interval.
 
 
