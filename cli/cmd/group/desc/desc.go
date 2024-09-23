@@ -15,11 +15,11 @@ var Cmd = &cobra.Command{
 	Short:   "Show group details and associated processes",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args)
+		Desc(args)
 	},
 }
 
-func cmdRun(args []string) {
+func Desc(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
 	sent := base.SendCmd("group_desc", args[0])

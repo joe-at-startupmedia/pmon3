@@ -49,7 +49,8 @@ func (gr *GroupRepo) Delete(idOrName string) error {
 		pmond.Log.Infof("could not delete group in database: %s %-v", idOrName, err)
 		return err
 	} else if g != nil {
-		return gr.db.Delete(g).Error
+		// no soft-deletes
+		return gr.db.Unscoped().Delete(g).Error
 	}
 	return nil
 }
