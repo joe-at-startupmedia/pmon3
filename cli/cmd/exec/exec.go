@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"os/user"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
@@ -19,7 +20,14 @@ var Cmd = &cobra.Command{
 	Short:   "Spawn a new process",
 	Args:    cobra.ExactArgs(1),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		flag.SetCurrentUser()
+		if len(flag.User) > 0 && flag.User == "root" && !base.IsRoot() {
+			cli.Log.Fatalf("cannot set process user to root without sudo")
+		} else if flag.User == "" {
+			user, err := user.Current()
+			if err == nil {
+				flag.User = user.Username
+			}
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args, flag.Json())

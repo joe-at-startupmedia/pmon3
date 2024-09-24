@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
@@ -19,13 +18,13 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 	)
 
 	if cmd.GetArg1() == "apps-config-only" {
-		nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
+		nonDependentApps, dependentApps, err := pmond.Config.AppsConfig.ComputeDepGraph()
 		if err != nil {
 			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
-		nonDeptAppNames = strings.Join(conf.AppNames(nonDependentApps), "\n")
-		deptAppNames = strings.Join(conf.AppNames(dependentApps), "\n")
+		nonDeptAppNames = strings.Join(model.AppsConfigAppNames(nonDependentApps), "\n")
+		deptAppNames = strings.Join(model.AppsConfigAppNames(dependentApps), "\n")
 	} else {
 		all, err := repo.Process().FindAll()
 		if err != nil {

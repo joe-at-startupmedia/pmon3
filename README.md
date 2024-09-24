@@ -10,7 +10,7 @@
 * [Installation](#section_install)
 * [Commands](#section_commands)
 * [Configuration](#section_config)
-* [Application Config](#section_appconfig)
+* [Application Configuration](#section_appconfig)
 * [Groups](#section_groups)
 * [Event Handling](#section_events)
 * [Flap Detection/Prevention](#section_flapping)
@@ -52,7 +52,7 @@ make systemd_install
 ### Using Release Installer
 
 ```bash
-wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.16.0
+wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.16.1
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -76,22 +76,24 @@ Usage:
   pmon3 [command]
 
 Available Commands:
+  appconfig   Output Application Configuration JSON
   completion  Generate completion script
   del         Delete process by id or name
-  desc        Show process extended details
+  desc        Show process information by id or name
   dgraph      Show the process queue order
   drop        Delete all processes
   exec        Spawn a new process
-  group       group level commands
+  group       Group level commands
   help        Help about any command
-  init        initialize all stopped processes
+  init        Initialize all stopped processes
   kill        Terminate all processes
   log         Display process logs by id or name
   logf        Tail process logs by id or name
   ls          List all processes
-  restart     (re)start a process by id or name
+  reset       Reset the restart counter(s)
+  restart     (Re)start a process by id or name
   stop        Stop a process by id or name
-  topn        Shows processes using the native top
+  topn        Shows processes with unix top cmd
   version
 
 Flags:
@@ -221,13 +223,13 @@ pmon3 init
 ```
 
 <a name="pmon3_drop"></a>
-### Terminate and delete all processes [drop]
+### Terminate and delete all processes [ drop ]
 ```bash
 pmon3 drop [--force]
 ```
 
 <a name="pmon3_dgraph"></a>
-### Display the dependency graph [dgraph/order]
+### Display the dependency graph [ dgraph/order ]
 
 This command is useful to debug dependency resolution without (re)starting processes
 
@@ -237,6 +239,28 @@ pmon3 dgraph --apps-config-only
 
 #processes specified in the Apps Config and the database
 pmon3 dgraph
+```
+
+<a name="pmon3_reset"></a>
+### Reset the restart counter(s) [ reset ]
+
+This command will reset the restart counter back to 0. This is useful to establish a clean slate without having to restart the pmond process.
+
+```bash
+#reset the restart counter on all processes
+pmon3 reset
+
+#reset the restart counter on a specific process
+pmon3 reset -p [id_or_name]
+```
+
+<a name="pmon3_appconfig"></a>
+### Output Application Configuration JSON [ appconfig ]
+
+This command will output Application Configuration JSON from the current process list. This command is useful when you want to generate [Application Configuration](#section_appconfig) JSON to use for pmond initialization from the specified `apps_config_file`.
+
+```bash
+pmon3 appconfig
 ```
 
 <a name="section_config"></a>
@@ -279,9 +303,9 @@ on_process_failure_exec:
 # specify a custom shared memory directory in order to apply the appropriate permissions
 shmem_dir: /dev/shm/
 # specify a custom user to access files in posix_mq_dir  or shmem_dir
-#mq_user:
+mq_user:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
-#mq_group:
+mq_group:
 # a JSON configuration file to specify a list of apps to start on the first initialization
 apps_config_file: /etc/pmon3/config/app.config.json
 ```
@@ -315,7 +339,7 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_APPSCONFIGFILE`
 
 <a name="section_appconfig"></a>
-## Application Config
+## Application Configuration
 
 By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
 If applications are specified in the Apps Config, they will overwrite matching processes which already exist in the database.
@@ -367,6 +391,10 @@ apps_config_file: /etc/pmon3/config/apps.config.json
 }
 ```
 
+### Generation Utility
+
+Instead of configuring this file from scratch you can use the the [appconfig](#pmon3_appconfig) command to output JSON from the current process list. This will allow the administrator to dynamically build a process list using imperative commands without having to manually write the configuration file.
+
 ### Dependencies
 
 Depenencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependecy resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable which currently defaults to 2 seconds.
@@ -393,7 +421,7 @@ Groups are useful when dealing with a large ammount of related processes. Like p
 
 ### Commands
 ```
-group level commands
+Group level commands
 
 Usage:
   pmon3 group [command]
@@ -402,15 +430,15 @@ Aliases:
   group, groups
 
 Available Commands:
-  assign      assign a group(s) to process(es)
-  create      create a new group
-  del         del a group
+  assign      Assign group(s) to process(es)
+  create      Create a new group
+  del         Delete a group
   desc        Show group details and associated processes
-  drop        delete all processes associated to a group
-  ls          list all groups
-  remove      remove process(es) from group(s)
-  restart     (re)start processes by group id or name
-  stop        stop all processes associated to a group
+  drop        Delete all processes associated to a group
+  ls          List all groups
+  remove      Remove process(es) from group(s)
+  restart     (Re)start processes by group id or name
+  stop        Stop all processes associated to a group
 
 Flags:
   -h, --help   help for group
@@ -446,9 +474,9 @@ This groups is no longer useful, lets delete it while keeping the processes inta
 pmon3 group del happac
 ```
 
-### Reloading Application Config Changes
+### Reloading Application Configuration Changes
 
-If you make a change to the group in the [Application Config](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command should not restart processes which are already running but it will apply changes from the application config file.
+If you make a change to the group in the [Application Configuration](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command should not restart processes which are already running but it will apply changes from the `apps_config_file`.
 ```
 pmon3 init
 ```
@@ -656,7 +684,8 @@ You should only use `sudo` to start the `pmond` process which requires superuser
 make systemd_permissions
 ```
 
-#### Spawn a new process as the root user without using `sudo`
+#### Spawn a new process as the root user
+You must have sudo privileges to do this for security reasons. The `--user root` flag is redundant because the process is spawned as the calling user by default and commands ran as sudo are called by the root user.
 ```bash
-pmon3 exec /usr/local/bin/happac --user root
+sudo pmon3 exec /usr/local/bin/happac --user root
 ```

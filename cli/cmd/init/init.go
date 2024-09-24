@@ -18,7 +18,7 @@ var (
 
 var Cmd = &cobra.Command{
 	Use:   "init",
-	Short: "initialize all stopped processes",
+	Short: "Initialize all stopped processes",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		Initialize()

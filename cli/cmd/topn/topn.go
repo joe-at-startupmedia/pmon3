@@ -26,7 +26,7 @@ var (
 var Cmd = &cobra.Command{
 	Use:     "topn",
 	Aliases: []string{"topn"},
-	Short:   "Shows processes using the native top",
+	Short:   "Shows processes with unix top cmd",
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		Topn()

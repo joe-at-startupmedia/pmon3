@@ -15,7 +15,7 @@ var (
 var Cmd = &cobra.Command{
 	Use:     "drop [group_id_or_name]",
 	Aliases: []string{"show"},
-	Short:   "delete all processes associated to a group",
+	Short:   "Delete all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdDrop(args)

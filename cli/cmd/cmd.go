@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"pmon3/cli/cmd/appconfig"
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
@@ -14,6 +15,7 @@ import (
 	"pmon3/cli/cmd/list"
 	"pmon3/cli/cmd/log"
 	"pmon3/cli/cmd/logf"
+	"pmon3/cli/cmd/reset"
 	"pmon3/cli/cmd/restart"
 	"pmon3/cli/cmd/stop"
 	"pmon3/cli/cmd/topn"
@@ -35,21 +37,23 @@ var verCmd = &cobra.Command{
 
 func Exec() error {
 	rootCmd.AddCommand(
+		completion.Cmd,
 		del.Cmd,
 		desc.Cmd,
-		list.Cmd,
+		dgraph.Cmd,
+		drop.Cmd,
 		exec.Cmd,
-		stop.Cmd,
-		restart.Cmd,
-		completion.Cmd,
+		group.Cmd,
+		initialize.Cmd,
+		kill.Cmd,
+		list.Cmd,
 		log.Cmd,
 		logf.Cmd,
-		kill.Cmd,
-		initialize.Cmd,
-		drop.Cmd,
+		reset.Cmd,
+		restart.Cmd,
+		stop.Cmd,
 		topn.Cmd,
-		dgraph.Cmd,
-		group.Cmd,
+		appconfig.Cmd,
 		verCmd,
 	)
 

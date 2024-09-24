@@ -3,6 +3,7 @@ package base
 import (
 	"context"
 	"github.com/joe-at-startupmedia/xipc"
+	"os/user"
 	"pmon3/cli"
 	"pmon3/pmond/protos"
 	"strings"
@@ -128,4 +129,12 @@ func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, error) {
 
 func CloseSender() error {
 	return xr.CloseRequester()
+}
+
+func IsRoot() bool {
+	currentUser, err := user.Current()
+	if err != nil {
+		cli.Log.Errorf("[isRoot] Unable to get current user: %s", err)
+	}
+	return currentUser.Username == "root"
 }

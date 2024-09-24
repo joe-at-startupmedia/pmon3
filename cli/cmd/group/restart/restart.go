@@ -14,7 +14,7 @@ var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
 	Use:   "restart [group_id_or_name]",
-	Short: "(re)start processes by group id or name",
+	Short: "(Re)start processes by group id or name",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun("group_restart", args, flag.Json())

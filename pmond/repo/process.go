@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"pmon3/pmond"
 	"pmon3/pmond/db"
 	"pmon3/pmond/model"
@@ -44,7 +45,7 @@ func (pr *ProcessRepo) Save() error {
 }
 
 func (pr *ProcessRepo) Delete() error {
-	return pr.db.Delete(&pr.cur).Error
+	return pr.db.Select(clause.Associations).Delete(&pr.cur).Error
 }
 
 func (pr *ProcessRepo) UpdateStatus(status model.ProcessStatus) error {

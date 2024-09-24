@@ -12,7 +12,7 @@ import (
 var Cmd = &cobra.Command{
 	Use:     "desc [id or name]",
 	Aliases: []string{"show"},
-	Short:   "Show process extended details",
+	Short:   "Show process information by id or name",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"os/user"
-	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
@@ -41,7 +40,7 @@ func StartsAppsFromConfig(blocking bool) error {
 		return nil
 	}
 
-	nonDependentApps, dependentApps, err := conf.ComputeDepGraph(&pmond.Config.AppsConfig.Apps)
+	nonDependentApps, dependentApps, err := pmond.Config.AppsConfig.ComputeDepGraph()
 	if err != nil {
 		return err
 	}
@@ -109,13 +108,13 @@ func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 	return nonDependentApps, dependentApps, nil
 }
 
-func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]conf.AppsConfigApp, dependentApps *[]conf.AppsConfigApp) error {
+func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]model.AppsConfigApp, dependentApps *[]model.AppsConfigApp) error {
 
 	var retErr error
 
 	if dependentApps != nil {
 		for _, app := range *dependentApps {
-			pmond.Log.Infof("launch dependent %s", strings.Join(conf.AppNames(dependentApps), " "))
+			pmond.Log.Infof("launch dependent %s", strings.Join(model.AppsConfigAppNames(dependentApps), " "))
 			err := EnqueueProcess(app.File, &app.Flags)
 			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
 			if err != nil {
@@ -126,7 +125,7 @@ func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]conf.AppsConfigAp
 	}
 
 	if nonDependentApps != nil {
-		pmond.Log.Infof("launch independent %s", strings.Join(conf.AppNames(nonDependentApps), " "))
+		pmond.Log.Infof("launch independent %s", strings.Join(model.AppsConfigAppNames(nonDependentApps), " "))
 
 		for _, app := range *nonDependentApps {
 			err := EnqueueProcess(app.File, &app.Flags)
@@ -174,7 +173,7 @@ func processEnqueueUsingDepGraphResults(nonDependentApps *[]model.Process, depen
 	return retErr
 }
 
-func getAppsConfigAppLogPath(app *conf.AppsConfigApp) (string, error) {
+func getAppsConfigAppLogPath(app *model.AppsConfigApp) (string, error) {
 	logPath, err := process.GetLogPath(app.Flags.LogDir, app.Flags.Log, app.File, app.Flags.Name)
 	if err != nil {
 		return "", err
@@ -182,7 +181,7 @@ func getAppsConfigAppLogPath(app *conf.AppsConfigApp) (string, error) {
 	return logPath, nil
 }
 
-func getAppsConfigAppUser(app *conf.AppsConfigApp) (*user.User, error) {
+func getAppsConfigAppUser(app *model.AppsConfigApp) (*user.User, error) {
 	u, _, err := process.SetUser(app.Flags.User)
 	if err != nil {
 		return nil, err

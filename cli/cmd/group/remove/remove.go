@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "remove [group_name_or_id(s)] [process_name_or_id(s)]",
-	Short: "remove process(es) from group(s)",
+	Short: "Remove process(es) from group(s)",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		Remove(args)

@@ -14,9 +14,14 @@ var flag model.ExecFlags
 
 var Cmd = &cobra.Command{
 	Use:     "restart [id or name]",
-	Short:   "(re)start a process by id or name",
+	Short:   "(Re)start a process by id or name",
 	Aliases: []string{"start"},
 	Args:    cobra.ExactArgs(1),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if len(flag.User) > 0 && flag.User == "root" && !base.IsRoot() {
+			cli.Log.Fatalf("cannot set process user to root without sudo")
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(cmd.CalledAs(), args, flag.Json())
 	},

@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "assign [group_name_or_ids(s)] [process_name_or_id(s)]",
-	Short: "assign a group(s) to process(es)",
+	Short: "Assign group(s) to process(es)",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		Assign(args)
