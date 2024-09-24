@@ -670,7 +670,8 @@ You should only use `sudo` to start the `pmond` process which requires superuser
 make systemd_permissions
 ```
 
-#### Spawn a new process as the root user without using `sudo`
+#### Spawn a new process as the root user
+You must have sudo privileges to do this for security reasons. The `--user root` flag is redundant because the process is spawned as the calling user by default and commands ran as sudo are called by the root user.
 ```bash
-pmon3 exec /usr/local/bin/happac --user root
+sudo pmon3 exec /usr/local/bin/happac --user root
 ```
