@@ -26,7 +26,7 @@ Golang currently has no officially supported process management tools. For the d
 
 Unlike PM2, `pmon3` is managed directly by the OS process manager, so if the `pmon3` CLI abnormally terminates, it will not affect the `pmond` daemon process. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI.
 
-By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
+By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, you can provide the `--no-autorestart` parameter flag from the CLI.
 
 <a name="section_install"></a>
 ## How To Install
