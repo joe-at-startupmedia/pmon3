@@ -76,7 +76,7 @@ Usage:
   pmon3 [command]
 
 Available Commands:
-  appconfig   Output Application Configuration JSON
+  appconfig   Export Application Configuration
   completion  Generate completion script
   del         Delete process by id or name
   desc        Show process information by id or name
@@ -156,15 +156,6 @@ Parameter arguments need to use the absolute path.
 ```bash
 pmon3 ls
 ```
-
-### Top Native [ topn ]
-
-This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
-
-```bash
-pmon3 topn
-```
-<img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
 ### (re)start the process [ restart/start ]
 
@@ -257,11 +248,26 @@ pmon3 reset -p [id_or_name]
 <a name="pmon3_appconfig"></a>
 ### Output Application Configuration JSON [ appconfig ]
 
-This command will output Application Configuration JSON from the current process list. This command is useful when you want to generate [Application Configuration](#section_appconfig) JSON to use for pmond initialization from the specified `apps_config_file`.
+This command will export Application Configuration from the current process list. This command is useful when you want to generate [Application Configuration](#section_appconfig) to use for pmond initialization from the specified `apps_config_file`.
 
 ```bash
 pmon3 appconfig
+
+#specify toml as a format
+pmon3 appconfig -f toml
+
+#specify yaml as a format
+pmon3 appconfig -f yaml
 ```
+
+### Top Native [ topn ]
+
+This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
+
+```bash
+pmon3 topn
+```
+<img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
 <a name="section_config"></a>
 ## Configuration
@@ -306,7 +312,7 @@ shmem_dir: /dev/shm/
 mq_user:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
 mq_group:
-# a JSON configuration file to specify a list of apps to start on the first initialization
+# a configuration file to specify a list of apps to start on the first initialization (json, yaml or toml)
 apps_config_file: /etc/pmon3/config/app.config.json
 ```
 
@@ -346,11 +352,12 @@ If applications are specified in the Apps Config, they will overwrite matching p
 
 ### Configuration
 
-#### /etc/pmon3/config/config.yml
 ```yaml
-#default value when empty or omitted
+# a configuration file to specify a list of apps to start on the first initialization (json, yaml or toml)
 apps_config_file: /etc/pmon3/config/apps.config.json
 ```
+
+supported formats are json, toml and yaml
 
 #### /etc/pmon3/config/app.config.json
 ```json
@@ -389,6 +396,71 @@ apps_config_file: /etc/pmon3/config/apps.config.json
     }
   ]
 }
+```
+
+#### /etc/pmon3/config/app.config.yaml
+```yaml
+apps:
+    - file: "/usr/local/bin/happac"
+      flags:
+        name: happac1
+        args: "-h startup-patroni-1.node.consul -p 5555 -r 5000"
+        user: vagrant
+        log_dir: "/var/log/custom/"
+        dependencies:
+        - happac2
+        groups:
+        - happac
+    - file: "/usr/local/bin/happab"
+      flags:
+        name: happac2
+        log: "/var/log/happac2.log"
+        args: "-h startup-patroni-1.node.consul -p 5556 -r 5001"
+        user: vagrant
+        no_auto_restart: true
+        groups:
+        - happac
+    - file: "/usr/local/bin/node"
+      flags:
+        name: metabase-api
+        args: "/var/www/vhosts/metabase-api/index.js"
+        env_vars: NODE_ENV=prod
+        user: dw_user
+```
+
+#### /etc/pmon3/config/app.config.toml
+Unlike json and yaml, all fields are camel-cased:
+```toml
+[[Apps]]
+File = "/usr/local/bin/happac"
+
+  [Apps.Flags]
+  Name = "happac1"
+  Args = "-h startup-patroni-1.node.consul -p 5555 -r 5000"
+  User = "vagrant"
+  LogDir = "/var/log/custom/"
+  Dependencies = [ "happac2" ]
+  Groups = [ "happac" ]
+
+[[Apps]]
+File = "/usr/local/bin/happab"
+
+  [Apps.Flags]
+  Name = "happac2"
+  Log = "/var/log/happac2.log"
+  Args = "-h startup-patroni-1.node.consul -p 5556 -r 5001"
+  User = "vagrant"
+  NoAutoRestart = true
+  Groups = [ "happac" ]
+
+[[Apps]]
+File = "/usr/local/bin/node"
+
+  [Apps.Flags]
+  Name = "metabase-api"
+  Args = "/var/www/vhosts/metabase-api/index.js"
+  EnvVars = "NODE_ENV=prod"
+  User = "dw_user"
 ```
 
 ### Generation Utility
