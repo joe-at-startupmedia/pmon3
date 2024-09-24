@@ -4,17 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/pmond/model"
 )
 
+type flags struct {
+	format string
+}
+
+var flag flags
+
 var Cmd = &cobra.Command{
-	Use:   "appconfig",
-	Short: "Output Application Configuration JSON",
+	Use: "appconfig",
+
+	Short: "Export Application Configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
+}
+
+func init() {
+	Cmd.Flags().StringVarP(&flag.format, "format", "f", "json", "the format to export")
 }
 
 func jsonPrettyPrint(in string) string {
@@ -22,6 +36,24 @@ func jsonPrettyPrint(in string) string {
 	err := json.Indent(&out, []byte(in), "", "  ")
 	if err != nil {
 		return in
+	}
+	return out.String()
+}
+
+func tomlPrettyPrint(ac *model.AppsConfig) string {
+	out := new(bytes.Buffer)
+	encoder := toml.NewEncoder(out)
+	if err := encoder.Encode(ac); err != nil {
+		cli.Log.Fatal(err)
+	}
+	return out.String()
+}
+
+func yamlPrettyPrint(ac *model.AppsConfig) string {
+	out := new(bytes.Buffer)
+	encoder := yaml.NewEncoder(out)
+	if err := encoder.Encode(ac); err != nil {
+		cli.Log.Fatal(err)
 	}
 	return out.String()
 }
@@ -35,5 +67,23 @@ func cmdRun(args []string) {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	jsonOutput := newCmdResp.GetValueStr()
-	fmt.Println(jsonPrettyPrint(jsonOutput))
+
+	var ac model.AppsConfig
+	if flag.format == "toml" || flag.format == "yaml" {
+		err := json.Unmarshal([]byte(jsonOutput), &ac)
+		if err != nil {
+			cli.Log.Fatal(err)
+		}
+	}
+
+	switch flag.format {
+	case "toml":
+		fmt.Println(tomlPrettyPrint(&ac))
+	case "yaml":
+		fmt.Println(yamlPrettyPrint(&ac))
+	case "json":
+		fmt.Println(jsonPrettyPrint(jsonOutput))
+	default:
+		cli.Log.Fatalf("The only valid formats accepted are: json, toml or yaml")
+	}
 }

@@ -5,6 +5,7 @@ go 1.22
 toolchain go1.22.4
 
 require (
+	github.com/BurntSushi/toml v1.2.0
 	github.com/charmbracelet/bubbletea v0.26.0
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
@@ -24,12 +25,12 @@ require (
 	github.com/struCoder/pidusage v0.2.1
 	github.com/tabalt/gracehttp v1.3.0
 	google.golang.org/protobuf v1.34.2
+	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.25.10
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -82,7 +83,6 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.41.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
