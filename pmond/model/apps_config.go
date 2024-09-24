@@ -1,24 +1,24 @@
-package conf
+package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/joe-at-startupmedia/depgraph"
 	"github.com/sirupsen/logrus"
-	"pmon3/pmond/model"
 )
 
 type AppsConfig struct {
-	Apps []AppsConfigApp
+	Apps []AppsConfigApp `json:"apps"`
 }
 
-type AppsConfigApp struct {
-	File  string
-	Flags model.ExecFlags
+func (ac *AppsConfig) Json() string {
+	content, _ := json.Marshal(ac)
+	return string(content)
 }
 
-func ComputeDepGraph(appsPtr *[]AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigApp, error) {
+func (ac *AppsConfig) ComputeDepGraph() (*[]AppsConfigApp, *[]AppsConfigApp, error) {
 
-	apps := *appsPtr
+	apps := ac.Apps
 
 	if len(apps) > 1 {
 		g := depgraph.New()
@@ -65,39 +65,16 @@ func ComputeDepGraph(appsPtr *[]AppsConfigApp) (*[]AppsConfigApp, *[]AppsConfigA
 			return &nonDependentApps, &dependentApps, nil
 		} else {
 
-			return appsPtr, nil, nil
+			return &ac.Apps, nil, nil
 		}
 
 	}
 
-	return appsPtr, nil, nil
+	return &ac.Apps, nil, nil
 }
 
-func AppNames(appMapPtr *[]AppsConfigApp) []string {
-
-	if appMapPtr == nil {
-		return []string{}
-	}
-
-	appMap := *appMapPtr
-
-	if len(appMap) == 0 {
-		return []string{}
-	}
-
-	keys := make([]string, len(appMap))
-
-	i := 0
-	for _, app := range appMap {
-		keys[i] = app.Flags.Name
-		i++
-	}
-
-	return keys
-}
-
-func GetAppByName(appName string, apps []AppsConfigApp) (AppsConfigApp, error) {
-	for _, app := range apps {
+func (ac *AppsConfig) GetAppByName(appName string) (AppsConfigApp, error) {
+	for _, app := range ac.Apps {
 		if app.Flags.Name == appName {
 			return app, nil
 		}

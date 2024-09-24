@@ -148,6 +148,39 @@ func (p *Process) GetGroupHashSet() *set.HashSet[*Group, string] {
 	return set.HashSetFrom[*Group, string](p.Groups)
 }
 
+func (p *Process) GetGroupNames() []string {
+	groupNames := make([]string, len(p.Groups))
+	for i := range p.Groups {
+		groupNames[i] = p.Groups[i].Name
+	}
+	return groupNames
+}
+
+func (p *Process) ToAppsConfigApp() *AppsConfigApp {
+
+	flags := ExecFlags{
+		User:          p.Username,
+		Log:           p.Log,
+		Args:          p.Args,
+		EnvVars:       p.EnvVars,
+		Name:          p.Name,
+		NoAutoRestart: !p.AutoRestart,
+	}
+
+	if len(p.Dependencies) > 0 {
+		flags.Dependencies = strings.Split(p.Dependencies, " ")
+	}
+
+	if len(p.Groups) > 0 {
+		flags.Groups = p.GetGroupNames()
+	}
+
+	return &AppsConfigApp{
+		File:  p.ProcessFile,
+		Flags: flags,
+	}
+}
+
 //non-receiver methods begin
 
 func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User, groups []*Group) *Process {

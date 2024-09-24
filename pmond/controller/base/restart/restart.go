@@ -2,7 +2,6 @@ package restart
 
 import (
 	"fmt"
-	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/controller/base/exec"
 	"pmon3/pmond/model"
@@ -19,7 +18,7 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 	//the process doesn't exist,  so we'll look in the AppConfig
 	if p == nil {
 
-		app, err := conf.GetAppByName(idOrName, pmond.Config.AppsConfig.Apps)
+		app, err := pmond.Config.AppsConfig.GetAppByName(idOrName)
 		if err != nil {
 			return fmt.Errorf("command error: start process error: %w", err)
 		}

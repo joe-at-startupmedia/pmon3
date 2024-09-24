@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"
+	"pmon3/pmond/model"
 	"time"
 
 	"github.com/jinzhu/configor"
@@ -26,7 +27,7 @@ func GetConfigFile() string {
 }
 
 type Config struct {
-	AppsConfig                      *AppsConfig
+	AppsConfig                      *model.AppsConfig
 	AppsConfigFile                  string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
 	DataDir                         string `yaml:"data_dir" default:"/etc/pmon3/data"`
 	LogsDir                         string `yaml:"logs_dir" default:"/var/log/pmond"`
@@ -68,7 +69,7 @@ func Load(configFile string) (*Config, error) {
 	}
 
 	if len(config.AppsConfigFile) > 0 {
-		config.AppsConfig = &AppsConfig{}
+		config.AppsConfig = &model.AppsConfig{}
 		if err := configorInst.Load(config.AppsConfig, config.AppsConfigFile); err != nil {
 			return nil, err
 		}

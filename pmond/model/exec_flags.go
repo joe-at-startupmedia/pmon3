@@ -6,13 +6,13 @@ import (
 
 type ExecFlags struct {
 	User          string   `json:"user"`
-	Log           string   `json:"log"`
-	LogDir        string   `json:"log_dir"`
+	Log           string   `json:"log,omitempty"`
+	LogDir        string   `json:"log_dir,omitempty"`
 	Args          string   `json:"args"`
-	EnvVars       string   `json:"env_vars"`
+	EnvVars       string   `json:"env_vars,omitempty"`
 	Name          string   `json:"name"`
-	Dependencies  []string `json:"dependencies"`
-	Groups        []string `json:"groups"`
+	Dependencies  []string `json:"dependencies,omitempty"`
+	Groups        []string `json:"groups,omitempty"`
 	NoAutoRestart bool     `json:"no_auto_restart"`
 }
 
