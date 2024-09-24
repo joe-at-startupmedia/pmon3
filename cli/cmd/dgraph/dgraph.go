@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	appsConfigOnly bool
+	processConfigOnly bool
 )
 
 var Cmd = &cobra.Command{
@@ -26,15 +26,15 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&appsConfigOnly, "apps-config-only", "c", false, "only initialize processes specified in the Apps Config file")
+	Cmd.Flags().BoolVarP(&processConfigOnly, "process-config-only", "c", false, "only initialize processes specified in the Processes Config file")
 }
 
 func Dgraph() {
 
 	var sent *protos.Cmd
 
-	if appsConfigOnly {
-		sent = base.SendCmd("dgraph", "apps-config-only")
+	if processConfigOnly {
+		sent = base.SendCmd("dgraph", "process-config-only")
 	} else {
 		sent = base.SendCmd("dgraph", "")
 	}
@@ -47,27 +47,27 @@ func Dgraph() {
 
 	response := strings.Split(newCmdResp.GetValueStr(), "||")
 
-	var nonDeptAppNames []string
-	var deptAppNames []string
+	var nonDeptProcessNames []string
+	var deptProcessNames []string
 	if len(response[0]) > 0 {
-		nonDeptAppNames = strings.Split(response[0], "\n")
+		nonDeptProcessNames = strings.Split(response[0], "\n")
 	}
 	if len(response[1]) > 0 {
-		deptAppNames = strings.Split(response[1], "\n")
+		deptProcessNames = strings.Split(response[1], "\n")
 	}
 
 	fmt.Println("Queue Order")
-	for i, appName := range deptAppNames {
-		fmt.Printf("\t%d: %s\n", i, appName)
+	for i, processName := range deptProcessNames {
+		fmt.Printf("\t%d: %s\n", i, processName)
 	}
-	for i, appName := range nonDeptAppNames {
-		fmt.Printf("\t%d: %s\n", i+len(deptAppNames), appName)
+	for i, processName := range nonDeptProcessNames {
+		fmt.Printf("\t%d: %s\n", i+len(deptProcessNames), processName)
 	}
 
-	if len(deptAppNames) > 0 {
+	if len(deptProcessNames) > 0 {
 		fmt.Println("Dependency Graph Order")
-		for i, appName := range deptAppNames {
-			fmt.Printf("\t%d: %s\n", i, appName)
+		for i, processName := range deptProcessNames {
+			fmt.Printf("\t%d: %s\n", i, processName)
 		}
 	}
 }

@@ -27,8 +27,8 @@ func GetConfigFile() string {
 }
 
 type Config struct {
-	AppsConfig                      *model.AppsConfig
-	AppsConfigFile                  string `yaml:"apps_config_file" default:"/etc/pmon3/config/apps.config.json"`
+	ProcessConfig                   *model.ProcessConfig
+	ProcessConfigFile               string `yaml:"process_config_file" default:"/etc/pmon3/config/process.config.json"`
 	DataDir                         string `yaml:"data_dir" default:"/etc/pmon3/data"`
 	LogsDir                         string `yaml:"logs_dir" default:"/var/log/pmond"`
 	PosixMessageQueueDir            string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
@@ -68,9 +68,9 @@ func Load(configFile string) (*Config, error) {
 		return nil, err
 	}
 
-	if len(config.AppsConfigFile) > 0 {
-		config.AppsConfig = &model.AppsConfig{}
-		if err := configorInst.Load(config.AppsConfig, config.AppsConfigFile); err != nil {
+	if len(config.ProcessConfigFile) > 0 {
+		config.ProcessConfig = &model.ProcessConfig{}
+		if err := configorInst.Load(config.ProcessConfig, config.ProcessConfigFile); err != nil {
 			return nil, err
 		}
 	}

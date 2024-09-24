@@ -30,7 +30,8 @@ var Cmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args, flag.Json())
+		flag.File = args[0]
+		cmdRun(flag.Json())
 	},
 }
 
@@ -46,9 +47,9 @@ func init() {
 	Cmd.Flags().StringSliceVarP(&flag.Groups, "groups", "g", []string{}, "provide a list of group names this process is associated to")
 }
 
-func cmdRun(args []string, flags string) {
+func cmdRun(flags string) {
 	base.OpenSender()
-	sent := base.SendCmdArg2("exec", args[0], flags)
+	sent := base.SendCmd("exec", flags)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())

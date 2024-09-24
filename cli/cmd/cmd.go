@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"pmon3/cli/cmd/appconfig"
 	"pmon3/cli/cmd/completion"
 	"pmon3/cli/cmd/del"
 	"pmon3/cli/cmd/desc"
 	"pmon3/cli/cmd/dgraph"
 	"pmon3/cli/cmd/drop"
 	"pmon3/cli/cmd/exec"
+	"pmon3/cli/cmd/export"
 	"pmon3/cli/cmd/group"
 	initialize "pmon3/cli/cmd/init"
 	"pmon3/cli/cmd/kill"
@@ -53,7 +53,7 @@ func Exec() error {
 		restart.Cmd,
 		stop.Cmd,
 		topn.Cmd,
-		appconfig.Cmd,
+		export.Cmd,
 		verCmd,
 	)
 

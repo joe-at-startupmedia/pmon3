@@ -2,6 +2,9 @@ package restart
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
 	"pmon3/pmond"
 	"pmon3/pmond/controller/base/exec"
 	"pmon3/pmond/model"
@@ -12,25 +15,44 @@ import (
 	"strings"
 )
 
+func setExecFileAbsPath(execFlags *model.ExecFlags) error {
+	_, err := os.Stat(execFlags.File)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
+	}
+
+	if path.IsAbs(execFlags.File) {
+		return nil
+	}
+
+	absPath, err := filepath.Abs(execFlags.File)
+	if err != nil {
+		return fmt.Errorf("get file path error: %w", err)
+	}
+	execFlags.File = absPath
+
+	return nil
+}
+
 func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string, incrementCounter bool) error {
 	// kill the process and insert a new record with "queued" status
 
 	//the process doesn't exist,  so we'll look in the AppConfig
 	if p == nil {
 
-		app, err := pmond.Config.AppsConfig.GetAppByName(idOrName)
+		execFlags, err := pmond.Config.ProcessConfig.GetExecFlagsByName(idOrName)
 		if err != nil {
 			return fmt.Errorf("command error: start process error: %w", err)
 		}
 
 		// get exec abs file path
-		execPath, err := exec.GetExecFileAbsPath(app.File)
+		err = setExecFileAbsPath(&execFlags)
 		if err != nil {
 			return fmt.Errorf("command error: file argument error: %w", err)
 		}
 
 		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
-		if p, err = exec.InsertAsQueued(execPath, &app.Flags); err != nil {
+		if p, err = exec.InsertAsQueued(&execFlags); err != nil {
 			return fmt.Errorf("could not start process: %w", err)
 		}
 
@@ -42,12 +64,12 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 		}
 		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
-
+		parsedFlags.File = p.ProcessFile
 		if err != nil {
 			return fmt.Errorf("could not parse flags: %w", err)
 		} else {
 			pmond.Log.Debugf("update as queued: %v", flags)
-			err = UpdateAsQueued(p, p.ProcessFile, parsedFlags)
+			err = UpdateAsQueued(p, parsedFlags)
 			if err != nil {
 				return err
 			} else if incrementCounter && strings.HasSuffix(cmd.GetName(), "restart") {
@@ -59,13 +81,13 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 	return nil
 }
 
-func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags) error {
+func UpdateAsQueued(m *model.Process, flags *model.ExecFlags) error {
 	// only stopped and failed process can be restarted
 	if m.Status != model.StatusStopped && m.Status != model.StatusFailed {
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
-		logPath, err := process.GetLogPath(flags.LogDir, flags.Log, processFile, m.Name)
+		logPath, err := process.GetLogPath(flags.LogDir, flags.Log, flags.File, m.Name)
 		if err != nil {
 			return err
 		}
@@ -93,7 +115,7 @@ func UpdateAsQueued(m *model.Process, processFile string, flags *model.ExecFlags
 	}
 
 	m.Status = model.StatusQueued
-	m.ProcessFile = processFile
+	m.ProcessFile = flags.File
 
 	return repo.ProcessOf(m).Save()
 }

@@ -22,7 +22,7 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 
 	var err error
 
-	if cmd.GetArg1() == "apps-config-only" {
+	if cmd.GetArg1() == "process-config-only" {
 		err = StartsAppsFromConfig(blocking)
 	} else {
 		err = StartAppsFromBoth(blocking)
@@ -36,34 +36,34 @@ func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 
 func StartsAppsFromConfig(blocking bool) error {
 
-	if pmond.Config.AppsConfig == nil || len(pmond.Config.AppsConfig.Apps) == 0 {
+	if pmond.Config.ProcessConfig == nil || len(pmond.Config.ProcessConfig.Processes) == 0 {
 		return nil
 	}
 
-	nonDependentApps, dependentApps, err := pmond.Config.AppsConfig.ComputeDepGraph()
+	nonDependentProcesses, dependentProcesses, err := pmond.Config.ProcessConfig.ComputeDepGraph()
 	if err != nil {
 		return err
 	}
 
 	if blocking {
-		err = appConfAppEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+		err = execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses, dependentProcesses)
 	} else {
-		go appConfAppEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+		go execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses, dependentProcesses)
 	}
 
 	return err
 }
 
 func StartAppsFromBoth(blocking bool) error {
-	nonDependentApps, dependentApps, err := getQueueableFromBoth()
+	nonDependentProcesses, dependentProcesses, err := getQueueableFromBoth()
 	if err != nil {
 		return err
 	}
 
 	if blocking {
-		err = processEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+		err = processEnqueueUsingDepGraphResults(nonDependentProcesses, dependentProcesses)
 	} else {
-		go processEnqueueUsingDepGraphResults(nonDependentApps, dependentApps)
+		go processEnqueueUsingDepGraphResults(nonDependentProcesses, dependentProcesses)
 	}
 
 	return err
@@ -78,13 +78,13 @@ func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 	var qPs []model.Process
 	qNm := map[string]bool{}
 
-	for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
-		processName := appConfigApp.Flags.Name
-		appLog, _ := getAppsConfigAppLogPath(&appConfigApp)
-		appUser, _ := getAppsConfigAppUser(&appConfigApp)
-		groupFlags := appConfigApp.Flags.Groups
+	for _, execFlags := range pmond.Config.ProcessConfig.Processes {
+		processName := execFlags.Name
+		pLog, _ := getExecFlagsLogPath(&execFlags)
+		pUser, _ := getExecFlagsUser(&execFlags)
+		groupFlags := execFlags.Groups
 		groups, _ := repo.Group().FindOrInsertByNames(groupFlags)
-		p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, appLog, appUser, groups)
+		p := model.FromExecFlags(&execFlags, pLog, pUser, groups)
 		qPs = append(qPs, *p)
 		qNm[processName] = true
 	}
@@ -95,27 +95,27 @@ func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 			qPs = append(qPs, dbPs)
 			pmond.Log.Infof("append reamainder from db: pushing to stack %s", processName)
 		} else {
-			pmond.Log.Infof("overwritten with apps conf: %s", processName)
+			pmond.Log.Infof("overwritten with process config: %s", processName)
 		}
 	}
 
-	nonDependentApps, dependentApps, err := model.ComputeDepGraph(&qPs)
+	nonDependentProcesses, dependentProcesses, err := model.ComputeDepGraph(&qPs)
 	if err != nil {
 		pmond.Log.Errorf("encountered error attempting to prioritize databse processes from dep graph: %s", err)
 		return nil, nil, err
 	}
 
-	return nonDependentApps, dependentApps, nil
+	return nonDependentProcesses, dependentProcesses, nil
 }
 
-func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]model.AppsConfigApp, dependentApps *[]model.AppsConfigApp) error {
+func execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses *[]model.ExecFlags, dependentProcesses *[]model.ExecFlags) error {
 
 	var retErr error
 
-	if dependentApps != nil {
-		for _, app := range *dependentApps {
-			pmond.Log.Infof("launch dependent %s", strings.Join(model.AppsConfigAppNames(dependentApps), " "))
-			err := EnqueueProcess(app.File, &app.Flags)
+	if dependentProcesses != nil {
+		for _, execFlags := range *dependentProcesses {
+			pmond.Log.Infof("launch dependent %s", strings.Join(model.ExecFlagsNames(dependentProcesses), " "))
+			err := EnqueueProcess(&execFlags)
 			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
 			if err != nil {
 				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
@@ -124,11 +124,11 @@ func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]model.AppsConfigA
 		}
 	}
 
-	if nonDependentApps != nil {
-		pmond.Log.Infof("launch independent %s", strings.Join(model.AppsConfigAppNames(nonDependentApps), " "))
+	if nonDependentProcesses != nil {
+		pmond.Log.Infof("launch independent %s", strings.Join(model.ExecFlagsNames(nonDependentProcesses), " "))
 
-		for _, app := range *nonDependentApps {
-			err := EnqueueProcess(app.File, &app.Flags)
+		for _, execFlags := range *nonDependentProcesses {
+			err := EnqueueProcess(&execFlags)
 			if err != nil {
 				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
 				retErr = err
@@ -139,16 +139,16 @@ func appConfAppEnqueueUsingDepGraphResults(nonDependentApps *[]model.AppsConfigA
 	return retErr
 }
 
-func processEnqueueUsingDepGraphResults(nonDependentApps *[]model.Process, dependentApps *[]model.Process) error {
+func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model.Process, dependentProcesses *[]model.Process) error {
 
 	var retErr error
 
-	if dependentApps != nil {
-		pmond.Log.Infof("launch dependent %s", strings.Join(model.ProcessNames(dependentApps), " "))
+	if dependentProcesses != nil {
+		pmond.Log.Infof("launch dependent %s", strings.Join(model.ProcessNames(dependentProcesses), " "))
 
-		for _, app := range *dependentApps {
-			pmond.Log.Infof("enqueue dependent and wait %s %d", app.Name, pmond.Config.GetDependentProcessEnqueuedWait())
-			err := process.Enqueue(&app, true)
+		for _, dp := range *dependentProcesses {
+			pmond.Log.Infof("enqueue dependent and wait %s %d", dp.Name, pmond.Config.GetDependentProcessEnqueuedWait())
+			err := process.Enqueue(&dp, true)
 			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
 			if err != nil {
 				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
@@ -157,12 +157,12 @@ func processEnqueueUsingDepGraphResults(nonDependentApps *[]model.Process, depen
 		}
 	}
 
-	if nonDependentApps != nil {
-		pmond.Log.Infof("launch independent %s", strings.Join(model.ProcessNames(nonDependentApps), " "))
+	if nonDependentProcesses != nil {
+		pmond.Log.Infof("launch independent %s", strings.Join(model.ProcessNames(nonDependentProcesses), " "))
 
-		for _, app := range *nonDependentApps {
-			pmond.Log.Infof("enqueue nondependent %s", app.Name)
-			err := process.Enqueue(&app, true)
+		for _, ndp := range *nonDependentProcesses {
+			pmond.Log.Infof("enqueue nondependent %s", ndp.Name)
+			err := process.Enqueue(&ndp, true)
 			if err != nil {
 				pmond.Log.Errorf("encountered error attempting to enqueue process: %s", err)
 				retErr = err
@@ -173,16 +173,16 @@ func processEnqueueUsingDepGraphResults(nonDependentApps *[]model.Process, depen
 	return retErr
 }
 
-func getAppsConfigAppLogPath(app *model.AppsConfigApp) (string, error) {
-	logPath, err := process.GetLogPath(app.Flags.LogDir, app.Flags.Log, app.File, app.Flags.Name)
+func getExecFlagsLogPath(execFlags *model.ExecFlags) (string, error) {
+	logPath, err := process.GetLogPath(execFlags.LogDir, execFlags.Log, execFlags.File, execFlags.Name)
 	if err != nil {
 		return "", err
 	}
 	return logPath, nil
 }
 
-func getAppsConfigAppUser(app *model.AppsConfigApp) (*user.User, error) {
-	u, _, err := process.SetUser(app.Flags.User)
+func getExecFlagsUser(execFlags *model.ExecFlags) (*user.User, error) {
+	u, _, err := process.SetUser(execFlags.User)
 	if err != nil {
 		return nil, err
 	}

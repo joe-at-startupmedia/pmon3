@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	appsConfigOnly bool
-	blocking       bool
-	arg1           string
-	arg2           string
+	processConfigOnly bool
+	blocking          bool
+	arg1              string
+	arg2              string
 )
 
 var Cmd = &cobra.Command{
@@ -26,15 +26,15 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&appsConfigOnly, "apps-config-only", "c", false, "only initialize processes specified in the Apps Config file")
+	Cmd.Flags().BoolVarP(&processConfigOnly, "process-config-only", "c", false, "only initialize processes specified in the Processes Config file")
 	Cmd.Flags().BoolVarP(&blocking, "blocking", "b", false, "return a response only after all processes have been queued")
 }
 
 func Initialize() {
 	base.OpenSender()
 	defer base.CloseSender()
-	if appsConfigOnly {
-		arg1 = "apps-config-only"
+	if processConfigOnly {
+		arg1 = "process-config-only"
 	}
 	if blocking {
 		arg2 = "blocking"

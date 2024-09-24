@@ -7,22 +7,22 @@ import (
 	"pmon3/pmond/repo"
 )
 
-func AppConfig(cmd *protos.Cmd) *protos.CmdResp {
+func Export(cmd *protos.Cmd) *protos.CmdResp {
 	all, err := repo.Process().FindAll()
 	if err != nil {
 		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
 	}
-	appsConfig := model.AppsConfig{
-		Apps: make([]model.AppsConfigApp, len(all)),
+	processConfig := model.ProcessConfig{
+		Processes: make([]model.ExecFlags, len(all)),
 	}
 	for i, p := range all {
-		appsConfig.Apps[i] = *p.ToAppsConfigApp()
+		processConfig.Processes[i] = *p.ToExecFlags()
 	}
 
 	newCmdResp := protos.CmdResp{
 		Id:       cmd.GetId(),
 		Name:     cmd.GetName(),
-		ValueStr: appsConfig.Json(),
+		ValueStr: processConfig.Json(),
 	}
 	return &newCmdResp
 }

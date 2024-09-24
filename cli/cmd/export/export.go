@@ -1,4 +1,4 @@
-package appconfig
+package export
 
 import (
 	"bytes"
@@ -19,9 +19,8 @@ type flags struct {
 var flag flags
 
 var Cmd = &cobra.Command{
-	Use: "appconfig",
-
-	Short: "Export Application Configuration",
+	Use:   "export",
+	Short: "Export Process Configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
@@ -40,7 +39,7 @@ func jsonPrettyPrint(in string) string {
 	return out.String()
 }
 
-func tomlPrettyPrint(ac *model.AppsConfig) string {
+func tomlPrettyPrint(ac *model.ProcessConfig) string {
 	out := new(bytes.Buffer)
 	encoder := toml.NewEncoder(out)
 	if err := encoder.Encode(ac); err != nil {
@@ -49,7 +48,7 @@ func tomlPrettyPrint(ac *model.AppsConfig) string {
 	return out.String()
 }
 
-func yamlPrettyPrint(ac *model.AppsConfig) string {
+func yamlPrettyPrint(ac *model.ProcessConfig) string {
 	out := new(bytes.Buffer)
 	encoder := yaml.NewEncoder(out)
 	if err := encoder.Encode(ac); err != nil {
@@ -61,14 +60,14 @@ func yamlPrettyPrint(ac *model.AppsConfig) string {
 func cmdRun(args []string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	sent := base.SendCmd("app_config", "")
+	sent := base.SendCmd("export", "")
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())
 	}
 	jsonOutput := newCmdResp.GetValueStr()
 
-	var ac model.AppsConfig
+	var ac model.ProcessConfig
 	if flag.format == "toml" || flag.format == "yaml" {
 		err := json.Unmarshal([]byte(jsonOutput), &ac)
 		if err != nil {
@@ -84,6 +83,6 @@ func cmdRun(args []string) {
 	case "json":
 		fmt.Println(jsonPrettyPrint(jsonOutput))
 	default:
-		cli.Log.Fatalf("The only valid formats accepted are: json, toml or yaml")
+		cli.Log.Fatalf("Formats accepted are: json, toml or yaml")
 	}
 }

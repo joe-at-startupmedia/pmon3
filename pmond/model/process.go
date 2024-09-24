@@ -156,9 +156,10 @@ func (p *Process) GetGroupNames() []string {
 	return groupNames
 }
 
-func (p *Process) ToAppsConfigApp() *AppsConfigApp {
+func (p *Process) ToExecFlags() *ExecFlags {
 
 	flags := ExecFlags{
+		File:          p.ProcessFile,
 		User:          p.Username,
 		Log:           p.Log,
 		Args:          p.Args,
@@ -175,15 +176,12 @@ func (p *Process) ToAppsConfigApp() *AppsConfigApp {
 		flags.Groups = p.GetGroupNames()
 	}
 
-	return &AppsConfigApp{
-		File:  p.ProcessFile,
-		Flags: flags,
-	}
+	return &flags
 }
 
 //non-receiver methods begin
 
-func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, user *user.User, groups []*Group) *Process {
+func FromExecFlags(flags *ExecFlags, logPath string, user *user.User, groups []*Group) *Process {
 
 	var processParams = []string{flags.Name}
 	if len(flags.Args) > 0 {
@@ -194,7 +192,7 @@ func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, 
 		Pid:          0,
 		Log:          logPath,
 		Name:         flags.Name,
-		ProcessFile:  processFile,
+		ProcessFile:  flags.File,
 		Args:         strings.Join(processParams[1:], " "),
 		EnvVars:      flags.EnvVars,
 		Pointer:      nil,
@@ -213,62 +211,62 @@ func FromFileAndExecFlags(processFile string, flags *ExecFlags, logPath string, 
 	return &p
 }
 
-func ComputeDepGraph(appsPtr *[]Process) (*[]Process, *[]Process, error) {
+func ComputeDepGraph(processesPtr *[]Process) (*[]Process, *[]Process, error) {
 
-	apps := *appsPtr
+	processes := *processesPtr
 
-	if len(apps) > 1 {
+	if len(processes) > 1 {
 		g := depgraph.New()
 		depAppNames := make(map[string]Process)
 		nonDepAppNames := make(map[string]Process)
-		for _, app := range apps {
-			if len(app.Dependencies) > 0 {
-				appDependencies := strings.Split(app.Dependencies, " ")
-				depAppNames[app.Name] = app
-				for _, dep := range appDependencies {
-					err := g.DependOn(app.Name, dep)
+		for _, p := range processes {
+			if len(p.Dependencies) > 0 {
+				pDependencies := strings.Split(p.Dependencies, " ")
+				depAppNames[p.Name] = p
+				for _, dep := range pDependencies {
+					err := g.DependOn(p.Name, dep)
 					if err != nil {
-						logrus.Errorf("encountered error building app dependency tree: %s", err)
+						logrus.Errorf("encountered error building process dependency tree: %s", err)
 						return nil, nil, err
 					}
 				}
 			} else {
-				nonDepAppNames[app.Name] = app
+				nonDepAppNames[p.Name] = p
 			}
 		}
 
 		if len(g.Leaves()) > 0 {
 
-			dependentApps := make([]Process, 0)
+			dependentProcesses := make([]Process, 0)
 
 			topoSorted := g.TopoSorted()
-			for _, appName := range topoSorted {
-				if depAppNames[appName].ProcessFile != "" {
-					dependentApps = append(dependentApps, depAppNames[appName])
-				} else if nonDepAppNames[appName].ProcessFile != "" {
-					dependentApps = append(dependentApps, nonDepAppNames[appName])
-					delete(nonDepAppNames, appName)
-				} else if nonDepAppNames[appName].ProcessFile == "" {
-					logrus.Warnf("dependencies: %s is not a valid app name", appName)
+			for _, processName := range topoSorted {
+				if depAppNames[processName].ProcessFile != "" {
+					dependentProcesses = append(dependentProcesses, depAppNames[processName])
+				} else if nonDepAppNames[processName].ProcessFile != "" {
+					dependentProcesses = append(dependentProcesses, nonDepAppNames[processName])
+					delete(nonDepAppNames, processName)
+				} else if nonDepAppNames[processName].ProcessFile == "" {
+					logrus.Warnf("dependencies: %s is not a valid process name", processName)
 				}
 			}
 
-			nonDependentApps := make([]Process, len(nonDepAppNames))
+			nonDependentProcesses := make([]Process, len(nonDepAppNames))
 			i := 0
-			for appName := range nonDepAppNames {
-				nonDependentApps[i] = nonDepAppNames[appName]
+			for pName := range nonDepAppNames {
+				nonDependentProcesses[i] = nonDepAppNames[pName]
 				i++
 			}
 
-			return &nonDependentApps, &dependentApps, nil
+			return &nonDependentProcesses, &dependentProcesses, nil
 		} else {
 
-			return appsPtr, nil, nil
+			return processesPtr, nil, nil
 		}
 
 	}
 
-	return appsPtr, nil, nil
+	return processesPtr, nil, nil
 }
 
 func ProcessNames(processesPtr *[]Process) []string {

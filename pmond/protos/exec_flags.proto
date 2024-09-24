@@ -5,13 +5,14 @@ package exec_flags;
 option go_package = "pmond/protos";
 
 message ExecFlags {
-      string user = 1;
-      string log = 2;
-      string log_dir = 3;
-      bool no_auto_restart = 4;
-      string args = 5;
-      string env_vars = 6;
-      string name = 7;
-      repeated string dependencies = 8;
-      repeated string groups = 9;
+      string file = 1;
+      string user = 2;
+      string log = 3;
+      string log_dir = 4;
+      bool no_auto_restart = 5;
+      string args = 6;
+      string env_vars = 7;
+      string name = 8;
+      repeated string dependencies = 9;
+      repeated string groups = 10;
 }

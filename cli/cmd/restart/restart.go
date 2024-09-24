@@ -23,7 +23,7 @@ var Cmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(cmd.CalledAs(), args, flag.Json())
+		cmdRun(cmd.CalledAs(), args[0], flag.Json())
 	},
 }
 
@@ -35,10 +35,10 @@ func init() {
 	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the processes stdout log dir")
 }
 
-func cmdRun(calledAs string, args []string, flags string) {
+func cmdRun(calledAs string, idOrName string, flags string) {
 	base.OpenSender()
 	defer base.CloseSender()
-	sent := base.SendCmdArg2(calledAs, args[0], flags)
+	sent := base.SendCmdArg2(calledAs, idOrName, flags)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
 		cli.Log.Fatalf(newCmdResp.GetError())

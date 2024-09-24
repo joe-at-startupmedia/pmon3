@@ -15,27 +15,28 @@ import (
 	"strings"
 )
 
-func getExecFileAbsPath(execFile string) (string, error) {
-	_, err := os.Stat(execFile)
+func setExecFileAbsPath(execFlags *model.ExecFlags) error {
+	_, err := os.Stat(execFlags.File)
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s does not exist: %w", execFile, err)
+		return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
 	}
 
-	if path.IsAbs(execFile) {
-		return execFile, nil
+	if path.IsAbs(execFlags.File) {
+		return nil
 	}
 
-	absPath, err := filepath.Abs(execFile)
+	absPath, err := filepath.Abs(execFlags.File)
 	if err != nil {
-		return "", fmt.Errorf("get file path error: %w", err)
+		return fmt.Errorf("get file path error: %w", err)
 	}
 
-	return absPath, nil
+	execFlags.File = absPath
+
+	return nil
 }
 
 func Exec(cmd *protos.Cmd) *protos.CmdResp {
-	execFile := cmd.GetArg1()
-	flags := cmd.GetArg2()
+	flags := cmd.GetArg1()
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
@@ -45,7 +46,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}
-	err = EnqueueProcess(execFile, parsedFlags)
+	err = EnqueueProcess(parsedFlags)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "command error:") {
 			return base.ErroredCmdResp(cmd, err)
@@ -56,9 +57,9 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	return &newCmdResp
 }
 
-func EnqueueProcess(execFile string, flags *model.ExecFlags) error {
+func EnqueueProcess(flags *model.ExecFlags) error {
 	// get exec abs file path
-	execPath, err := getExecFileAbsPath(execFile)
+	err := setExecFileAbsPath(flags)
 	if err != nil {
 		return fmt.Errorf("command error: file argument error: %w", err)
 	}
@@ -66,17 +67,17 @@ func EnqueueProcess(execFile string, flags *model.ExecFlags) error {
 	// get process file name
 	if len(name) <= 0 {
 		//set the filename as the name
-		name = filepath.Base(execFile)
+		name = filepath.Base(flags.File)
 		flags.Name = name
 	}
-	p, err := repo.Process().FindByFileAndName(execPath, name)
+	p, err := repo.Process().FindByFileAndName(flags.File, name)
 	//if process exists
 	if err == nil {
 		pmond.Log.Debugf("updating as queued with flags: %v", flags)
-		err = restart.UpdateAsQueued(p, execPath, flags)
+		err = restart.UpdateAsQueued(p, flags)
 	} else {
 		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
-		_, err = exec.InsertAsQueued(execPath, flags)
+		_, err = exec.InsertAsQueued(flags)
 	}
 	return err
 }

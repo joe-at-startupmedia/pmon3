@@ -11,12 +11,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Exec(processFile string, customLogFile string, processName string, extArgs string, envVars string, username string, autoRestart bool, dependencies string, groups []*model.Group) (*model.Process, error) {
-	user, groupIds, err := SetUser(username)
+func Exec(p *model.Process) (*model.Process, error) {
+
+	user, groupIds, err := SetUser(p.Username)
 	if err != nil {
 		return nil, err
 	}
-	logPath, err := GetLogPath("", customLogFile, processFile, processName)
+	logPath, err := GetLogPath("", p.Log, p.ProcessFile, p.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -27,13 +28,13 @@ func Exec(processFile string, customLogFile string, processName string, extArgs 
 
 	Env := os.Environ()
 
-	if len(envVars) > 0 {
-		Env = append(Env, strings.Fields(envVars)...)
+	if len(p.EnvVars) > 0 {
+		Env = append(Env, strings.Fields(p.EnvVars)...)
 	}
 
-	lastSepIdx := strings.LastIndex(processFile, string(os.PathSeparator))
+	lastSepIdx := strings.LastIndex(p.ProcessFile, string(os.PathSeparator))
 	attr := &os.ProcAttr{
-		Dir:   processFile[0 : lastSepIdx+1],
+		Dir:   p.ProcessFile[0 : lastSepIdx+1],
 		Env:   Env,
 		Files: []*os.File{nil, logOutput, logOutput},
 		Sys: &syscall.SysProcAttr{
@@ -46,12 +47,12 @@ func Exec(processFile string, customLogFile string, processName string, extArgs 
 		},
 	}
 
-	var processParams = []string{processName}
-	if len(extArgs) > 0 {
-		processParams = append(processParams, strings.Split(extArgs, " ")...)
+	var processParams = []string{p.Name}
+	if len(p.Args) > 0 {
+		processParams = append(processParams, strings.Split(p.Args, " ")...)
 	}
 
-	process, err := os.StartProcess(processFile, processParams, attr)
+	process, err := os.StartProcess(p.ProcessFile, processParams, attr)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -59,18 +60,18 @@ func Exec(processFile string, customLogFile string, processName string, extArgs 
 	pModel := model.Process{
 		Pid:          uint32(process.Pid),
 		Log:          logPath,
-		Name:         processName,
-		ProcessFile:  processFile,
+		Name:         p.Name,
+		ProcessFile:  p.ProcessFile,
 		Args:         strings.Join(processParams[1:], " "),
-		EnvVars:      envVars,
+		EnvVars:      p.EnvVars,
 		Pointer:      process,
 		Status:       model.StatusInit,
 		Uid:          conv.StrToUint32(user.Uid),
 		Gid:          conv.StrToUint32(user.Gid),
 		Username:     user.Username,
-		AutoRestart:  autoRestart,
-		Dependencies: dependencies,
-		Groups:       groups,
+		AutoRestart:  p.AutoRestart,
+		Dependencies: p.Dependencies,
+		Groups:       p.Groups,
 	}
 
 	return &pModel, nil

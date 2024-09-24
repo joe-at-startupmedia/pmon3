@@ -13,18 +13,18 @@ import (
 func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 
 	var (
-		nonDeptAppNames string
-		deptAppNames    string
+		nonDeptProcessNames string
+		deptProcessNames    string
 	)
 
-	if cmd.GetArg1() == "apps-config-only" {
-		nonDependentApps, dependentApps, err := pmond.Config.AppsConfig.ComputeDepGraph()
+	if cmd.GetArg1() == "process-config-only" {
+		nonDependentProcesses, dependentProcesses, err := pmond.Config.ProcessConfig.ComputeDepGraph()
 		if err != nil {
 			return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not get graph: %w", err))
 		}
 
-		nonDeptAppNames = strings.Join(model.AppsConfigAppNames(nonDependentApps), "\n")
-		deptAppNames = strings.Join(model.AppsConfigAppNames(dependentApps), "\n")
+		nonDeptProcessNames = strings.Join(model.ExecFlagsNames(nonDependentProcesses), "\n")
+		deptProcessNames = strings.Join(model.ExecFlagsNames(dependentProcesses), "\n")
 	} else {
 		all, err := repo.Process().FindAll()
 		if err != nil {
@@ -34,9 +34,9 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 		var qPs []model.Process
 		qNm := map[string]bool{}
 
-		for _, appConfigApp := range pmond.Config.AppsConfig.Apps {
-			processName := appConfigApp.Flags.Name
-			p := model.FromFileAndExecFlags(appConfigApp.File, &appConfigApp.Flags, "", nil, nil)
+		for _, execFlags := range pmond.Config.ProcessConfig.Processes {
+			processName := execFlags.Name
+			p := model.FromExecFlags(&execFlags, "", nil, nil)
 			qPs = append(qPs, *p)
 			qNm[processName] = true
 		}
@@ -47,23 +47,23 @@ func Dgraph(cmd *protos.Cmd) *protos.CmdResp {
 				qPs = append(qPs, dbPs)
 				pmond.Log.Infof("append reamainder from db: pushing to stack %s", processName)
 			} else {
-				pmond.Log.Infof("overwritten with apps conf %s", processName)
+				pmond.Log.Infof("overwritten with process config %s", processName)
 			}
 		}
 
-		nonDependentAppsDb, dependentAppsDb, err := model.ComputeDepGraph(&qPs)
+		nonDependentProcessesDb, dependentProcessesDb, err := model.ComputeDepGraph(&qPs)
 		if err != nil {
 			pmond.Log.Errorf("encountered error attempting to prioritize databse processes from dep graph: %s", err)
 		}
 
-		nonDeptAppNames = strings.Join(model.ProcessNames(nonDependentAppsDb), "\n")
-		deptAppNames = strings.Join(model.ProcessNames(dependentAppsDb), "\n")
+		nonDeptProcessNames = strings.Join(model.ProcessNames(nonDependentProcessesDb), "\n")
+		deptProcessNames = strings.Join(model.ProcessNames(dependentProcessesDb), "\n")
 	}
 
 	newCmdResp := protos.CmdResp{
 		Id:       cmd.GetId(),
 		Name:     cmd.GetName(),
-		ValueStr: fmt.Sprintf("%s||%s", nonDeptAppNames, deptAppNames),
+		ValueStr: fmt.Sprintf("%s||%s", nonDeptProcessNames, deptProcessNames),
 	}
 	return &newCmdResp
 }

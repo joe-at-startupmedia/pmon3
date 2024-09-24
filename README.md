@@ -2,15 +2,15 @@
 [![Testing](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
 
 
-`pmon3` is a process manager which allows you to keep applications alive forever. Processes can be declared directly via the command line or in a configuration file. `pmon3` allows you to get started quickly while also providing configuration granularity at both the system and process level.
+`pmon3` is a process manager which allows you to keep processes alive forever. Processes can be declared directly via the command line or in a configuration file. `pmon3` allows you to get started quickly while providing configuration granularity at both the system and process level.
 
 <img width="537" alt="pmon3_ls" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5d79ad53-664d-4ee7-bfac-f3fc94c2b316">
 
 * [Introduction](#section_intro)
 * [Installation](#section_install)
 * [Commands](#section_commands)
-* [Configuration](#section_config)
-* [Application Configuration](#section_appconfig)
+* [System Configuration](#section_config)
+* [Process Configuration](#section_processconfig)
 * [Groups](#section_groups)
 * [Event Handling](#section_events)
 * [Flap Detection/Prevention](#section_flapping)
@@ -76,13 +76,13 @@ Usage:
   pmon3 [command]
 
 Available Commands:
-  appconfig   Export Application Configuration
   completion  Generate completion script
   del         Delete process by id or name
   desc        Show process information by id or name
   dgraph      Show the process queue order
   drop        Delete all processes
   exec        Spawn a new process
+  export      Export Process Configuration
   group       Group level commands
   help        Help about any command
   init        Initialize all stopped processes
@@ -106,7 +106,7 @@ Use "pmon3 [command] --help" for more information about a command.
 ### Running process [run/exec]
 
 ```bash
-pmon3 exec [application_binary] [flags]
+pmon3 exec [process_binary] [flags]
 ```
 
 <a name="exec_flags"></a>
@@ -144,7 +144,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 #### Example：
 
 ```bash
-pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user ntt360
+pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user joe
 ```
 
 :exclamation::exclamation: Note :exclamation::exclamation:
@@ -206,10 +206,10 @@ pmon3 kill [--force]
 <a name="pmon3_init"></a>
 ### (re)start all stopped process [ init ]
 ```bash
-#(re)start processes specified in the Apps Config only
-pmon3 init --apps-config-only
+#(re)start processes specified in the Process Config only
+pmon3 init --process-config-only
 
-#(re)start processes specified in the Apps Config and those which already exist in the database
+#(re)start processes specified in the Process Config and those which already exist in the database
 pmon3 init
 ```
 
@@ -225,10 +225,10 @@ pmon3 drop [--force]
 This command is useful to debug dependency resolution without (re)starting processes
 
 ```bash
-#processes specified in the Apps Config only
-pmon3 dgraph --apps-config-only
+#processes specified in the Process Config only
+pmon3 dgraph --process-config-only
 
-#processes specified in the Apps Config and the database
+#processes specified in the Process Config and the database
 pmon3 dgraph
 ```
 
@@ -245,19 +245,19 @@ pmon3 reset
 pmon3 reset -p [id_or_name]
 ```
 
-<a name="pmon3_appconfig"></a>
-### Output Application Configuration JSON [ appconfig ]
+<a name="pmon3_export"></a>
+### Export Process Configuration [ export ]
 
-This command will export Application Configuration from the current process list. This command is useful when you want to generate [Application Configuration](#section_appconfig) to use for pmond initialization from the specified `apps_config_file`.
+This command is useful when you want to generate [Process Configuration](#section_appconfig) to use for pmond initialization from the specified `process_config_file`.
 
 ```bash
-pmon3 appconfig
+pmon3 export
 
 #specify toml as a format
-pmon3 appconfig -f toml
+pmon3 export -f toml
 
 #specify yaml as a format
-pmon3 appconfig -f yaml
+pmon3 export -f yaml
 ```
 
 ### Top Native [ topn ]
@@ -270,7 +270,7 @@ pmon3 topn
 <img width="559" alt="pmon3_topn" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/a77cce0f-55b0-479f-8489-d6aaf9fcdd6b">
 
 <a name="section_config"></a>
-## Configuration
+## System Configuration
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
 The following configuration options are available:
 ```yaml
@@ -312,8 +312,8 @@ shmem_dir: /dev/shm/
 mq_user:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
 mq_group:
-# a configuration file to specify a list of apps to start on the first initialization (json, yaml or toml)
-apps_config_file: /etc/pmon3/config/app.config.json
+# a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
+process_config_file: /etc/pmon3/config/process.config.json
 ```
 
 All configuration changes are effective when the next command is issued - restarting pmond is unnecessary.
@@ -342,99 +342,90 @@ The configuration values can be overridden using environment variables:
 * `CONFIGOR_SHMEMDIR`
 * `CONFIGOR_MESSAGEQUEUEUSER`
 * `CONFIGOR_MESSAGEQUEUEGROUP`
-* `CONFIGOR_APPSCONFIGFILE`
+* `CONFIGOR_PROCESSCONFIGFILE`
 
-<a name="section_appconfig"></a>
-## Application Configuration
+<a name="section_processconfig"></a>
+## Process Configuration
 
-By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were previously running, have been marked as stopped as a result of pmond closing and have `--no-autorestart` set to false (default value).
-If applications are specified in the Apps Config, they will overwrite matching processes which already exist in the database.
+By default, when `pmond` is restarted from a previously stopped state, it will load all processes in the database that were: 
+* previously running
+* have been marked as stopped as a result of pmond closing 
+* have `--no-autorestart` set to false (default value)
 
-### Configuration
+If processes are specified in the Processes Config, they will overwrite matching processes which already exist in the database.
 
 ```yaml
-# a configuration file to specify a list of apps to start on the first initialization (json, yaml or toml)
-apps_config_file: /etc/pmon3/config/apps.config.json
+# a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
+process_config_file: /etc/pmon3/config/process.config.json
 ```
 
 supported formats are json, toml and yaml
 
-#### /etc/pmon3/config/app.config.json
+#### /etc/pmon3/config/execFlags.config.json
 ```json
 {
-  "apps": [
+  "processes": [
     {
       "file": "/usr/local/bin/happac",
-      "flags": {
-        "name": "happac1",
-        "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
-        "user": "vagrant",
-        "log_dir": "/var/log/custom/",
-        "dependencies": ["happac2"],
-        "groups": ["happac"]
-      }
+      "name": "happac1",
+      "args": "-h startup-patroni-1.node.consul -p 5555 -r 5000",
+      "user": "vagrant",
+      "log_dir": "/var/log/custom/",
+      "dependencies": ["happac2"],
+      "groups": ["happac"]
     },
     {
       "file": "/usr/local/bin/happab",
-      "flags": {
-        "name": "happac2",
-        "log": "/var/log/happac2.log",
-        "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
-        "user": "vagrant",
-        "no_auto_restart": true,
-        "groups": ["happac"]
-      }
+      "name": "happac2",
+      "log": "/var/log/happac2.log",
+      "args": "-h startup-patroni-1.node.consul -p 5556 -r 5001",
+      "user": "vagrant",
+      "no_auto_restart": true,
+      "groups": ["happac"]
     },
     {
       "file": "/usr/local/bin/node",
-      "flags": {
-        "name": "metabase-api",
-        "args": "/var/www/vhosts/metabase-api/index.js",
-        "env_vars": "NODE_ENV=prod",
-        "user": "dw_user"
-      }
+      "name": "metabase-api",
+      "args": "/var/www/vhosts/metabase-api/index.js",
+      "env_vars": "NODE_ENV=prod",
+      "user": "dw_user"
     }
   ]
 }
 ```
 
-#### /etc/pmon3/config/app.config.yaml
+#### /etc/pmon3/config/execFlags.config.yaml
 ```yaml
-apps:
-    - file: "/usr/local/bin/happac"
-      flags:
-        name: happac1
-        args: "-h startup-patroni-1.node.consul -p 5555 -r 5000"
-        user: vagrant
-        log_dir: "/var/log/custom/"
-        dependencies:
-        - happac2
-        groups:
-        - happac
-    - file: "/usr/local/bin/happab"
-      flags:
-        name: happac2
-        log: "/var/log/happac2.log"
-        args: "-h startup-patroni-1.node.consul -p 5556 -r 5001"
-        user: vagrant
-        no_auto_restart: true
-        groups:
-        - happac
-    - file: "/usr/local/bin/node"
-      flags:
-        name: metabase-api
-        args: "/var/www/vhosts/metabase-api/index.js"
-        env_vars: NODE_ENV=prod
-        user: dw_user
+processes:
+  - file: "/usr/local/bin/happac"
+    name: happac1
+    args: "-h startup-patroni-1.node.consul -p 5555 -r 5000"
+    user: vagrant
+    log_dir: "/var/log/custom/"
+    dependencies:
+    - happac2
+    groups:
+    - happac
+  - file: "/usr/local/bin/happab"
+    name: happac2
+    log: "/var/log/happac2.log"
+    args: "-h startup-patroni-1.node.consul -p 5556 -r 5001"
+    user: vagrant
+    no_auto_restart: true
+    groups:
+    - happac
+  - file: "/usr/local/bin/node"
+    name: metabase-api
+    args: "/var/www/vhosts/metabase-api/index.js"
+    env_vars: NODE_ENV=prod
+    user: dw_user
 ```
 
-#### /etc/pmon3/config/app.config.toml
+#### /etc/pmon3/config/execFlags.config.toml
 Unlike json and yaml, all fields are camel-cased:
 ```toml
-[[Apps]]
-File = "/usr/local/bin/happac"
-
-  [Apps.Flags]
+[[Processes]]
+  File = "/usr/local/bin/happac"
   Name = "happac1"
   Args = "-h startup-patroni-1.node.consul -p 5555 -r 5000"
   User = "vagrant"
@@ -442,10 +433,8 @@ File = "/usr/local/bin/happac"
   Dependencies = [ "happac2" ]
   Groups = [ "happac" ]
 
-[[Apps]]
-File = "/usr/local/bin/happab"
-
-  [Apps.Flags]
+[[Processes]]
+  File = "/usr/local/bin/happab"
   Name = "happac2"
   Log = "/var/log/happac2.log"
   Args = "-h startup-patroni-1.node.consul -p 5556 -r 5001"
@@ -453,10 +442,8 @@ File = "/usr/local/bin/happab"
   NoAutoRestart = true
   Groups = [ "happac" ]
 
-[[Apps]]
-File = "/usr/local/bin/node"
-
-  [Apps.Flags]
+[[Processes]]
+  File = "/usr/local/bin/node"
   Name = "metabase-api"
   Args = "/var/www/vhosts/metabase-api/index.js"
   EnvVars = "NODE_ENV=prod"
@@ -465,17 +452,18 @@ File = "/usr/local/bin/node"
 
 ### Generation Utility
 
-Instead of configuring this file from scratch you can use the the [appconfig](#pmon3_appconfig) command to output JSON from the current process list. This will allow the administrator to dynamically build a process list using imperative commands without having to manually write the configuration file.
+Instead of configuring this file from scratch you can use the [export](#pmon3_export) command to output JSON from the current process list. This will allow the administrator to dynamically build a process list using imperative commands without having to manually write the configuration file.
 
 ### Dependencies
 
-Depenencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependecy resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable which currently defaults to 2 seconds.
+Dependencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable which currently defaults to 2 seconds.
 
 
 ### Flags
 
 All possible `flags` values matching those specified in the [exec](#exec_flags) command:
 
+* file
 * user
 * log
 * log_dir
@@ -489,7 +477,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 <a name="section_groups"></a>
 ## Groups
 
-Groups are useful when dealing with a large ammount of related processes. Like processes, they are stored in the database and provide many-to-many cardinality. This allows the ability to addociate multiple groups to one or more processes and vice versa. Groups can be managed via configuration and through the command line interface.
+Groups are useful when dealing with a large amount of related processes. Like processes, they are stored in the database and provide many-to-many cardinality. This allows the ability to addociate multiple groups to one or more processes and vice versa. Groups can be managed via configuration and through the command line interface.
 
 ### Commands
 ```
@@ -541,14 +529,14 @@ Oops, process 4 should not be associated with the happac group, lets remove the 
 pmon3 group remove happac 4
 ```
 
-This groups is no longer useful, lets delete it while keeping the processes intact:
+This group is no longer useful, lets delete it while keeping the processes intact:
 ```
 pmon3 group del happac
 ```
 
-### Reloading Application Configuration Changes
+### Reloading Process Configuration Changes
 
-If you make a change to the group in the [Application Configuration](#section_appconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command should not restart processes which are already running but it will apply changes from the `apps_config_file`.
+If you make a change to the group in the [Process Configuration](#section_processconfig) while pmond is running, you can make the changes take effect by running the `init` command. The `init` command should not restart processes which are already running but it will apply changes from the `process_config_file`.
 ```
 pmon3 init
 ```
@@ -607,27 +595,27 @@ flap_detection_enabled: true
 ```
 
 ### Restart Threshold
-Defaulted to `5`, is the amount of application restarts before the flap prevention process begins at which point the process will cease restarts and enter the backoff state.
+Defaulted to `5`, is the amount of process restarts before the flap prevention process begins at which point the process will cease restarts and enter the backoff state.
 ```yaml
 flap_detection_threshold_restarted: 5
 ```
 
 ### Countdown Threshold
-Defaulted to `120`, is the amount of process monitor intervals until the flap prevention process (backoff state) ends and the application (if still in a perpectually failed state) will resume restarting as normal until the restart threshold is met again. The process monitor interval can also be set in the [configuration file](#section_config) which would affect the time in which it would take to countdown back to zero.
+Defaulted to `120`, is the amount of process monitor intervals until the flap prevention process (backoff state) ends and the process (if still in a perpetually failed state) will resume restarting as normal until the restart threshold is met again. The process monitor interval can also be set in the [configuration file](#section_config) which would affect the time in which it would take to countdown back to zero.
 ```yaml
 flap_detection_threshold_countdown: 120
 ```
 
 ### Decrement Threshold
-Defaulted to `60`, disabled with `0`, is the amount the amount of process monitor intervals during the flap prevention process (backoff state) until the application restart counter is decremented. This can affect how the countdown is reached effectively staggering application restarts during the countdown process. This is useful when you don't want to completely back off and allow for intermittent restarts during the flap prevention process (backoff state).
+Defaulted to `60`, disabled with `0`, is the amount of process monitor intervals during the flap prevention process (backoff state) until the internal process restart counter is decremented. This can affect how the countdown is reached effectively staggering process restarts during the countdown process. This is useful when you don't want to completely back off and allow for intermittent restarts during the flap prevention process (backoff state).
 ```yaml
 flap_detection_threshold_decrement: 60
 ```
 
 ### Example 
-Using the defaults provided above: since the process monitor interval defaults to `500` milliseconds, when a process enters the perpetually failed state and restarts the 5th time, it will enter the backoff state. At this point the flap prevention process will begin the countdown from `120` to `0`. Since the process monitor interval is `500` milliseconds, it will take `120` multiplied by `500` milliseconds which equals `60` seconds.
+Using the defaults provided above: since the process monitor interval defaults to `500` milliseconds, when a process enters the perpetually failed state and restarts the 5th time, it will enter the backoff state. At this point the flap prevention process will begin the countdown from `120` to `0`. Since the process monitor interval is `500` milliseconds, it will take `120` multiplied by `500` milliseconds (`60` seconds).
 
-There is however one caveat: because the decrement threshold is `60`, the restart count will decrement from `5` to `4` after `60` multiplied by `500` milliseconds which equals `30` seconds. Instead, it will instead restart `30` seconds into the backoff state instead of `60` seconds. After the restart, the flap detection process will continue counting down to zero until exiting the flap detection process. If the application remains in a perpetually failed state, it will take `5` restarts to repeat this process all over again.
+caveat: because the decrement threshold is `60`, the internal restart counter will decrement from `5` to `4` after `60` multiplied by `500` milliseconds (`30` seconds). It will restart `30` seconds into the backoff state instead of `60` seconds and continue counting down to `0` until exiting the flap detection process. If the process remains in a perpetually failed state, it will take `5` restarts to repeat this process all over again.
 
 <a name="section_debugging"></a>
 ## Debugging

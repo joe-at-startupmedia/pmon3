@@ -97,14 +97,14 @@ run_test:
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
 	$(GO) build $(BUILD_FLAGS) -o bin/cli test/cli/cli.go
-	cp test/test-apps.config.json "$(TEST_DIR_DATA).."
+	cp test/test-process.config.json "$(TEST_DIR_DATA).."
 	cp bin/app "$(TEST_DIR_DATA).."
 	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
 	sleep 3 
-	@printf "\n\n\033[1mtests that pmond booted from apps config\033[0m\n\n"
+	@printf "\n\n\033[1mtests that pmond booted from process config\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli ls_assert 2 running
 	#
-	@printf "\n\n\033[1mtests running additional apps from initial boot\033[0m\n\n"
+	@printf "\n\n\033[1mtests running additional processes from initial boot\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server3"}'
 	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server4"}'
@@ -113,7 +113,7 @@ run_test:
 	@printf "\n\n\033[1mtests desc command returns nonzero status\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli desc 4
 	#
-	@printf "\n\n\033[1mtests del command removes an application from process list\033[0m\n\n"
+	@printf "\n\n\033[1mtests del command removes a process from process list\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli del 3 #this is a process id that doesnt exist in the config
 	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	#
@@ -121,19 +121,19 @@ run_test:
 	$(TEST_VARS) ./bin/cli kill
 	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
 	#
-	@printf "\n\n\033[1mtests init command restarts all apps\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli init all blocking #this will restart all processes (including those speced in the apps config)
+	@printf "\n\n\033[1mtests init command restarts all processes \033[0m\n\n"
+	$(TEST_VARS) ./bin/cli init all blocking #this will restart all processes (including those specified in the process config)
 	$(TEST_VARS) ./bin/cli ls_assert 3 running
 	#
-	@printf "\n\n\033[1mtests drop command removes all applications\033[0m\n\n"
+	@printf "\n\n\033[1mtests drop command removes all processes \033[0m\n\n"
 	$(TEST_VARS) ./bin/cli drop
 	$(TEST_VARS) ./bin/cli ls_assert 0
 	#
-	@printf "\n\n\033[1mtests init commands boots pmond from app config\033[0m\n\n"
+	@printf "\n\n\033[1mtests init commands boots pmond from process config\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli init all blocking
 	$(TEST_VARS) ./bin/cli ls_assert 2 running
 	#
-	@printf "\n\n\033[1mtests that starting and stopping an app works\033[0m\n\n"
+	@printf "\n\n\033[1mtests that starting and stopping an process works\033[0m\n\n"
 	$(TEST_VARS) ./bin/cli drop
 	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server5"}'
 	$(TEST_VARS) ./bin/cli ls_assert 1 running
