@@ -22,9 +22,9 @@
 <a name="section_intro"></a>
 ## Introduction
 
-Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Node.js PM2 can also be utilized
+Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as systemd. Alternatively, third-party process management tools such as: Python's Supervisor or Node.js PM2 can also be utilized
 
-Unlike PM2, `pmon3` is managed directly by the OS process manager, so if the `pmon3` CLI management tool abnormally terminates, it will not affect the parent `pmond` process. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI agent.
+Unlike PM2, `pmon3` is managed directly by the OS process manager, so if the `pmon3` CLI abnormally terminates, it will not affect the `pmond` daemon process. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI.
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
