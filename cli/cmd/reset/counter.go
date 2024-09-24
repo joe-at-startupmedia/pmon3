@@ -13,7 +13,7 @@ var (
 
 var Cmd = &cobra.Command{
 	Use:   "reset",
-	Short: "reset the process(es) restart counter",
+	Short: "Reset the restart counter(s)",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun()

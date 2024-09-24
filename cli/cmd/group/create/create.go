@@ -11,7 +11,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "create [group_name]",
-	Short: "create a new group",
+	Short: "Create a new group",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		Create(args)

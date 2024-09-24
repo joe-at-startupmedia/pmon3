@@ -10,7 +10,7 @@ import (
 var Cmd = &cobra.Command{
 	Use:     "stop [group_id_or_name]",
 	Aliases: []string{"show"},
-	Short:   "stop all processes associated to a group",
+	Short:   "Stop all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdStop(args)
