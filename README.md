@@ -352,8 +352,6 @@ By default, when `pmond` is restarted from a previously stopped state, it will l
 * have been marked as stopped as a result of pmond closing 
 * have `--no-autorestart` set to false (default value)
 
-If processes are specified in the Processes Config, they will overwrite matching processes which already exist in the database.
-
 ```yaml
 # a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
 process_config_file: /etc/pmon3/config/process.config.json
