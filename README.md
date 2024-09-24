@@ -11,6 +11,7 @@
 * [Commands](#section_commands)
 * [System Configuration](#section_config)
 * [Process Configuration](#section_processconfig)
+* [Process Dependencies](#section_dependencies)
 * [Groups](#section_groups)
 * [Event Handling](#section_events)
 * [Flap Detection/Prevention](#section_flapping)
@@ -23,9 +24,7 @@
 
 Golang currently has no officially supported process management tools. For the deployment of Golang services, some use Linux built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as SystemD. Alternatively, third-party process management tools such as: Python's Supervisor or Node.js PM2 can also be utilized
 
-Each method has certain advantages and disadvantages. We hope to provide a convenient and easy-to-use tool for Golang process deployment. There is no need to install other dependencies besides `bash-completion` for ease of command line utilization.
-
-Unlike PM2, `pmon3` is managed directly by the OS process manager, so even if the `pmon3` CLI management tool abnormally terminates, it will not affect the parent `pmond` process itself. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI agent.
+Unlike PM2, `pmon3` is managed directly by the OS process manager, so if the `pmon3` CLI management tool abnormally terminates, it will not affect the parent `pmond` process. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI agent.
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, then you can provide the `--no-autorestart` parameter flag.
 
@@ -33,6 +32,21 @@ By default, if a process abnormally terminates, `pmond` will try to restart the 
 ## How To Install
 
 [Releases](https://github.com/joe-at-startupmedia/pmon3/releases) 
+
+### Using Go
+
+```bash
+  git clone https://github.com/joe-at-startupmedia/pmon3/ && cd pmon3 
+  go mod tidy
+  go build -o bin/pmon3 cmd/pmon3/pmon3.go
+  go build -o bin/pmond cmd/pmond/pmond.go
+  cp -R bin/pmon* /usr/local/bin/
+  #create the log, configuration and database directories
+  mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
+  cp config.yml /etc/pmon3/config/
+  #start the daemon
+  sudo /usr/local/pmon3/bin/pmond &
+```
 
 ### Using Makefile
 The systemd installation process entails the following steps:
@@ -54,8 +68,6 @@ make systemd_install
 ```bash
 wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.16.2
 ```
-
-:exclamation::exclamation: Note :exclamation::exclamation:
 
 After installing `pmon3` for the first time, both installation methods provided above should automatically enable and start the service. if the `pmond` service does not start automatically, you need to manually start the service.
 
@@ -147,9 +159,7 @@ The starting process accepts several parameters. The parameter descriptions are 
 pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user joe
 ```
 
-:exclamation::exclamation: Note :exclamation::exclamation:
-
-Parameter arguments need to use the absolute path.
+:exclamation: Parameter arguments need to use the absolute path.
 
 ### View List  [ list/ls ]
 
@@ -262,7 +272,7 @@ pmon3 export -f yaml
 
 ### Top Native [ topn ]
 
-This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process. The output is updated every few seconds until the process is terminated using Ctrl+C.
+This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process.
 
 ```bash
 pmon3 topn
@@ -316,7 +326,7 @@ mq_group:
 process_config_file: /etc/pmon3/config/process.config.json
 ```
 
-All configuration changes are effective when the next command is issued - restarting pmond is unnecessary.
+Restarting pmond is usually unnecessary: All configuration changes should take effect when the next command is issued.
 
 <a name="section_config_envvars"></a>
 ### Environment Variables
@@ -357,7 +367,7 @@ By default, when `pmond` is restarted from a previously stopped state, it will l
 process_config_file: /etc/pmon3/config/process.config.json
 ```
 
-supported formats are json, toml and yaml
+### Supported Formats
 
 #### /etc/pmon3/config/execFlags.config.json
 ```json
@@ -450,12 +460,7 @@ Unlike json and yaml, all fields are camel-cased:
 
 ### Generation Utility
 
-Instead of configuring this file from scratch you can use the [export](#pmon3_export) command to output JSON from the current process list. This will allow the administrator to dynamically build a process list using imperative commands without having to manually write the configuration file.
-
-### Dependencies
-
-Dependencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable which currently defaults to 2 seconds.
-
+Instead of configuring this file from scratch you can use the [export](#pmon3_export) command to output the configuration from the current process list. This allows the administrator to build a process list using imperative commands followed by exporting the results to a configuration file.
 
 ### Flags
 
@@ -472,10 +477,15 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 * dependencies
 * groups
 
+<a name="section_dependencies"></a>
+## Dependencies
+
+Dependencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable (currently defaults to `2` seconds).
+
 <a name="section_groups"></a>
 ## Groups
 
-Groups are useful when dealing with a large amount of related processes. Like processes, they are stored in the database and provide many-to-many cardinality. This allows the ability to addociate multiple groups to one or more processes and vice versa. Groups can be managed via configuration and through the command line interface.
+Groups are useful when dealing with a large amount of related processes. Like processes, they are stored in the database and provide many-to-many cardinality. This allows the ability to associate multiple groups to one or more processes and vice versa. Groups can be managed via [Process Configuration](#section_processconfig) and through the [CLI](#exec_flags).
 
 ### Commands
 ```
