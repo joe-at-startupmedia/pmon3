@@ -11,7 +11,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "appconfig",
-	Short: "Output current Application Configuration",
+	Short: "Output Application Configuration JSON",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdRun(args)
 	},
