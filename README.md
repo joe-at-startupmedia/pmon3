@@ -8,7 +8,7 @@
 
 * [Introduction](#section_intro)
 * [Installation](#section_install)
-* [Commands](#section_commands)
+* [CLI Commands](#section_commands)
 * [System Configuration](#section_config)
 * [Process Configuration](#section_processconfig)
 * [Process Dependencies](#section_dependencies)
@@ -79,7 +79,7 @@ sudo /usr/local/pmon3/bin/pmond &
 ```
 
 <a name="section_commands"></a>
-## Commands
+## CLI Commands
 
 ### Help
 
@@ -115,7 +115,7 @@ Use "pmon3 [command] --help" for more information about a command.
 ```
 
 <a name="pmon3_exec"></a>
-### Running process [run/exec]
+### Creating a process [run/exec]
 
 ```bash
 pmon3 exec [process_binary] [flags]
