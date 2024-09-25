@@ -671,7 +671,7 @@ By default, no underlying libraries require CGO. This allows for portability bet
 
 ### Posix MQ
 
-The `posix_mq` build tag can be provided to swap out the underlying [golang-ipc](https://github.com/joe-at-startupmedia/golang-ipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
+The `posix_mq` build tag can be provided to swap out the underlying [gipc](https://github.com/joe-at-startupmedia/gipc/) library with [posix_mq](https://github.com/joe-at-startupmedia/posix_mq). The `posix_mq` wrapper does require `CGO_ENABLED=1` and is considerably faster but also consumes slightly more CPU and Memory. To enable `posix_mq` during the build process:
 ```bash
 BUILD_FLAGS="-tags posix_mq" make build_cgo
 ```
