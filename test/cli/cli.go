@@ -5,6 +5,7 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/conf"
+	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"time"
@@ -30,6 +31,15 @@ func execCmd(args []string, retries int) {
 	var sent *protos.Cmd
 	if cmdArg == "ls_assert" {
 		sent = base.SendCmd("list", "")
+	} else if cmdArg == "exec" {
+		cli.Log.Infof("Executing: pmon3 %s %s %s", cmdArg, args[2], args[3])
+		ef := model.ExecFlags{}
+		execFlags, err := ef.Parse(args[3])
+		if err != nil {
+			cli.Log.Fatal(err)
+		}
+		execFlags.File = args[2]
+		sent = base.SendCmd(cmdArg, execFlags.Json())
 	} else if len(args) == 4 {
 		cli.Log.Infof("Executing: pmon3 %s %s %s", cmdArg, args[2], args[3])
 		sent = base.SendCmdArg2(cmdArg, args[2], args[3])
