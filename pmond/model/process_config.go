@@ -79,5 +79,5 @@ func (ac *ProcessConfig) GetExecFlagsByName(name string) (ExecFlags, error) {
 			return execFlags, nil
 		}
 	}
-	return ExecFlags{}, fmt.Errorf("could not find execFlags in Process Config with name %s", name)
+	return ExecFlags{}, fmt.Errorf("could not find process in Process Config with name %s", name)
 }
