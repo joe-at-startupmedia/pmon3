@@ -22,14 +22,14 @@
 <a name="section_intro"></a>
 ## Introduction
 
-Golang currently has no officially supported process management tools. For managing processes, some use built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as systemd. Alternatively, third-party process management tools such as Supervisor(python) or PM2(Node.js) can also be utilized.
+Golang currently has no officially supported process management tools. For managing processes, some use built-in commands such as `nohup [process] &`, or the process management tools provided by the operating system such as systemd. Alternatively, third-party process management tools such as Supervisor (python) or PM2 (node.js) can also be utilized.
 
 Unlike PM2, `pmon3` is managed directly by the OS process manager, so if the `pmon3` CLI abnormally terminates, it will not affect the `pmond` daemon process. This is currently achieved by separating the `pmond` daemon process from the `pmon3` CLI.
 
 By default, if a process abnormally terminates, `pmond` will try to restart the process. If you don't want a process to restart automatically, you can provide the `--no-autorestart` parameter flag from the CLI.
 
 <a name="section_install"></a>
-## How To Install
+## Installation
 
 [Releases](https://github.com/joe-at-startupmedia/pmon3/releases) 
 
@@ -45,10 +45,10 @@ By default, if a process abnormally terminates, `pmond` will try to restart the 
   mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
   cp config.yml /etc/pmon3/config/
   #start the daemon
-  sudo /usr/local/pmon3/bin/pmond &
+  sudo /usr/local/bin/pmond &
 ```
 
-### Using Makefile
+### Makefile
 The systemd installation process entails the following steps:
 1. create the log, configuration and database directories
 1. create the log rotation file
@@ -63,19 +63,19 @@ make systemd_install
 ```
 
 <a name="release_installer"></a>
-### Using Release Installer
+### Release Installer
 
 ```bash
 wget -O - https://raw.githubusercontent.com/joe-at-startupmedia/pmon3/master/release-installer.bash | bash -s 1.17.0
 ```
 
-After installing `pmon3` for the first time, both installation methods provided above should automatically enable and start the service. if the `pmond` service does not start automatically, you need to manually start the service.
+:exclamation: After installing `pmon3` for the first time, both installation methods provided above should automatically enable and start the service. if the `pmond` service does not start automatically, you need to manually start the service.
 
 ```bash
 sudo systemctl start pmond
 
 # Others
-sudo /usr/local/pmon3/bin/pmond &
+sudo /usr/local/bin/pmond &
 ```
 
 <a name="section_commands"></a>
@@ -480,7 +480,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 <a name="section_dependencies"></a>
 ## Dependencies
 
-Dependencies can be provided as a json array and determine the order in which the processes are booted. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes (for obvious reasons). Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait [n] amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable (currently defaults to `2` seconds).
+Dependencies (provided as an array) determine the order in which the processes are started. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes. Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait `[n]` amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable (currently defaults to `2` seconds).
 
 <a name="section_groups"></a>
 ## Groups
