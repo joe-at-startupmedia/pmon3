@@ -369,7 +369,7 @@ process_config_file: /etc/pmon3/config/process.config.json
 
 ### Supported Formats
 
-#### /etc/pmon3/config/execFlags.config.json
+#### /etc/pmon3/config/process.config.json
 ```json
 {
   "processes": [
@@ -402,7 +402,7 @@ process_config_file: /etc/pmon3/config/process.config.json
 }
 ```
 
-#### /etc/pmon3/config/execFlags.config.yaml
+#### /etc/pmon3/config/process.config.yaml
 ```yaml
 processes:
   - file: "/usr/local/bin/happac"
@@ -429,7 +429,7 @@ processes:
     user: dw_user
 ```
 
-#### /etc/pmon3/config/execFlags.config.toml
+#### /etc/pmon3/config/process.config.toml
 Unlike json and yaml, all fields are camel-cased:
 ```toml
 [[Processes]]
