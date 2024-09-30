@@ -81,71 +81,29 @@ build_cgo: ENV_VARS=CGO_ENABLED=1
 build_cgo: base_build
 
 .PHONY: test
-test: build run_test
+test: build run_e2e_test
 
 .PHONY: test_cgo
 test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
-test_cgo: build_cgo run_test
+test_cgo: build_cgo run_e2e_test
 
 .PHONY: test_net
 test_net: BUILD_FLAGS=$(shell echo '-tags net')
-test_net: build run_test
+test_net: build run_e2e_test
 
-.PHONY: run_test
-run_test:
+.PHONY: run_e2e_test
+run_e2e_test:
 	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
-	$(GO) build $(BUILD_FLAGS) -o bin/cli test/cli/cli.go
 	cp test/test-process.config.json "$(TEST_DIR_DATA).."
 	cp bin/app "$(TEST_DIR_DATA).."
 	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
-	sleep 3 
-	@printf "\n\n\033[1mtests that pmond booted from process config\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli ls_assert 2 running
-	#
-	@printf "\n\n\033[1mtests running additional processes from initial boot\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server3"}'
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server4"}'
-	$(TEST_VARS) ./bin/cli ls_assert 4 running
-	#
-	@printf "\n\n\033[1mtests desc command returns nonzero status\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli desc 4
-	#
-	@printf "\n\n\033[1mtests del command removes a process from process list\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli del 3 #this is a process id that doesnt exist in the config
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	#
-	@printf "\n\n\033[1mtests kill command result in stopping all processes\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli kill
-	$(TEST_VARS) ./bin/cli ls_assert 3 stopped
-	#
-	@printf "\n\n\033[1mtests init command restarts all processes \033[0m\n\n"
-	$(TEST_VARS) ./bin/cli init all blocking #this will restart all processes (including those specified in the process config)
-	$(TEST_VARS) ./bin/cli ls_assert 3 running
-	#
-	@printf "\n\n\033[1mtests drop command removes all processes \033[0m\n\n"
-	$(TEST_VARS) ./bin/cli drop
-	$(TEST_VARS) ./bin/cli ls_assert 0
-	#
-	@printf "\n\n\033[1mtests init commands boots pmond from process config\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli init all blocking
-	$(TEST_VARS) ./bin/cli ls_assert 2 running
-	#
-	@printf "\n\n\033[1mtests that starting and stopping an process works\033[0m\n\n"
-	$(TEST_VARS) ./bin/cli drop
-	$(TEST_VARS) ./bin/cli exec $(ROOTDIR)/bin/app '{"name": "test-server5"}'
-	$(TEST_VARS) ./bin/cli ls_assert 1 running
-	$(TEST_VARS) ./bin/cli stop 1
-	$(TEST_VARS) ./bin/cli ls_assert 1 stopped
-	$(TEST_VARS) ./bin/cli restart 1 '{}'
-	$(TEST_VARS) ./bin/cli ls_assert 1 running
-	$(TEST_VARS) ./bin/cli drop
-	#
-	@printf "\n\n\033[1mAll tests passed\033[0m\n\n"
+	sleep 3
+	$(TEST_VARS) APP_BIN_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v ./test/e2e/
+	sleep 3
+	@printf "\n\n\033[1mkilling pmond\033[0m\n\n"
 	pidof pmond | xargs kill -9
-
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
