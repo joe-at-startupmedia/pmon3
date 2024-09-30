@@ -100,7 +100,7 @@ run_e2e_test:
 	cp bin/app "$(TEST_DIR_DATA).."
 	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
 	sleep 3
-	$(TEST_VARS) APP_BIN_PATH=$(ROOTDIR) $(GO) test -v ./test/e2e/
+	$(TEST_VARS) APP_BIN_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v ./test/e2e/
 	sleep 3
 	@printf "\n\n\033[1mkilling pmond\033[0m\n\n"
 	pidof pmond | xargs kill -9
