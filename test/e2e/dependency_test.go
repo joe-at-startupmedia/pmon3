@@ -1,6 +1,5 @@
 package e2e
 
-// Basic imports
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,7 @@ import (
 	"time"
 )
 
-// Define the suite, and absorb the built-in basic suite
+// Define the suite, and absorb the built-in dependency suite
 // functionality from testify - including a T() method which
 // returns the current testing context
 type Pmon3DependencyTestSuite struct {
