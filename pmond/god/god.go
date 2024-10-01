@@ -29,13 +29,30 @@ func New() {
 	//mgr := statsview.New()
 	//go mgr.Start()
 
-	ctx := interruptHandler(pmond.Config.HandleInterrupts, &wg)
-	connectResponder()
-	runMonitor(ctx)
+	ctx := interruptHandler(&wg)
+	Summon(ctx)
 	wg.Wait() //wait for the interrupt handler to complete
 }
 
-func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.Context {
+func Summon(ctx context.Context) {
+	connectResponder()
+	runMonitor(ctx)
+}
+
+func Banish() {
+	processMonitorInterval := time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)
+	time.Sleep(2 * processMonitorInterval) //wait for the runMonitor loop to break
+	if pmond.Config.HandleInterrupts {
+		controller.KillByParams(&protos.Cmd{}, true, model.StatusClosed)
+	}
+	err := closeResponder()
+	if err != nil {
+		pmond.Log.Warnf("Error closing queues: %-v", err)
+	}
+	time.Sleep(3 * processMonitorInterval) //wait for responder to close and requestProcessor to break before exiting
+}
+
+func interruptHandler(wg *sync.WaitGroup) context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,
@@ -44,21 +61,11 @@ func interruptHandler(shouldCloseOnInterrupt bool, wg *sync.WaitGroup) context.C
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 
-	processMonitorInterval := time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)
-
 	go func() {
 		s := <-sigc
-		pmond.Log.Infof("Captured interrupt: %s, should close(%t)", s, shouldCloseOnInterrupt)
-		cancel()                               // terminate the runMonitor loop
-		time.Sleep(2 * processMonitorInterval) //wait for the runMonitor loop to break
-		if shouldCloseOnInterrupt {
-			controller.KillByParams(&protos.Cmd{}, true, model.StatusClosed)
-		}
-		err := closeResponder()
-		if err != nil {
-			pmond.Log.Warnf("Error closing queues: %-v", err)
-		}
-		time.Sleep(3 * processMonitorInterval) //wait for responder to close and requestProcessor to break before exiting
+		pmond.Log.Infof("Captured interrupt: %s", s)
+		cancel() // terminate the runMonitor loop
+		Banish()
 		wg.Done()
 	}()
 
@@ -176,7 +183,10 @@ func processRequests(ctx context.Context, logger *logrus.Logger) {
 			return
 		default:
 			if err != nil {
-				logger.Errorf("Error handling request: %-v", err)
+				logger.Errorf("Error handling request: %s", err.Error())
+				if err.Error() == "buffer is closed" {
+					return
+				}
 			}
 		}
 	}

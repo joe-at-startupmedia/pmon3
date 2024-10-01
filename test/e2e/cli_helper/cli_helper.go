@@ -7,34 +7,44 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"strings"
 
 	"time"
 )
 
 type CliHelper struct {
 	suite      *suite.Suite
-	appBinPath string
+	AppBinPath string
 }
 
-func New(suite *suite.Suite, appBinPath string) *CliHelper {
+func New(suite *suite.Suite, projectPath string) *CliHelper {
 	return &CliHelper{
 		suite,
-		appBinPath,
+		projectPath,
 	}
 }
 
-func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) *protos.CmdResp {
+func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdResp) {
 	newCmdResp := cliHelper.ExecBase0("list")
 	processList := newCmdResp.GetProcessList().GetProcesses()
 	cli.Log.Infof("process list: %s \n value string: %s \n", processList, newCmdResp.GetValueStr())
-	assert.Equal(cliHelper.suite.T(), expectedProcessLen, len(processList))
+	passing := assert.Equal(cliHelper.suite.T(), expectedProcessLen, len(processList))
 	//cli.Log.Fatalf("Expected process length of %d but got %d", expectedProcessLen, actualProcessLen)
-	return newCmdResp
+	return passing, newCmdResp
 }
 
-func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string, retries int) {
+func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string, retries int) (bool, *protos.CmdResp) {
 
-	cmdResp := cliHelper.LsAssert(expectedProcessLen)
+	passing, cmdResp := cliHelper.LsAssert(expectedProcessLen)
+
+	if !passing && retries < 3 {
+		cli.Log.Warnf("retry count: %d", retries+1)
+		time.Sleep(time.Second * 5)
+		return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
+	} else if !passing {
+		return passing, cmdResp
+	}
+
 	processList := cmdResp.GetProcessList().GetProcesses()
 
 	for _, p := range processList {
@@ -42,16 +52,19 @@ func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string
 			cli.Log.Infof("Expected process status of %s but got %s", status, p.Status)
 			cli.Log.Warnf("retry count: %d", retries+1)
 			time.Sleep(time.Second * 5)
-			cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
-			break
+			return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
 		} else {
-			assert.Equal(cliHelper.suite.T(), status, p.Status)
+			passing = assert.Equal(cliHelper.suite.T(), status, p.Status)
+			if !passing {
+				break
+			}
 		}
 	}
+	return passing, cmdResp
 }
 
 func (cliHelper *CliHelper) ExecCmd(processFile string, execFlagsJson string) *protos.CmdResp {
-	processFile = cliHelper.appBinPath + processFile
+	processFile = cliHelper.AppBinPath + processFile
 	cli.Log.Infof("Executing: pmon3 exec %s %s", processFile, execFlagsJson)
 	ef := model.ExecFlags{}
 	execFlags, err := ef.Parse(execFlagsJson)
@@ -86,4 +99,21 @@ func (cliHelper *CliHelper) execBase(cmd string, arg1 string, arg2 string) *prot
 		cliHelper.suite.Fail(newCmdResp.GetError())
 	}
 	return newCmdResp
+}
+
+func (cliHelper *CliHelper) DgraphProcessNames() ([]string, []string) {
+	cmdResp := cliHelper.ExecBase0("dgraph")
+
+	response := strings.Split(cmdResp.GetValueStr(), "||")
+
+	var nonDeptProcessNames []string
+	var deptProcessNames []string
+	if len(response[0]) > 0 {
+		nonDeptProcessNames = strings.Split(response[0], "\n")
+	}
+	if len(response[1]) > 0 {
+		deptProcessNames = strings.Split(response[1], "\n")
+	}
+
+	return nonDeptProcessNames, deptProcessNames
 }

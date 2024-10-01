@@ -2,12 +2,14 @@ package e2e
 
 // Basic imports
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"os"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/conf"
+	"pmon3/pmond"
+	"pmon3/pmond/god"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 
@@ -26,19 +28,31 @@ type Pmon3BasicTestSuite struct {
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
-func TestExampleTestSuite(t *testing.T) {
+func TestBasicTestSuite(t *testing.T) {
 	suite.Run(t, new(Pmon3BasicTestSuite))
 }
 
 // Make sure that VariableThatShouldStartAtFive is set to five
 // before each test
 func (suite *Pmon3BasicTestSuite) SetupSuite() {
-	if err := cli.Instance(conf.GetConfigFile()); err != nil {
+
+	projectPath := os.Getenv("PROJECT_PATH")
+	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
+
+	configFile := projectPath + "/test/e2e/config/test-config.yml"
+	processConfigFile := projectPath + "/test/e2e/config/process.basic-test.config.json"
+	if err := cli.Instance(configFile); err != nil {
 		suite.FailNow(err.Error())
 	}
 
-	appBinPath := os.Getenv("APP_BIN_PATH")
-	suite.cliHelper = cli_helper.New(&suite.Suite, appBinPath)
+	if err := pmond.Instance(configFile, processConfigFile); err != nil {
+		suite.FailNow(err.Error())
+	}
+
+	ctx := context.Background()
+	go god.Summon(ctx)
+
+	time.Sleep(5 * time.Second)
 
 	base.OpenSender()
 }
@@ -50,19 +64,21 @@ func (suite *Pmon3BasicTestSuite) TestA_BootedFromProcessConfig() {
 }
 
 func (suite *Pmon3BasicTestSuite) TestB_AddingAdditionalProcessesFromProcessConfig() {
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server3\"}")
+	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-3\"}")
 	time.Sleep(2 * time.Second)
-	suite.cliHelper.LsAssertStatus(3, "running", 0)
+	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
+	if !passing {
+		return
+	}
 
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server4\"}")
+	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-4\"}")
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
 func (suite *Pmon3BasicTestSuite) TestC_DescribingAProcessWithAFourthId() {
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "4")
-	assert.Equal(suite.T(), "test-server4", newCmdResp.GetProcess().GetName())
-
+	assert.Equal(suite.T(), "test-server-4", newCmdResp.GetProcess().GetName())
 }
 
 func (suite *Pmon3BasicTestSuite) TestD_DeletingAProcess() {
@@ -109,7 +125,7 @@ func (suite *Pmon3BasicTestSuite) TestH_InitAllAfterDrop() {
 
 func (suite *Pmon3BasicTestSuite) TestI_StartingAndStopping() {
 	suite.cliHelper.ExecBase0("drop")
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server5\"}")
+	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-5\"}")
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 	suite.cliHelper.ExecBase1("stop", "1")
@@ -122,5 +138,6 @@ func (suite *Pmon3BasicTestSuite) TestI_StartingAndStopping() {
 }
 
 func (suite *Pmon3BasicTestSuite) TearDownSuite() {
+	god.Banish()
 	base.CloseSender()
 }

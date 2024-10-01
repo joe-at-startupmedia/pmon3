@@ -1,0 +1,32 @@
+{
+  "processes": [
+    {
+      "file": "/usr/src/pmon3/app",
+      "name": "dep-test-server-1",
+      "dependencies": ["dep-test-server-2"],
+      "env_vars": "TEST_APP_PORT=11003"
+    },
+    {
+      "file": "/usr/src/pmon3/app",
+      "name": "dep-test-server-2",
+      "dependencies": ["dep-test-server-3","dep-test-server-4"],
+      "env_vars": "TEST_APP_PORT=11004"
+    },
+    {
+      "file": "/usr/src/pmon3/app",
+      "name": "dep-test-server-3",
+      "env_vars": "TEST_APP_PORT=11005"
+    },
+    {
+      "file": "/usr/src/pmon3/app",
+      "name": "dep-test-server-4",
+      "dependencies": ["dep-test-server-3"],
+      "env_vars": "TEST_APP_PORT=11006"
+    },
+    {
+      "file": "/usr/src/pmon3/app",
+      "name": "dep-test-server-5",
+      "env_vars": "TEST_APP_PORT=11007"
+    }
+  ]
+}

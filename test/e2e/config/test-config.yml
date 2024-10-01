@@ -9,7 +9,7 @@ data_dir: /usr/src/pmon3/data/
 # directory where the logs are stored
 logs_dir: /usr/src/pmon3/logs/
 # log levels: debug/info/warn/error
-#log_level: info
+log_level: warn
 # kill processes on termination
 #handle_interrupts: true
 # poll processes every [n] milliseconds
@@ -29,7 +29,7 @@ logs_dir: /usr/src/pmon3/logs/
 # wait [n] milliseconds after connecting to IPC client before issuing commands
 #ipc_connection_wait: 0
 # wait [n] milliseconds after enqueueing a dependent process
-#dependent_process_enqueued_wait: 2000
+dependent_process_enqueued_wait: 1000
 # a script to execute when a process is restarted which accepts the process details json as the first argument
 #on_process_restart_exec:
 # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
@@ -43,4 +43,4 @@ logs_dir: /usr/src/pmon3/logs/
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
 #mq_group:
 # a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
-process_config_file: /usr/src/pmon3/test-process.config.json
+#process_config_file:
