@@ -35,31 +35,29 @@ func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdR
 
 func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string, retries int) (bool, *protos.CmdResp) {
 
-	passing, cmdResp := cliHelper.LsAssert(expectedProcessLen)
-
-	if !passing && retries < 3 {
-		cli.Log.Warnf("retry count: %d", retries+1)
-		time.Sleep(time.Second * 5)
-		return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
-	} else if !passing {
-		return passing, cmdResp
+	if retries == 3 {
+		cliHelper.suite.Fail("assert status failed with maximum of 3 retries")
 	}
 
+	cmdResp := cliHelper.ExecBase0("list")
 	processList := cmdResp.GetProcessList().GetProcesses()
 
+	processesMatchingStatus := 0
+
 	for _, p := range processList {
-		if p.Status != status && retries < 3 { //three retries are allowed
-			cli.Log.Infof("Expected process status of %s but got %s", status, p.Status)
-			cli.Log.Warnf("retry count: %d", retries+1)
-			time.Sleep(time.Second * 5)
-			return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
-		} else {
-			passing = assert.Equal(cliHelper.suite.T(), status, p.Status)
-			if !passing {
-				break
-			}
+		if p.Status == status {
+			processesMatchingStatus++
 		}
 	}
+
+	if expectedProcessLen != processesMatchingStatus && retries < 3 {
+		cli.Log.Warnf("retry count: %d with params: %d %d %s", retries+1, expectedProcessLen, processesMatchingStatus, status)
+		time.Sleep(time.Second * 5)
+		return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
+	}
+
+	passing := assert.Equal(cliHelper.suite.T(), expectedProcessLen, processesMatchingStatus)
+
 	return passing, cmdResp
 }
 
@@ -101,8 +99,8 @@ func (cliHelper *CliHelper) execBase(cmd string, arg1 string, arg2 string) *prot
 	return newCmdResp
 }
 
-func (cliHelper *CliHelper) DgraphProcessNames() ([]string, []string) {
-	cmdResp := cliHelper.ExecBase0("dgraph")
+func (cliHelper *CliHelper) DgraphProcessNames(arg1 string) ([]string, []string) {
+	cmdResp := cliHelper.ExecBase1("dgraph", arg1)
 
 	response := strings.Split(cmdResp.GetValueStr(), "||")
 
@@ -116,4 +114,11 @@ func (cliHelper *CliHelper) DgraphProcessNames() ([]string, []string) {
 	}
 
 	return nonDeptProcessNames, deptProcessNames
+}
+
+func (cliHelper *CliHelper) ShouldKill(expectedProcessLen int, waitBeforeAssertion int) bool {
+	cliHelper.ExecBase0("kill")
+	time.Sleep(time.Duration(waitBeforeAssertion) * time.Second)
+	passing, _ := cliHelper.LsAssertStatus(expectedProcessLen, "stopped", 0)
+	return passing
 }
