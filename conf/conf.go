@@ -26,9 +26,27 @@ func GetConfigFile() string {
 	return conf
 }
 
+// GetProcessConfigFile two options:
+// 1. Use PMON3__PROCESS_CONF environment variable
+// 2. fallback to a hardcoded path
+func GetProcessConfigFile() string {
+	conf := os.Getenv("PMON3_PROCESS_CONF")
+	if len(conf) == 0 {
+		conf = "/etc/pmon3/config/process.config.json"
+	}
+
+	if _, err := os.Stat(conf); err == nil {
+		return conf
+	} else {
+		log.Printf("%s value provided for the process configuration file does not exist", conf)
+		return ""
+	}
+}
+
 type Config struct {
 	ProcessConfig                   *model.ProcessConfig
-	ProcessConfigFile               string `yaml:"process_config_file" default:"/etc/pmon3/config/process.config.json"`
+	ConfigFile                      string
+	ProcessConfigFile               string `yaml:"process_config_file"`
 	DataDir                         string `yaml:"data_dir" default:"/etc/pmon3/data"`
 	LogsDir                         string `yaml:"logs_dir" default:"/var/log/pmond"`
 	PosixMessageQueueDir            string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
@@ -50,12 +68,12 @@ type Config struct {
 	DependentProcessEnqueuedWait    int32  `yaml:"dependent_process_enqueued_wait" default:"1000"`
 }
 
-func Load(configFile string) (*Config, error) {
+func Load(configFile string, processConfigFile string) (*Config, error) {
 
-	config := &Config{}
+	c := &Config{}
 
 	//toggled only by the environment variable
-	logLevel := config.GetLogLevel()
+	logLevel := c.GetLogLevel()
 	shouldDebug := logLevel == logrus.DebugLevel
 
 	configorInst := configor.New(&configor.Config{
@@ -64,18 +82,27 @@ func Load(configFile string) (*Config, error) {
 		Silent:  true,
 	})
 
-	if err := configorInst.Load(config, configFile); err != nil {
+	if err := configorInst.Load(c, configFile); err != nil {
 		return nil, err
 	}
 
-	if len(config.ProcessConfigFile) > 0 {
-		config.ProcessConfig = &model.ProcessConfig{}
-		if err := configorInst.Load(config.ProcessConfig, config.ProcessConfigFile); err != nil {
+	c.ConfigFile = configFile
+
+	//log.Printf("Setting the process config file from %s or %s", c.ProcessConfigFile, processConfigFile)
+
+	c.ProcessConfig = &model.ProcessConfig{}
+	if len(c.ProcessConfigFile) > 0 {
+		if err := configorInst.Load(c.ProcessConfig, c.ProcessConfigFile); err != nil {
 			return nil, err
 		}
+	} else if len(processConfigFile) > 0 {
+		if err := configorInst.Load(c.ProcessConfig, processConfigFile); err != nil {
+			return nil, err
+		}
+		c.ProcessConfigFile = processConfigFile
 	}
 
-	return config, nil
+	return c, nil
 }
 
 func (c *Config) GetCmdExecResponseWait() time.Duration {

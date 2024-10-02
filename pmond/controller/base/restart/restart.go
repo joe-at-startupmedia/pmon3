@@ -117,5 +117,10 @@ func UpdateAsQueued(m *model.Process, flags *model.ExecFlags) error {
 	m.Status = model.StatusQueued
 	m.ProcessFile = flags.File
 
+	//allow updating dependencies on restart
+	if len(flags.Dependencies) > 0 {
+		m.Dependencies = strings.Join(flags.Dependencies, " ")
+	}
+
 	return repo.ProcessOf(m).Save()
 }

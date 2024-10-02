@@ -9,8 +9,8 @@ import (
 var Log *logrus.Logger
 var Config *conf.Config
 
-func Instance(confDir string) error {
-	config, err := conf.Load(confDir)
+func Instance(confFile string, processConfFile string) error {
+	config, err := conf.Load(confFile, processConfFile)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,10 @@ func Instance(confDir string) error {
 }
 
 func ReloadConf() {
-	err := Instance(conf.GetConfigFile())
+	config, err := conf.Load(Config.ConfigFile, Config.ProcessConfigFile)
 	if err != nil {
 		Log.Fatal(err)
 	}
+
+	Config = config
 }

@@ -5,8 +5,8 @@ PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 ROOTDIR=$(shell cd "$(dirname "$0")"; pwd)
 WHOAMI=$(shell whoami)
-TEST_FILE_CONFIG ?= $(ROOTDIR)/test/test-config.yml
-TEST_VARS ?= PMON3_CONF=$(TEST_FILE_CONFIG)
+TEST_REGEX ?= "Test"
+TEST_FILE_CONFIG ?= $(ROOTDIR)/test/e2e/config/test-config.yml
 TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data_dir:" | cut -d' ' -f2)
 TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs_dir:" | cut -d' ' -f2)
 
@@ -81,29 +81,23 @@ build_cgo: ENV_VARS=CGO_ENABLED=1
 build_cgo: base_build
 
 .PHONY: test
-test: build run_e2e_test
+test: build run_test
 
 .PHONY: test_cgo
 test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
-test_cgo: build_cgo run_e2e_test
+test_cgo: build_cgo run_test
 
 .PHONY: test_net
 test_net: BUILD_FLAGS=$(shell echo '-tags net')
-test_net: build run_e2e_test
+test_net: build run_test
 
-.PHONY: run_e2e_test
-run_e2e_test:
+.PHONY: run_test
+run_test:
 	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
-	cp test/test-process.config.json "$(TEST_DIR_DATA).."
 	cp bin/app "$(TEST_DIR_DATA).."
-	$(TEST_VARS) ./bin/pmond > test.log 2>&1 &
-	sleep 3
-	$(TEST_VARS) APP_BIN_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v ./test/e2e/
-	sleep 3
-	@printf "\n\n\033[1mkilling pmond\033[0m\n\n"
-	pidof pmond | xargs kill -9
+	PROJECT_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v ./test/e2e/ -run $(TEST_REGEX) -p 1
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
