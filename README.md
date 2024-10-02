@@ -1,5 +1,6 @@
 # pmon3
 [![Testing](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
+[![codecov](https://codecov.io/gh/joe-at-startupmedia/pmon3/graph/badge.svg?token=RAILGSJ6XQ)](https://codecov.io/gh/joe-at-startupmedia/pmon3)
 
 
 `pmon3` is a process manager which allows you to keep processes alive forever. Processes can be declared directly via the [CLI](#section_commands) or in a [configuration file](#section_processconfig). `pmon3` allows you to get started quickly while providing configuration granularity at both the [system](#section_config) and [process](#section_processconfig) levels.
