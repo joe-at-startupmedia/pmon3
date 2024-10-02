@@ -97,7 +97,7 @@ run_test:
 	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
 	$(GO) build -o bin/app test/app/app.go
 	cp bin/app "$(TEST_DIR_DATA).."
-	PROJECT_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v ./test/e2e/ -run $(TEST_REGEX) -p 1
+	PROJECT_PATH=$(ROOTDIR) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode count ./...
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install

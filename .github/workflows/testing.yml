@@ -38,13 +38,13 @@ jobs:
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
+        docker build --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
 
     - name: Docker Testing CGO
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=test_cgo -t pmon3 .
+        docker build --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=test_cgo -t pmon3 .
 
   build:
     name: Build
