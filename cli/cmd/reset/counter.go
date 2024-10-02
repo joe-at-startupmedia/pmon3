@@ -2,7 +2,6 @@ package reset
 
 import (
 	"github.com/spf13/cobra"
-	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
 )
@@ -26,11 +25,11 @@ func init() {
 
 func cmdRun() {
 	base.OpenSender()
-	defer base.CloseSender()
 	sent := base.SendCmd("reset", idOrName)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+		base.CloseSender()
+	} else {
+		list.Show()
 	}
-	list.Show()
 }

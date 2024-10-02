@@ -23,9 +23,11 @@ func Delete(args []string) {
 	sent := base.SendCmd("group_del", args[0])
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+		base.CloseSender()
+	} else {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		//list command will call pmq.Close
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
-	list.Show()
+
 }

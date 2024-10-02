@@ -2,20 +2,16 @@ package controller
 
 import (
 	"fmt"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
 
 func Desc(cmd *protos.Cmd) *protos.CmdResp {
-	val := cmd.GetArg1()
-	p, err := repo.Process().FindByIdOrName(val)
+	idOrName := cmd.GetArg1()
+	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
-		newCmdResp := protos.CmdResp{
-			Id:    cmd.GetId(),
-			Name:  cmd.GetName(),
-			Error: fmt.Sprintf("Process (%s) does not exist", val),
-		}
-		return &newCmdResp
+		return base.ErroredCmdResp(cmd, fmt.Errorf("process (%s) does not exist", idOrName))
 	}
 	newCmdResp := protos.CmdResp{
 		Id:      cmd.GetId(),

@@ -13,7 +13,7 @@ func ResetCounter(cmd *protos.Cmd) *protos.CmdResp {
 	if len(idOrName) > 0 {
 		p, err := repo.Process().FindByIdOrName(idOrName)
 		if err != nil {
-			return base.ErroredCmdResp(cmd, fmt.Errorf("error finding processes: %s, %w", idOrName, err))
+			return base.ErroredCmdResp(cmd, fmt.Errorf("process (%s) does not exist", idOrName))
 		}
 		p.ResetRestartCount()
 	} else {

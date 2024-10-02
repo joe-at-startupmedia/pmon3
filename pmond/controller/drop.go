@@ -18,9 +18,9 @@ func DropByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 
 	all, err := repo.Process().FindAll()
 	if err != nil {
-		return base.ErroredCmdResp(cmd, fmt.Errorf("Error finding processes: %w", err))
+		return base.ErroredCmdResp(cmd, fmt.Errorf("error finding processes: %w", err))
 	} else if len(all) == 0 {
-		return base.ErroredCmdResp(cmd, errors.New("There are no processes"))
+		return base.ErroredCmdResp(cmd, errors.New("there are no processes"))
 	}
 
 	for _, process := range all {

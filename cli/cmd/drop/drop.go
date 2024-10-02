@@ -1,13 +1,12 @@
 package drop
 
 import (
+	"github.com/spf13/cobra"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
 	"pmon3/pmond/protos"
 	"time"
-
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -28,7 +27,6 @@ func init() {
 
 func Drop() {
 	base.OpenSender()
-	defer base.CloseSender()
 
 	var sent *protos.Cmd
 
@@ -39,8 +37,9 @@ func Drop() {
 	}
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+		base.CloseSender()
+	} else {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	list.Show()
 }
