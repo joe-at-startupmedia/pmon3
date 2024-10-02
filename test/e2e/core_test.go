@@ -63,14 +63,14 @@ func (suite *Pmon3CoreTestSuite) TestA_BootedFromProcessConfig() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfig() {
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-3\"}")
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-3\"}")
 	time.Sleep(2 * time.Second)
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
 		return
 	}
 
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-4\"}")
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-4\"}")
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
@@ -124,7 +124,7 @@ func (suite *Pmon3CoreTestSuite) TestH_InitAllAfterDrop() {
 
 func (suite *Pmon3CoreTestSuite) TestI_StartingAndStopping() {
 	suite.cliHelper.ExecBase0("drop")
-	suite.cliHelper.ExecCmd("/bin/app", "{\"name\": \"test-server-5\"}")
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-5\"}")
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 	suite.cliHelper.ExecBase1("stop", "1")

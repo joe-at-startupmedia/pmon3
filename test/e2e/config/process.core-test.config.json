@@ -1,12 +1,12 @@
 {
   "processes": [
     {
-      "file": "/usr/src/pmon3/app",
+      "file": "/usr/src/pmon3/test_app",
       "name": "test-server-1",
       "env_vars": "TEST_APP_PORT=11000"
     },
     {
-      "file": "/usr/src/pmon3/app",
+      "file": "/usr/src/pmon3/test_app",
       "name": "test-server-2",
       "env_vars": "TEST_APP_PORT=11001"
     }

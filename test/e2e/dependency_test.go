@@ -70,10 +70,10 @@ func (suite *Pmon3DependencyTestSuite) TestA_BootedFromProcessConfigInCorrectOrd
 	nonDeptProcessNames, deptProcessNames := suite.cliHelper.DgraphProcessNames("")
 	assert.Equal(suite.T(), "dep-test-server-5", nonDeptProcessNames[0])
 	suite.assertProcessOrder([][]string{
-		[]string{"dep-test-server-3"},
-		[]string{"dep-test-server-4"},
-		[]string{"dep-test-server-2"},
-		[]string{"dep-test-server-1"},
+		{"dep-test-server-3"},
+		{"dep-test-server-4"},
+		{"dep-test-server-2"},
+		{"dep-test-server-1"},
 	}, deptProcessNames)
 
 	suite.assertProcessOrderFromCmdResp([]string{
@@ -89,12 +89,11 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 
 	execFlags := model.ExecFlags{
 		Name:         "dep-test-server-6",
-		File:         suite.cliHelper.AppBinPath + "/bin/app",
 		EnvVars:      "TEST_APP_PORT=11008",
 		Dependencies: []string{"dep-test-server-7"},
 	}
 
-	suite.cliHelper.ExecCmd("/bin/app", execFlags.Json())
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
 	time.Sleep(2 * time.Second)
 
@@ -123,10 +122,10 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 	nonDeptProcessNames, deptProcessNames := suite.cliHelper.DgraphProcessNames("")
 	assert.Equal(suite.T(), "dep-test-server-5", nonDeptProcessNames[0])
 	suite.assertProcessOrder([][]string{
-		[]string{"dep-test-server-3"},
-		[]string{"dep-test-server-6", "dep-test-server-4"},
-		[]string{"dep-test-server-2"},
-		[]string{"dep-test-server-1"},
+		{"dep-test-server-3"},
+		{"dep-test-server-6", "dep-test-server-4"},
+		{"dep-test-server-2"},
+		{"dep-test-server-1"},
 	}, deptProcessNames)
 
 	passing = suite.assertProcessOrderFromCmdResp([]string{
@@ -144,11 +143,10 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 
 	execFlags = model.ExecFlags{
 		Name:    "dep-test-server-7",
-		File:    suite.cliHelper.AppBinPath + "/bin/app",
 		EnvVars: "TEST_APP_PORT=11009",
 	}
 
-	suite.cliHelper.ExecCmd("/bin/app", execFlags.Json())
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(7, "running", 0)
@@ -156,10 +154,10 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 	nonDeptProcessNames, deptProcessNames = suite.cliHelper.DgraphProcessNames("")
 	assert.Equal(suite.T(), "dep-test-server-5", nonDeptProcessNames[0])
 	suite.assertProcessOrder([][]string{
-		[]string{"dep-test-server-7", "dep-test-server-3"},
-		[]string{"dep-test-server-6", "dep-test-server-4"},
-		[]string{"dep-test-server-2"},
-		[]string{"dep-test-server-1"},
+		{"dep-test-server-7", "dep-test-server-3"},
+		{"dep-test-server-6", "dep-test-server-4"},
+		{"dep-test-server-2"},
+		{"dep-test-server-1"},
 	}, deptProcessNames)
 }
 
@@ -190,10 +188,10 @@ func (suite *Pmon3DependencyTestSuite) TestC_ShouldRebootWithCorrectDependencyOr
 	nonDeptProcessNames, deptProcessNames := suite.cliHelper.DgraphProcessNames("")
 	assert.Equal(suite.T(), "dep-test-server-5", nonDeptProcessNames[0])
 	suite.assertProcessOrder([][]string{
-		[]string{"dep-test-server-3", "dep-test-server-7"},
-		[]string{"dep-test-server-6", "dep-test-server-4"},
-		[]string{"dep-test-server-2"},
-		[]string{"dep-test-server-1"},
+		{"dep-test-server-3", "dep-test-server-7"},
+		{"dep-test-server-6", "dep-test-server-4"},
+		{"dep-test-server-2"},
+		{"dep-test-server-1"},
 	}, deptProcessNames)
 
 	passing = suite.assertProcessOrderFromCmdResp([]string{
@@ -235,10 +233,10 @@ func (suite *Pmon3DependencyTestSuite) TestD_ShouldRebootFromConfigOnlyWithCorre
 	nonDeptProcessNames, deptProcessNames := suite.cliHelper.DgraphProcessNames("process-config-only")
 	assert.Equal(suite.T(), "dep-test-server-5", nonDeptProcessNames[0])
 	suite.assertProcessOrder([][]string{
-		[]string{"dep-test-server-3"},
-		[]string{"dep-test-server-4"},
-		[]string{"dep-test-server-2"},
-		[]string{"dep-test-server-1"},
+		{"dep-test-server-3"},
+		{"dep-test-server-4"},
+		{"dep-test-server-2"},
+		{"dep-test-server-1"},
 	}, deptProcessNames)
 
 	suite.assertProcessOrderFromCmdResp([]string{
@@ -278,7 +276,7 @@ func (suite *Pmon3DependencyTestSuite) assertProcessOrderFromCmdResp(processName
 func (suite *Pmon3DependencyTestSuite) assertProcessOrder(expectedProcessNames [][]string, actualProcessNames []string) bool {
 	expectedProcessNameLen := 0
 	for i := range expectedProcessNames {
-		for _ = range expectedProcessNames[i] {
+		for range expectedProcessNames[i] {
 			expectedProcessNameLen++
 		}
 	}
@@ -291,7 +289,7 @@ func (suite *Pmon3DependencyTestSuite) assertProcessOrder(expectedProcessNames [
 	index := 0
 	for k := range expectedProcessNames {
 		expectedProcessNameRow := expectedProcessNames[k]
-		for _ = range expectedProcessNameRow {
+		for range expectedProcessNameRow {
 			log.Printf("Does %-v contain %s", expectedProcessNameRow, actualProcessNames[index])
 			assert.Contains(suite.T(), expectedProcessNameRow, actualProcessNames[index])
 			index++

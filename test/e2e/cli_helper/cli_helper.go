@@ -13,8 +13,8 @@ import (
 )
 
 type CliHelper struct {
-	suite      *suite.Suite
-	AppBinPath string
+	suite       *suite.Suite
+	ProjectPath string
 }
 
 func New(suite *suite.Suite, projectPath string) *CliHelper {
@@ -62,7 +62,7 @@ func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string
 }
 
 func (cliHelper *CliHelper) ExecCmd(processFile string, execFlagsJson string) *protos.CmdResp {
-	processFile = cliHelper.AppBinPath + processFile
+	processFile = cliHelper.ProjectPath + processFile
 	cli.Log.Infof("Executing: pmon3 exec %s %s", processFile, execFlagsJson)
 	ef := model.ExecFlags{}
 	execFlags, err := ef.Parse(execFlagsJson)
