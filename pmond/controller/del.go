@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"pmon3/pmond/controller/base"
+	"fmt"
 	"pmon3/pmond/controller/base/del"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
@@ -16,7 +16,12 @@ func Delete(cmd *protos.Cmd) *protos.CmdResp {
 func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdResp {
 	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
-		return base.ErroredCmdResp(cmd, err)
+		newCmdResp := protos.CmdResp{
+			Id:    cmd.GetId(),
+			Name:  cmd.GetName(),
+			Error: fmt.Sprintf("Process (%s) does not exist", idOrName),
+		}
+		return &newCmdResp
 	}
 
 	err = del.ByProcess(p, forced)

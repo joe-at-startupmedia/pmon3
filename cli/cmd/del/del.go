@@ -1,7 +1,6 @@
 package del
 
 import (
-	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/output/process/one"
 	"pmon3/pmond/protos"
@@ -38,9 +37,9 @@ func runCmd(args []string) {
 		sent = base.SendCmd("del", args[0])
 	}
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	process := newCmdResp.GetProcess()
+	if process != nil {
+		p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
+		table_one.Render(p.RenderTable())
 	}
-	p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
-	table_one.Render(p.RenderTable())
 }

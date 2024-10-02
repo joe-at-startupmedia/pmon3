@@ -73,6 +73,10 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-4\"}")
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
+
+	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-5\"}")
+	time.Sleep(2 * time.Second)
+	suite.cliHelper.LsAssertStatus(5, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestC1_DescribingAProcessWithAFourthId() {
@@ -81,14 +85,26 @@ func (suite *Pmon3CoreTestSuite) TestC1_DescribingAProcessWithAFourthId() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestC2_DescribingANonExistentProcess() {
-	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("desc", "5")
-	assert.Equal(suite.T(), "Process (5) does not exist", newCmdResp.GetError())
+	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("desc", "6")
+	assert.Equal(suite.T(), "Process (6) does not exist", newCmdResp.GetError())
 }
 
-func (suite *Pmon3CoreTestSuite) TestD_DeletingAProcess() {
+func (suite *Pmon3CoreTestSuite) TestD1_DeletingAProcess() {
 	suite.cliHelper.ExecBase1("del", "3")
 	time.Sleep(2 * time.Second)
+	suite.cliHelper.LsAssertStatus(4, "running", 0)
+}
+
+func (suite *Pmon3CoreTestSuite) TestD2_ForceDeletingAProcess() {
+	suite.cliHelper.ExecBase2("del", "4", "force")
+	time.Sleep(2 * time.Second)
 	suite.cliHelper.LsAssertStatus(3, "running", 0)
+}
+
+func (suite *Pmon3CoreTestSuite) TestD3_ForceDeletingANonExistentProcess() {
+	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("del", "6")
+	time.Sleep(2 * time.Second)
+	assert.Equal(suite.T(), "Process (6) does not exist", newCmdResp.GetError())
 }
 
 func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
