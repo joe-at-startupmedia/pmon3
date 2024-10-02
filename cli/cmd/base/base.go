@@ -2,6 +2,8 @@ package base
 
 import (
 	"context"
+	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/joe-at-startupmedia/xipc"
 	"os/user"
 	"pmon3/cli"
@@ -16,6 +18,8 @@ import (
 var xr xipc.IRequester
 
 const SEND_RECEIVE_TIMEOUT = time.Second * 5
+
+var errorStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("9"))
 
 func handleOpenError(e error) {
 	if e != nil {
@@ -91,7 +95,7 @@ func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 		if err != nil {
 			cli.Log.Fatal(err)
 		} else if len(newCmdResp.GetError()) > 0 {
-			cli.Log.Fatal(newCmdResp.GetError())
+			fmt.Println(errorStyle.Render(newCmdResp.GetError()))
 		}
 		cli.Log.Debugf("Got a new response: %s", newCmdResp.Id)
 	}

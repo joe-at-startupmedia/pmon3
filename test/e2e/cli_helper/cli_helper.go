@@ -15,13 +15,24 @@ import (
 type CliHelper struct {
 	suite       *suite.Suite
 	ProjectPath string
+	shouldError bool
 }
 
 func New(suite *suite.Suite, projectPath string) *CliHelper {
 	return &CliHelper{
 		suite,
 		projectPath,
+		false,
 	}
+}
+
+func (cliHelper *CliHelper) reset() {
+	cliHelper.shouldError = false
+}
+
+func (cliHelper *CliHelper) ShouldError() *CliHelper {
+	cliHelper.shouldError = true
+	return cliHelper
 }
 
 func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdResp) {
@@ -93,9 +104,10 @@ func (cliHelper *CliHelper) execBase(cmd string, arg1 string, arg2 string) *prot
 		sent = base.SendCmd(cmd, arg1)
 	}
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
+	if len(newCmdResp.GetError()) > 0 && !cliHelper.shouldError {
 		cliHelper.suite.Fail(newCmdResp.GetError())
 	}
+	cliHelper.reset()
 	return newCmdResp
 }
 

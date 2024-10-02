@@ -75,9 +75,14 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
-func (suite *Pmon3CoreTestSuite) TestC_DescribingAProcessWithAFourthId() {
+func (suite *Pmon3CoreTestSuite) TestC1_DescribingAProcessWithAFourthId() {
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "4")
 	assert.Equal(suite.T(), "test-server-4", newCmdResp.GetProcess().GetName())
+}
+
+func (suite *Pmon3CoreTestSuite) TestC2_DescribingANonExistentProcess() {
+	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("desc", "5")
+	assert.Equal(suite.T(), "Process (5) does not exist", newCmdResp.GetError())
 }
 
 func (suite *Pmon3CoreTestSuite) TestD_DeletingAProcess() {
