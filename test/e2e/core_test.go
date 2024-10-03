@@ -9,6 +9,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
+	"pmon3/pmond/model"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 
@@ -193,6 +194,24 @@ func (suite *Pmon3CoreTestSuite) TestK_ResetRestartCounter() {
 func (suite *Pmon3CoreTestSuite) TestL_ResetNonExistentProcess() {
 	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("reset", "1")
 	assert.Equal(suite.T(), "process (1) does not exist", newCmdResp.GetError())
+}
+
+func (suite *Pmon3CoreTestSuite) TestM_ExecProcessWithNonExistentAbsolutePath() {
+	newCmdResp := suite.cliHelper.ShouldError().ExecCmd("/nonexistent_path/test_app", "{\"name\": \"test-server-7\"}")
+	assert.Contains(suite.T(), newCmdResp.GetError(), "does not exist: stat")
+}
+
+func (suite *Pmon3CoreTestSuite) TestN_ExecProcessWithNonExistentRelativePath() {
+	ef := model.ExecFlags{}
+	execFlags, _ := ef.Parse("{\"name\": \"test-server-7\"}")
+	execFlags.File = "./nonexistent_path/test_app"
+	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("exec", execFlags.Json())
+	assert.Contains(suite.T(), newCmdResp.GetError(), "does not exist: stat")
+}
+
+func (suite *Pmon3CoreTestSuite) TestO_ExecProcessWithMalformedJson() {
+	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("exec", "{\"malformed\": \"json")
+	assert.Contains(suite.T(), newCmdResp.GetError(), "could not parse flags: unexpected end of JSON input")
 }
 
 func (suite *Pmon3CoreTestSuite) TearDownSuite() {

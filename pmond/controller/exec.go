@@ -12,7 +12,6 @@ import (
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
-	"strings"
 )
 
 func setExecFileAbsPath(execFlags *model.ExecFlags) error {
@@ -48,11 +47,7 @@ func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	}
 	err = EnqueueProcess(parsedFlags)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "command error:") {
-			return base.ErroredCmdResp(cmd, err)
-		} else {
-			newCmdResp.Error = err.Error()
-		}
+		newCmdResp.Error = err.Error()
 	}
 	return &newCmdResp
 }

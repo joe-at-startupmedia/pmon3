@@ -40,7 +40,6 @@ func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdR
 	processList := newCmdResp.GetProcessList().GetProcesses()
 	cli.Log.Infof("process list: %s \n value string: %s \n", processList, newCmdResp.GetValueStr())
 	passing := assert.Equal(cliHelper.suite.T(), expectedProcessLen, len(processList))
-	//cli.Log.Fatalf("Expected process length of %d but got %d", expectedProcessLen, actualProcessLen)
 	return passing, newCmdResp
 }
 
