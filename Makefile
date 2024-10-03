@@ -9,7 +9,7 @@ DIR_DATA ?= /etc/pmon3/data
 DIR_CONF ?= /etc/pmon3/config
 WHOAMI=$(shell whoami)
 TEST_REGEX ?= "Test"
-TEST_FILE_CONFIG ?= $(DIR_ROOT)/test/e2e/config/test-config.yml
+TEST_FILE_CONFIG ?= $(DIR_ROOT)/test/e2e/config/test-config.core.yml
 TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data_dir:" | cut -d' ' -f2)
 TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs_dir:" | cut -d' ' -f2)
 

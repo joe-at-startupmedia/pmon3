@@ -39,7 +39,7 @@ func (suite *Pmon3CoreTestSuite) SetupSuite() {
 	projectPath := os.Getenv("PROJECT_PATH")
 	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
 
-	configFile := projectPath + "/test/e2e/config/test-config.yml"
+	configFile := projectPath + "/test/e2e/config/test-config.core.yml"
 	processConfigFile := projectPath + "/test/e2e/config/process.core-test.config.json"
 	if err := cli.Instance(configFile); err != nil {
 		suite.FailNow(err.Error())
