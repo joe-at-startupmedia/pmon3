@@ -209,9 +209,26 @@ func (suite *Pmon3CoreTestSuite) TestN_ExecProcessWithNonExistentRelativePath() 
 	assert.Contains(suite.T(), newCmdResp.GetError(), "does not exist: stat")
 }
 
-func (suite *Pmon3CoreTestSuite) TestO_ExecProcessWithMalformedJson() {
+func (suite *Pmon3CoreTestSuite) TestO_ExecProcessWithExistentRelativePath() {
+	ef := model.ExecFlags{}
+	execFlags, _ := ef.Parse("{\"name\": \"test-server-7\"}")
+	execFlags.File = "../app/bin/test_app"
+	suite.cliHelper.ExecBase1("exec", execFlags.Json())
+}
+
+func (suite *Pmon3CoreTestSuite) TestP_ExecProcessWithMalformedJson() {
 	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("exec", "{\"malformed\": \"json")
 	assert.Contains(suite.T(), newCmdResp.GetError(), "could not parse flags: unexpected end of JSON input")
+}
+
+func (suite *Pmon3CoreTestSuite) TestQ_ExecProcessWithoutName() {
+	ef := model.ExecFlags{
+		File: suite.cliHelper.ProjectPath + "/test/app/bin/test_app",
+	}
+	suite.cliHelper.ExecBase1("exec", ef.Json())
+	time.Sleep(2 * time.Second)
+	suite.cliHelper.ExecBase0("drop")
+	time.Sleep(2 * time.Second)
 }
 
 func (suite *Pmon3CoreTestSuite) TearDownSuite() {

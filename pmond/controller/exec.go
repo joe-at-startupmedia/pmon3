@@ -15,21 +15,22 @@ import (
 )
 
 func setExecFileAbsPath(execFlags *model.ExecFlags) error {
-	_, err := os.Stat(execFlags.File)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
-	}
 
 	if path.IsAbs(execFlags.File) {
+		_, err := os.Stat(execFlags.File)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
+		}
+
 		return nil
+	} else {
+		absPath, err := filepath.Abs(execFlags.File)
+		_, err = os.Stat(absPath)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
+		}
+		execFlags.File = absPath
 	}
-
-	absPath, err := filepath.Abs(execFlags.File)
-	if err != nil {
-		return fmt.Errorf("get file path error: %w", err)
-	}
-
-	execFlags.File = absPath
 
 	return nil
 }
@@ -60,7 +61,7 @@ func EnqueueProcess(flags *model.ExecFlags) error {
 	}
 	name := flags.Name
 	// get process file name
-	if len(name) <= 0 {
+	if len(name) == 0 {
 		//set the filename as the name
 		name = filepath.Base(flags.File)
 		flags.Name = name
