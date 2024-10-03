@@ -37,7 +37,7 @@ func (suite *Pmon3ConfigTestSuite) SetupSuite() {
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3ConfigTestSuite) TestA1_TestConfigFileGetter() {
-	
+
 	assert.Equal(suite.T(), "/etc/pmon3/config/config.yml", conf.GetConfigFile())
 
 	os.Setenv("PMON3_CONF", "/tmp/custom-config.yml")
