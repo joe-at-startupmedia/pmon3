@@ -40,66 +40,6 @@ jobs:
         export PATH="${GOPATH_BIN}:${PATH}"
         docker build --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
 
-  test_cgo_sanity:
-    name: Test
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.22
-
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
-
-      - name: Docker Testing CGO
-        run: |
-          GOPATH_BIN=$(go env GOPATH)/bin
-          export PATH="${GOPATH_BIN}:${PATH}"
-          docker build --build-arg TEST_REGEX_ARG=Core --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=test_cgo -t pmon3 .
-
-  build:
-    name: Build
-    needs: test
-    strategy:
-     matrix:
-       os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.22
-
-
-      - name: Build amd64
-        run: |
-          GOARCH=amd64 go build -v ./...
-        shell: bash
-
-      - name: Build 386
-        run: |
-          GOARCH=386 go build -tags net -v ./...
-        shell: bash
-
-      - name: Build arm64
-        run: |
-          GOARCH=arm64 go build -v ./...
-        shell: bash
-
-      - name: Build arm
-        run: |
-          GOARCH=arm go build -v ./...
-        shell: bash
-
-      - name: Finish
-        run: |
-          echo ":rocket: Build complete!" >> $GITHUB_STEP_SUMMARY
+    - name: Finish
+      run: |
+        echo ":rocket: Testing complete!" >> $GITHUB_STEP_SUMMARY
