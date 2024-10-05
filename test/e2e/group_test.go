@@ -26,7 +26,7 @@ func TestGroupTestSuite(t *testing.T) {
 }
 
 func (suite *Pmon3GroupTestSuite) SetupSuite() {
-	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.group-test.config.json", "export")
+	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.group-test.config.json", "group")
 }
 
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194

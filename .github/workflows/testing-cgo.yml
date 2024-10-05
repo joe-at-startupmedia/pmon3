@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  test:
+  test_cgo_full:
     name: Test CGO
     runs-on: ubuntu-latest
     steps:
