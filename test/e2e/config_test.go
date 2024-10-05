@@ -108,4 +108,6 @@ func (suite *Pmon3ConfigTestSuite) TestC_BootCliWithTestConfigFile() {
 	assert.Equal(suite.T(), logrus.DebugLevel, cli.Config.GetLogLevel())
 }
 
-func (suite *Pmon3ConfigTestSuite) TearDownSuite() {}
+func (suite *Pmon3ConfigTestSuite) TearDownSuite() {
+	os.Setenv("PMON3_DEBUG", "warn")
+}

@@ -21,7 +21,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 
 	for i := range g.Processes {
 		p := g.Processes[i]
-		err = restart.ByProcess(cmd, p, idOrName, flags, incrementCounter)
+		err = restart.ByProcess(cmd, p, p.GetIdStr(), flags, incrementCounter)
 		if err != nil {
 			return base.ErroredCmdResp(cmd, err)
 		}

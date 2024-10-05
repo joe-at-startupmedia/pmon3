@@ -249,6 +249,8 @@ func (suite *Pmon3DependencyTestSuite) TestD_ShouldRebootFromConfigOnlyWithCorre
 }
 
 func (suite *Pmon3DependencyTestSuite) TearDownSuite() {
+	suite.cliHelper.ExecBase0("drop")
+	time.Sleep(2 * time.Second)
 	god.Banish()
 	base.CloseSender()
 }

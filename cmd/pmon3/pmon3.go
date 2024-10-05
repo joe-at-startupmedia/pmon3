@@ -5,6 +5,7 @@ import (
 	"os"
 	"pmon3/cli"
 	"pmon3/cli/cmd"
+	"pmon3/cli/cmd/base"
 	"pmon3/conf"
 	"pmon3/pmond/utils/conv"
 	"strings"
@@ -25,20 +26,18 @@ func main() {
 
 	err := cli.Instance(conf.GetConfigFile())
 	if err != nil {
-		panic(err)
+		cli.Log.Fatal(err)
 	}
 
 	skipRunCheck := os.Getenv("PMON3_SKIP_RUNCHECK")
 
 	if skipRunCheck != "true" && !isPmondRunning() {
-		cli.Log.Fatal("pmond must be running")
-	}
-	if err != nil {
-		cli.Log.Fatal(err)
+		base.OutputError("pmond must be running")
+		return
 	}
 
 	err = cmd.Exec()
 	if err != nil {
-		cli.Log.Fatal(err)
+		base.OutputError(err.Error())
 	}
 }

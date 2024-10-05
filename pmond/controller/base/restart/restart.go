@@ -64,10 +64,10 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 		}
 		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
-		parsedFlags.File = p.ProcessFile
 		if err != nil {
 			return fmt.Errorf("could not parse flags: %w", err)
 		} else {
+			parsedFlags.File = p.ProcessFile
 			pmond.Log.Debugf("update as queued: %v", flags)
 			err = UpdateAsQueued(p, parsedFlags)
 			if err != nil {
