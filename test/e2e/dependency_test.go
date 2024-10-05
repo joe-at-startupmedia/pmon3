@@ -246,11 +246,12 @@ func (suite *Pmon3DependencyTestSuite) TestD_ShouldRebootFromConfigOnlyWithCorre
 		"dep-test-server-1",
 		"dep-test-server-5",
 	}, processList, "running")
+
+	suite.cliHelper.ExecBase0("drop")
+	time.Sleep(5 * time.Second)
 }
 
 func (suite *Pmon3DependencyTestSuite) TearDownSuite() {
-	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(2 * time.Second)
 	god.Banish()
 	base.CloseSender()
 }

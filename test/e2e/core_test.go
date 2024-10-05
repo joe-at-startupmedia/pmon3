@@ -228,7 +228,7 @@ func (suite *Pmon3CoreTestSuite) TestQ_ExecProcessWithoutName() {
 	suite.cliHelper.ExecBase1("exec", ef.Json())
 	time.Sleep(2 * time.Second)
 	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(2 * time.Second)
+	time.Sleep(5 * time.Second)
 }
 
 func (suite *Pmon3CoreTestSuite) TearDownSuite() {
