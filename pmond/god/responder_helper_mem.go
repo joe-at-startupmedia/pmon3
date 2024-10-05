@@ -10,8 +10,14 @@ import (
 )
 
 func connectResponder() {
+
+	queueName := "pmon3_mem"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := &xipc_mem.QueueConfig{
-		Name:       "pmon3_mem",
+		Name:       queueName,
 		BasePath:   pmond.Config.ShmemDir,
 		MaxMsgSize: 32768,
 		Flags:      os.O_RDWR | os.O_CREATE | os.O_TRUNC,

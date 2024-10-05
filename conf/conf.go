@@ -54,6 +54,7 @@ type Config struct {
 	ShmemDir                        string `yaml:"shmem_dir" default:"/dev/shm/"`
 	MessageQueueUser                string `yaml:"mq_user"`
 	MessageQueueGroup               string `yaml:"mq_group"`
+	MessageQueueSuffix              string `yaml:"mq_suffix"`
 	LogLevel                        string `yaml:"log_level" default:"info"`
 	OnProcessRestartExec            string `yaml:"on_process_restart_exec"`
 	OnProcessFailureExec            string `yaml:"on_process_failure_exec"`

@@ -8,8 +8,13 @@ import (
 
 func connectResponder() {
 
+	queueName := "pmon3_net"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := xipc_net.QueueConfig{
-		Name:                    "pmon3_net",
+		Name:                    queueName,
 		ServerUnmaskPermissions: true,
 	}
 

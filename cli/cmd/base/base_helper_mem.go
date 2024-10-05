@@ -5,15 +5,21 @@ package base
 import (
 	xipc_mem "github.com/joe-at-startupmedia/xipc/mem"
 	"pmon3/cli"
+	"pmon3/pmond"
 	"time"
 )
 
 func OpenSender() {
 
+	queueName := "pmon3_mem"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := &xipc_mem.QueueConfig{
-		Name:       "pmon3_mem",
+		Name:       queueName,
 		BasePath:   cli.Config.ShmemDir,
-		MaxMsgSize: 4096,
+		MaxMsgSize: 32768,
 	}
 
 	xr = xipc_mem.NewRequester(queueConfig)

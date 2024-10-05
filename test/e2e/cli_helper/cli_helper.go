@@ -1,10 +1,13 @@
 package cli_helper
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"os"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/pmond"
 	"pmon3/pmond/god"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
@@ -17,6 +20,30 @@ type CliHelper struct {
 	suite       *suite.Suite
 	ProjectPath string
 	shouldError bool
+}
+
+func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, messageQueueSuffix string) *CliHelper {
+	projectPath := os.Getenv("PROJECT_PATH")
+	cliHelper := New(s, projectPath)
+
+	if err := pmond.Instance(projectPath+configFile, projectPath+processConfigFile); err != nil {
+		s.FailNow(err.Error())
+	}
+	pmond.Config.MessageQueueSuffix = messageQueueSuffix
+
+	ctx := context.Background()
+	go god.Summon(ctx)
+
+	time.Sleep(5 * time.Second)
+
+	if err := cli.Instance(projectPath + configFile); err != nil {
+		s.FailNow(err.Error())
+	}
+	cli.Config.MessageQueueSuffix = messageQueueSuffix
+
+	base.OpenSender()
+
+	return cliHelper
 }
 
 func New(suite *suite.Suite, projectPath string) *CliHelper {

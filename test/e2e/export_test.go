@@ -1,16 +1,11 @@
 package e2e
 
 import (
-	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"os"
-	"pmon3/cli"
-	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/export"
-	"pmon3/pmond"
-	"pmon3/pmond/god"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 
@@ -32,28 +27,7 @@ func TestExportTestSuite(t *testing.T) {
 }
 
 func (suite *Pmon3ExportTestSuite) SetupSuite() {
-
-	projectPath := os.Getenv("PROJECT_PATH")
-	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
-
-	configFile := projectPath + "/test/e2e/config/test-config.core.yml"
-	processConfigFile := projectPath + "/test/e2e/config/export/process.from.json"
-
-	err := cli.Instance(configFile)
-	if err != nil {
-		suite.Fail(err.Error())
-	}
-
-	if err := pmond.Instance(configFile, processConfigFile); err != nil {
-		suite.FailNow(err.Error())
-	}
-
-	ctx := context.Background()
-	go god.Summon(ctx)
-
-	time.Sleep(5 * time.Second)
-
-	base.OpenSender()
+	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/export/process.from.json", "export")
 }
 
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194

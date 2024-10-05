@@ -9,8 +9,14 @@ import (
 )
 
 func connectResponder() {
+
+	queueName := "pmon3_pmq"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := xipc_pmq.QueueConfig{
-		Name:  "pmon3_pmq",
+		Name:  queueName,
 		Dir:   pmond.Config.PosixMessageQueueDir,
 		Flags: xipc_pmq.O_RDWR | xipc_pmq.O_CREAT, //| xipc_pmq.O_NONBLOCK,
 	}

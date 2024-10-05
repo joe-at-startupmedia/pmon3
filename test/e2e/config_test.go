@@ -27,7 +27,6 @@ func TestConfigTestSuite(t *testing.T) {
 }
 
 func (suite *Pmon3ConfigTestSuite) SetupSuite() {
-
 	projectPath := os.Getenv("PROJECT_PATH")
 	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
 }

@@ -5,13 +5,19 @@ package base
 import (
 	xipc_net "github.com/joe-at-startupmedia/xipc/net"
 	"pmon3/cli"
+	"pmon3/pmond"
 	"time"
 )
 
 func OpenSender() {
 
+	queueName := "pmon3_net"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := xipc_net.QueueConfig{
-		Name:             "pmon3_net",
+		Name:             queueName,
 		ClientRetryTimer: 0,
 		ClientTimeout:    0,
 	}

@@ -1,14 +1,9 @@
 package e2e
 
 import (
-	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"os"
-	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/pmond"
-	"pmon3/pmond/god"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
@@ -35,26 +30,7 @@ func TestCoreTestSuite(t *testing.T) {
 }
 
 func (suite *Pmon3CoreTestSuite) SetupSuite() {
-
-	projectPath := os.Getenv("PROJECT_PATH")
-	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
-
-	configFile := projectPath + "/test/e2e/config/test-config.core.yml"
-	processConfigFile := projectPath + "/test/e2e/config/process.core-test.config.json"
-	if err := cli.Instance(configFile); err != nil {
-		suite.FailNow(err.Error())
-	}
-
-	if err := pmond.Instance(configFile, processConfigFile); err != nil {
-		suite.FailNow(err.Error())
-	}
-
-	ctx := context.Background()
-	go god.Summon(ctx)
-
-	time.Sleep(5 * time.Second)
-
-	base.OpenSender()
+	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.core-test.config.json", "core")
 }
 
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194

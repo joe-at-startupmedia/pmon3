@@ -5,13 +5,19 @@ package base
 import (
 	xipc_pmq "github.com/joe-at-startupmedia/xipc/pmq"
 	"pmon3/cli"
+	"pmon3/pmond"
 	"time"
 )
 
 func OpenSender() {
 
+	queueName := "pmon3_pmq"
+	if len(pmond.Config.MessageQueueSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
 	queueConfig := &xipc_pmq.QueueConfig{
-		Name: "pmon3_pmq",
+		Name: queueName,
 		Dir:  cli.Config.PosixMessageQueueDir,
 	}
 
