@@ -1,17 +1,29 @@
 package controller
 
 import (
-	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
 
 func Export(cmd *protos.Cmd) *protos.CmdResp {
-	all, err := repo.Process().FindAll()
-	if err != nil {
-		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
+
+	orderBy := cmd.GetArg1()
+
+	var all []model.Process
+	var err error
+
+	if len(orderBy) > 0 {
+		all, err = repo.Process().FindAllOrdered(orderBy)
+	} else {
+		all, err = repo.Process().FindAll()
 	}
+
+	if err != nil {
+		return base.ErroredCmdResp(cmd, err)
+	}
+
 	processConfig := model.ProcessConfig{
 		Processes: make([]model.ExecFlags, len(all)),
 	}

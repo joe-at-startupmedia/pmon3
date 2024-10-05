@@ -1,0 +1,33 @@
+{
+  "processes": [
+    {
+      "file": "/usr/src/pmon3/test_app",
+      "name": "export-test-server-1",
+      "env_vars": "TEST_APP_PORT=11020",
+      "log_dir": "/var/log/export-test-server-1/",
+      "dependencies": ["export-test-server-2","export-test-server-3"],
+      "groups": ["groupA","groupB"]
+    },
+    {
+      "file": "/usr/src/pmon3/test_app",
+      "name": "export-test-server-2",
+      "env_vars": "TEST_APP_PORT=11021",
+      "no_auto_restart": true
+    },
+    {
+      "file": "/usr/src/pmon3/test_app",
+      "name": "export-test-server-3",
+      "args": "-e example_args",
+      "log": "/var/log/export-test-server-3.log",
+      "env_vars": "TEST_APP_PORT=11022",
+      "groups": ["groupC"]
+    },
+    {
+      "file": "/usr/src/pmon3/test_app",
+      "name": "export-test-server-4",
+      "env_vars": "TEST_APP_PORT=11023",
+      "dependencies": ["export-test-server-3"],
+      "user": "nonexistent"
+    }
+  ]
+}

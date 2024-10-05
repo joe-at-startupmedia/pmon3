@@ -1,0 +1,36 @@
+[[Processes]]
+  File = "/usr/src/pmon3/test_app"
+  User = "root"
+  Log = "/var/log/export-test-server-1/export-test-server-1.log"
+  Args = ""
+  EnvVars = "TEST_APP_PORT=11020"
+  Name = "export-test-server-1"
+  dependencies = ["export-test-server-2", "export-test-server-3"]
+  groups = ["groupA", "groupB"]
+
+[[Processes]]
+  File = "/usr/src/pmon3/test_app"
+  User = "root"
+  Log = "/usr/src/pmon3/logs/export-test-server-2.log"
+  Args = ""
+  EnvVars = "TEST_APP_PORT=11021"
+  Name = "export-test-server-2"
+  NoAutoRestart = true
+
+[[Processes]]
+  File = "/usr/src/pmon3/test_app"
+  User = "root"
+  Log = "/var/log/export-test-server-3.log"
+  Args = "-e example_args"
+  EnvVars = "TEST_APP_PORT=11022"
+  Name = "export-test-server-3"
+  groups = ["groupC"]
+
+[[Processes]]
+  File = "/usr/src/pmon3/test_app"
+  User = "root"
+  Log = "/usr/src/pmon3/logs/export-test-server-4.log"
+  Args = ""
+  EnvVars = "TEST_APP_PORT=11023"
+  Name = "export-test-server-4"
+  dependencies = ["export-test-server-3"]

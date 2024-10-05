@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// Define the suite, and absorb the built-in dependency suite
+// Define the suite, and absorb the built-in suite
 // functionality from testify - including a T() method which
 // returns the current testing context
 type Pmon3DependencyTestSuite struct {
@@ -31,8 +31,6 @@ func TestDependencyTestSuite(t *testing.T) {
 	suite.Run(t, new(Pmon3DependencyTestSuite))
 }
 
-// Make sure that VariableThatShouldStartAtFive is set to five
-// before each test
 func (suite *Pmon3DependencyTestSuite) SetupSuite() {
 	projectPath := os.Getenv("PROJECT_PATH")
 	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)

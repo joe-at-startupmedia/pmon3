@@ -3,6 +3,7 @@ package export
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
@@ -13,7 +14,8 @@ import (
 )
 
 type flags struct {
-	format string
+	format  string
+	orderBy string
 }
 
 var flag flags
@@ -22,12 +24,13 @@ var Cmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export Process Configuration",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args)
+		Export(flag)
 	},
 }
 
 func init() {
 	Cmd.Flags().StringVarP(&flag.format, "format", "f", "json", "the format to export")
+	Cmd.Flags().StringVarP(&flag.format, "order", "o", "json", "the field by which to order by")
 }
 
 func jsonPrettyPrint(in string) string {
@@ -57,32 +60,44 @@ func yamlPrettyPrint(ac *model.ProcessConfig) string {
 	return out.String()
 }
 
-func cmdRun(args []string) {
+func Export(f flags) {
 	base.OpenSender()
 	defer base.CloseSender()
-	sent := base.SendCmd("export", "")
+	exportString, err := GetExportString(f.format, f.orderBy)
+	if err != nil {
+		base.OutputError(err.Error())
+		return
+	}
+	fmt.Println(exportString)
+}
+
+func GetExportString(format string, orderBy string) (string, error) {
+	sent := base.SendCmd("export", orderBy)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+		return "", errors.New(newCmdResp.GetError())
 	}
 	jsonOutput := newCmdResp.GetValueStr()
 
 	var ac model.ProcessConfig
-	if flag.format == "toml" || flag.format == "yaml" {
+	if format == "toml" || format == "yaml" {
 		err := json.Unmarshal([]byte(jsonOutput), &ac)
 		if err != nil {
-			cli.Log.Fatal(err)
+			return "", err
 		}
 	}
 
-	switch flag.format {
+	var exportString string
+	switch format {
 	case "toml":
-		fmt.Println(tomlPrettyPrint(&ac))
+		exportString = tomlPrettyPrint(&ac)
 	case "yaml":
-		fmt.Println(yamlPrettyPrint(&ac))
+		exportString = yamlPrettyPrint(&ac)
 	case "json":
-		fmt.Println(jsonPrettyPrint(jsonOutput))
+		exportString = jsonPrettyPrint(jsonOutput)
 	default:
-		cli.Log.Fatalf("Formats accepted are: json, toml or yaml")
+
+		return "", errors.New("accepted formats: json, toml or yaml")
 	}
+	return exportString, nil
 }

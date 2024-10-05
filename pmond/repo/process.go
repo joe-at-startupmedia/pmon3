@@ -113,6 +113,15 @@ func (pr *ProcessRepo) FindAll() ([]model.Process, error) {
 	return all, err
 }
 
+func (pr *ProcessRepo) FindAllOrdered(orderBy string) ([]model.Process, error) {
+	var all []model.Process
+	err := pr.getDb().Order(fmt.Sprintf("%s asc", orderBy)).Find(&all).Error
+	if err != nil {
+		pmond.Log.Infof("cant find processes: %v", err)
+	}
+	return all, err
+}
+
 func (pr *ProcessRepo) SaveGroups() error {
 	currentProcess, err := pr.FindById(pr.cur.ID)
 	if err != nil {

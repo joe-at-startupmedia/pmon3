@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-// Define the suite, and absorb the built-in core suite
+// Define the suite, and absorb the built-in suite
 // functionality from testify - including a T() method which
 // returns the current testing context
 type Pmon3CoreTestSuite struct {
@@ -32,8 +32,6 @@ func TestCoreTestSuite(t *testing.T) {
 	suite.Run(t, new(Pmon3CoreTestSuite))
 }
 
-// Make sure that VariableThatShouldStartAtFive is set to five
-// before each test
 func (suite *Pmon3CoreTestSuite) SetupSuite() {
 
 	projectPath := os.Getenv("PROJECT_PATH")

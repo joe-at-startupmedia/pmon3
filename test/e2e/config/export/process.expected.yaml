@@ -1,0 +1,36 @@
+processes:
+    - file: /usr/src/pmon3/test_app
+      user: root
+      log: /var/log/export-test-server-1/export-test-server-1.log
+      args: ""
+      env_vars: TEST_APP_PORT=11020
+      name: export-test-server-1
+      dependencies:
+        - export-test-server-2
+        - export-test-server-3
+      groups:
+        - groupA
+        - groupB
+    - file: /usr/src/pmon3/test_app
+      user: root
+      log: /usr/src/pmon3/logs/export-test-server-2.log
+      args: ""
+      env_vars: TEST_APP_PORT=11021
+      name: export-test-server-2
+      no_auto_restart: true
+    - file: /usr/src/pmon3/test_app
+      user: root
+      log: /var/log/export-test-server-3.log
+      args: -e example_args
+      env_vars: TEST_APP_PORT=11022
+      name: export-test-server-3
+      groups:
+        - groupC
+    - file: /usr/src/pmon3/test_app
+      user: root
+      log: /usr/src/pmon3/logs/export-test-server-4.log
+      args: ""
+      env_vars: TEST_APP_PORT=11023
+      name: export-test-server-4
+      dependencies:
+        - export-test-server-3
