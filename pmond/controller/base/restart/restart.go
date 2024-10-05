@@ -58,7 +58,7 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 
 	} else {
 		if process.IsRunning(p.Pid) {
-			if err := process.SendOsKillSignal(p, model.StatusStopped, false); err != nil {
+			if err := process.KillAndSaveStatus(p, model.StatusStopped, false); err != nil {
 				return err
 			}
 		}

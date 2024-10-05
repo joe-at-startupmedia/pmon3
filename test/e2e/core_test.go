@@ -10,7 +10,9 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/god"
 	"pmon3/pmond/model"
+	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
+	"strings"
 	"testing"
 
 	"pmon3/pmond/protos"
@@ -118,7 +120,7 @@ func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
 	}
 }
 
-func (suite *Pmon3CoreTestSuite) TestF_InitAll() {
+func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
 	var sent *protos.Cmd
 	sent = base.SendCmdArg2("init", "all", "blocking")
 	newCmdResp := base.GetResponse(sent)
@@ -128,6 +130,15 @@ func (suite *Pmon3CoreTestSuite) TestF_InitAll() {
 		time.Sleep(2 * time.Second)
 		suite.cliHelper.LsAssertStatus(3, "running", 0)
 	}
+}
+
+func (suite *Pmon3CoreTestSuite) TestF2_Top() {
+	cmdResp := suite.cliHelper.ExecBase0("top")
+	pidCsv := cmdResp.GetValueStr()
+	assert.Greater(suite.T(), len(pidCsv), 5)
+
+	pids := strings.Split(pidCsv, ",")
+	assert.Equal(suite.T(), 4, len(pids))
 }
 
 func (suite *Pmon3CoreTestSuite) TestG1_Drop() {
@@ -221,15 +232,69 @@ func (suite *Pmon3CoreTestSuite) TestP_ExecProcessWithMalformedJson() {
 
 func (suite *Pmon3CoreTestSuite) TestQ_ExecProcessWithoutName() {
 	ef := model.ExecFlags{
-		File: suite.cliHelper.ProjectPath + "/test/app/bin/test_app",
+		File:          suite.cliHelper.ProjectPath + "/test/app/bin/test_app",
+		NoAutoRestart: true,
 	}
 	suite.cliHelper.ExecBase1("exec", ef.Json())
 	time.Sleep(2 * time.Second)
-	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(5 * time.Second)
 }
 
-func (suite *Pmon3CoreTestSuite) TearDownSuite() {
-	god.Banish()
-	base.CloseSender()
+func (suite *Pmon3CoreTestSuite) TestR_KilledProcessShouldRestart() {
+
+	_, cmdResp := suite.cliHelper.LsAssertStatus(2, "running", 0)
+
+	processList := cmdResp.GetProcessList().GetProcesses()
+
+	p := model.ProcessFromProtobuf(processList[0])
+
+	assert.Greater(suite.T(), len(p.GetPidStr()), 2)
+
+	err := process.SendOsKillSignal(p, true)
+
+	if err != nil {
+		suite.Fail(err.Error())
+	}
+
+	time.Sleep(6 * time.Second)
+
+	passing, cmdResp := suite.cliHelper.LsAssertStatus(2, "running", 0)
+
+	if !passing {
+		return
+	}
+
+	processList = cmdResp.GetProcessList().GetProcesses()
+
+	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
+}
+
+func (suite *Pmon3CoreTestSuite) TestS_KilledProcessShouldNotRestart() {
+
+	_, cmdResp := suite.cliHelper.LsAssertStatus(2, "running", 0)
+
+	processList := cmdResp.GetProcessList().GetProcesses()
+
+	p := model.ProcessFromProtobuf(processList[1])
+
+	assert.Greater(suite.T(), len(p.GetPidStr()), 2)
+
+	err := process.SendOsKillSignal(p, true)
+
+	if err != nil {
+		suite.Fail(err.Error())
+	}
+
+	time.Sleep(6 * time.Second)
+
+	_, cmdResp = suite.cliHelper.LsAssertStatus(1, "running", 0)
+
+	////delete it, otherwise it will restart in the next test suite
+	//suite.cliHelper.ExecBase1("del", p.GetIdStr())
+	//time.Sleep(2 * time.Second)
+}
+
+// this is necessary because TearDownSuite executes concurrently with the
+// initialization of the next suite
+func (suite *Pmon3CoreTestSuite) TestZ_TearDown() {
+	suite.cliHelper.DropAndClose()
 }

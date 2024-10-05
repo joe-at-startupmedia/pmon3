@@ -85,6 +85,8 @@ func (suite *Pmon3ConfigTestSuite) TestC_BootCliWithTestConfigFile() {
 
 	assert.Equal(suite.T(), 30*time.Second, cli.Config.GetInitializationPeriod())
 
+	assert.Equal(suite.T(), "/usr/src/pmon3/data/data.db", cli.Config.GetDatabaseFile())
+
 	os.Setenv("PMON3_DEBUG", "true")
 
 	assert.Equal(suite.T(), logrus.DebugLevel, cli.Config.GetLogLevel())

@@ -245,13 +245,12 @@ func (suite *Pmon3DependencyTestSuite) TestD_ShouldRebootFromConfigOnlyWithCorre
 		"dep-test-server-5",
 	}, processList, "running")
 
-	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(5 * time.Second)
 }
 
-func (suite *Pmon3DependencyTestSuite) TearDownSuite() {
-	god.Banish()
-	base.CloseSender()
+// this is necessary because TearDownSuite executes concurrently with the
+// initialization of the next suite
+func (suite *Pmon3DependencyTestSuite) TestZ_TearDown() {
+	suite.cliHelper.DropAndClose()
 }
 
 func (suite *Pmon3DependencyTestSuite) assertProcessOrderFromCmdResp(processNames []string, processList []*protos.Process, expectedStatus string) bool {

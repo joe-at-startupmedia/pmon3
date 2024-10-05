@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"pmon3/pmond/model"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/configor"
@@ -152,6 +153,10 @@ func (c *Config) GetLogLevel() logrus.Level {
 	} else {
 		return strToLogLevel(c.LogLevel)
 	}
+}
+
+func (c *Config) GetDatabaseFile() string {
+	return strings.ReplaceAll(c.DataDir+"/data.db", "//", "/")
 }
 
 func strToLogLevel(str string) logrus.Level {

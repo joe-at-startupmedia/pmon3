@@ -25,7 +25,7 @@ func ByProcess(p *model.Process, forced bool, status model.ProcessStatus) error 
 	//we need to wait for the process to save before killing it to avoid a restart race condition
 	time.Sleep(200 * time.Millisecond)
 	// try to kill the process
-	err = process.SendOsKillSignal(p, status, forced)
+	err = process.KillAndSaveStatus(p, status, forced)
 	if err != nil {
 		return fmt.Errorf("stop process error: %w", err)
 	}

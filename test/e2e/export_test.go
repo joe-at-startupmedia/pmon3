@@ -109,14 +109,10 @@ func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 	assert.Equal(suite.T(), exportString, fileContents)
 }
 
-func (suite *Pmon3ExportTestSuite) TearDownSuite() {
-
-	base.OpenSender()
-	time.Sleep(1)
-	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(5 * time.Second)
-	god.Banish()
-	base.CloseSender()
+// this is necessary because TearDownSuite executes concurrently with the
+// initialization of the next suite
+func (suite *Pmon3ExportTestSuite) TestZ_TearDown() {
+	suite.cliHelper.DropAndClose()
 }
 
 func (suite *Pmon3ExportTestSuite) getExpectedFileContents(expectedFile string) string {

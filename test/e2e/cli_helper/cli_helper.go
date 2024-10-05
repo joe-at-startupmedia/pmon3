@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/pmond/god"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"strings"
@@ -132,4 +133,12 @@ func (cliHelper *CliHelper) ShouldKill(expectedProcessLen int, waitBeforeAsserti
 	time.Sleep(time.Duration(waitBeforeAssertion) * time.Second)
 	passing, _ := cliHelper.LsAssertStatus(expectedProcessLen, "stopped", 0)
 	return passing
+}
+
+func (cliHelper *CliHelper) DropAndClose() {
+	cliHelper.ExecBase1("drop", "force")
+	time.Sleep(3 * time.Second)
+	god.Banish()
+	base.CloseSender()
+	time.Sleep(1 * time.Second)
 }

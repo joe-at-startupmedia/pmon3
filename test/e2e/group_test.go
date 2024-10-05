@@ -416,12 +416,10 @@ func (suite *Pmon3GroupTestSuite) TestJ2_ListGroups() {
 	assert.Equal(suite.T(), "groupD", groupList[2].GetName())
 	assert.Equal(suite.T(), "groupE", groupList[3].GetName())
 	assert.Equal(suite.T(), "groupF", groupList[4].GetName())
-
-	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(5 * time.Second)
 }
 
-func (suite *Pmon3GroupTestSuite) TearDownSuite() {
-	god.Banish()
-	base.CloseSender()
+// this is necessary because TearDownSuite executes concurrently with the
+// initialization of the next suite
+func (suite *Pmon3GroupTestSuite) TestZ_TearDown() {
+	suite.cliHelper.DropAndClose()
 }

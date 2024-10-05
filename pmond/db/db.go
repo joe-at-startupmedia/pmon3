@@ -16,13 +16,13 @@ func Db() *gorm.DB {
 		pmondDbDir := pmond.Config.DataDir
 		_, err := os.Stat(pmondDbDir)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(pmondDbDir, 0755)
+			err = os.MkdirAll(pmondDbDir, 0755)
 			if err != nil {
 				pmond.Log.Panicf("%s", err)
 			}
 		}
 
-		initDb, err := openDb(pmondDbDir)
+		initDb, err := openDb(pmond.Config.GetDatabaseFile())
 		if err != nil {
 			pmond.Log.Panicf("%s", err)
 		}

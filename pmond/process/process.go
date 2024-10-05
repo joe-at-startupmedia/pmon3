@@ -139,8 +139,14 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 	return restarted, nil
 }
 
-func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool) error {
+func SendOsKillSignal(p *model.Process, forced bool) error {
 	var cmd *exec.Cmd
+
+	if !IsRunning(p.Pid) {
+		pmond.Log.Warnf("Cannot kill process (%s - %s) that isnt running", p.Stringify(), p.GetPidStr())
+		return nil
+	}
+
 	if forced {
 		cmd = exec.Command("kill", "-9", p.GetPidStr())
 	} else {
@@ -149,9 +155,16 @@ func SendOsKillSignal(p *model.Process, status model.ProcessStatus, forced bool)
 
 	err := cmd.Run()
 	if err != nil {
-		pmond.Log.Warn(err)
+		pmond.Log.Warnf("%s errored with: %s", cmd.String(), err.Error())
 	}
 
+	return err
+}
+
+func KillAndSaveStatus(p *model.Process, status model.ProcessStatus, forced bool) error {
+	if err := SendOsKillSignal(p, forced); err != nil {
+		return err
+	}
 	return repo.ProcessOf(p).UpdateStatus(status)
 }
 
