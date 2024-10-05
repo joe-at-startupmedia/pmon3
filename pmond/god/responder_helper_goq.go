@@ -4,6 +4,7 @@ package god
 
 import (
 	xipc_net "github.com/joe-at-startupmedia/xipc/net"
+	"pmon3/pmond"
 )
 
 func connectResponder() {
