@@ -34,7 +34,7 @@ func setExecFileAbsPath(execFlags *model.ExecFlags) error {
 	return nil
 }
 
-func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string, incrementCounter bool) error {
+func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string, incrementCounter bool) (*model.Process, error) {
 	// kill the process and insert a new record with "queued" status
 
 	//the process doesn't exist,  so we'll look in the AppConfig
@@ -42,43 +42,43 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 
 		execFlags, err := pmond.Config.ProcessConfig.GetExecFlagsByName(idOrName)
 		if err != nil {
-			return fmt.Errorf("command error: start process error: %w", err)
+			return nil, fmt.Errorf("command error: start process error: %w", err)
 		}
 
 		// get exec abs file path
 		err = setExecFileAbsPath(&execFlags)
 		if err != nil {
-			return fmt.Errorf("command error: file argument error: %w", err)
+			return nil, fmt.Errorf("command error: file argument error: %w", err)
 		}
 
 		pmond.Log.Debugf("inserting as queued with flags: %v", flags)
 		if p, err = exec.InsertAsQueued(&execFlags); err != nil {
-			return fmt.Errorf("could not start process: %w", err)
+			return nil, fmt.Errorf("could not start process: %w", err)
 		}
 
 	} else {
 		if process.IsRunning(p.Pid) {
 			if err := process.KillAndSaveStatus(p, model.StatusStopped, false); err != nil {
-				return err
+				return nil, err
 			}
 		}
 		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
 		if err != nil {
-			return fmt.Errorf("could not parse flags: %w", err)
+			return nil, fmt.Errorf("could not parse flags: %w", err)
 		} else {
 			parsedFlags.File = p.ProcessFile
 			pmond.Log.Debugf("update as queued: %v", flags)
 			err = UpdateAsQueued(p, parsedFlags)
 			if err != nil {
-				return err
+				return nil, err
 			} else if incrementCounter && strings.HasSuffix(cmd.GetName(), "restart") {
 				p.IncrRestartCount()
 			}
 		}
 	}
 
-	return nil
+	return p, nil
 }
 
 func UpdateAsQueued(m *model.Process, flags *model.ExecFlags) error {

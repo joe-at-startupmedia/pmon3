@@ -263,10 +263,22 @@ func (suite *Pmon3CoreTestSuite) TestS_KilledProcessShouldNotRestart() {
 	time.Sleep(6 * time.Second)
 
 	_, cmdResp = suite.cliHelper.LsAssertStatus(1, "running", 0)
+}
 
-	////delete it, otherwise it will restart in the next test suite
-	//suite.cliHelper.ExecBase1("del", p.GetIdStr())
-	//time.Sleep(2 * time.Second)
+func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
+	suite.cliHelper.ExecBase0("drop")
+	time.Sleep(2 * time.Second)
+	suite.cliHelper.ExecBase2("restart", "test-server-2", "{}")
+	time.Sleep(2 * time.Second)
+	_, cmdResp := suite.cliHelper.LsAssertStatus(1, "running", 0)
+
+	processList := cmdResp.GetProcessList().GetProcesses()
+
+	assert.Equal(suite.T(), 1, len(processList))
+
+	p := model.ProcessFromProtobuf(processList[0])
+
+	assert.Equal(suite.T(), "test-server-2", p.Name)
 }
 
 // this is necessary because TearDownSuite executes concurrently with the

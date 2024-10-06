@@ -27,8 +27,7 @@ func TestConfigTestSuite(t *testing.T) {
 }
 
 func (suite *Pmon3ConfigTestSuite) SetupSuite() {
-	projectPath := os.Getenv("PROJECT_PATH")
-	suite.cliHelper = cli_helper.New(&suite.Suite, projectPath)
+	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.config.yml", "", "config")
 }
 
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
@@ -84,7 +83,9 @@ func (suite *Pmon3ConfigTestSuite) TestC_BootCliWithTestConfigFile() {
 
 	assert.Equal(suite.T(), 30*time.Second, cli.Config.GetInitializationPeriod())
 
-	assert.Equal(suite.T(), "/usr/src/pmon3/data/data.db", cli.Config.GetDatabaseFile())
+	assert.Equal(suite.T(), "/usr/src/pmon3/data/nonexistent/data.db", cli.Config.GetDatabaseFile())
+
+	assert.DirExists(suite.T(), "/usr/src/pmon3/data/nonexistent/")
 
 	os.Setenv("PMON3_DEBUG", "true")
 

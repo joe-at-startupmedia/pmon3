@@ -21,7 +21,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 	//the process doesn't exist,  so we'll look in the AppConfig
 	if err != nil {
 
-		err = restart.ByProcess(cmd, nil, idOrName, flags, incrementCounter)
+		p, err = restart.ByProcess(cmd, nil, idOrName, flags, incrementCounter)
 		if err != nil {
 			return base.ErroredCmdResp(cmd, err)
 		}
@@ -33,16 +33,14 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 		}
 		return &newCmdResp
 	} else {
-		err = restart.ByProcess(cmd, p, idOrName, flags, incrementCounter)
+		_, err = restart.ByProcess(cmd, p, idOrName, flags, incrementCounter)
 		if err != nil {
 			return base.ErroredCmdResp(cmd, err)
 		} else {
 			newCmdResp := protos.CmdResp{
-				Id:   cmd.GetId(),
-				Name: cmd.GetName(),
-				Process: &protos.Process{
-					Log: p.Log,
-				},
+				Id:      cmd.GetId(),
+				Name:    cmd.GetName(),
+				Process: p.ToProtobuf(),
 			}
 			return &newCmdResp
 		}

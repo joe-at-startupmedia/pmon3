@@ -5,7 +5,7 @@
 # All commented values are the default when empty or omitted
 #
 # directory where the database is stored
-data_dir: /usr/src/pmon3/data/
+data_dir: /usr/src/pmon3/data/nonexistent/
 # directory where the logs are stored
 logs_dir: /usr/src/pmon3/logs/
 # log levels: debug/info/warn/error
