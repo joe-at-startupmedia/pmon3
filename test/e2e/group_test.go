@@ -3,7 +3,6 @@ package e2e
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/group/assign"
 	"pmon3/cli/cmd/group/create"
 	"pmon3/cli/cmd/group/del"
@@ -176,12 +175,7 @@ func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	//@TODO Why?
-	if base.XipcModule == "pmq" {
-		assert.GreaterOrEqual(suite.T(), uint32(2), processList[0].GetRestartCount())
-	} else {
-		assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
-	}
+	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[1].GetRestartCount())
 	assert.Equal(suite.T(), uint32(1), processList[2].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[3].GetRestartCount())
@@ -206,12 +200,7 @@ func (suite *Pmon3GroupTestSuite) TestE_RestartGroupB() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	//@TODO Why?
-	if base.XipcModule == "pmq" {
-		assert.GreaterOrEqual(suite.T(), uint32(2), processList[0].GetRestartCount())
-	} else {
-		assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
-	}
+	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
 	assert.Equal(suite.T(), uint32(1), processList[1].GetRestartCount())
 	assert.Equal(suite.T(), uint32(2), processList[2].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[3].GetRestartCount())

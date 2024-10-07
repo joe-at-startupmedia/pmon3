@@ -7,7 +7,7 @@ import (
 )
 
 func List(cmd *protos.Cmd) *protos.CmdResp {
-	all, err := repo.Process().FindAll()
+	all, err := repo.Process().FindAllOrdered("ID")
 	if err != nil {
 		return base.ErroredCmdResp(cmd, err)
 	}
