@@ -96,7 +96,7 @@ test_net: build run_test
 .PHONY: run_test
 run_test:
 	rm -rf "$(TEST_DIR_BASE)"
-	mkdir "$(TEST_DIR_BASE)"
+	mkdir -p "$(TEST_DIR_BASE)"
 	cd ./test/app && make build
 	cp ./test/app/bin/test_app "$(TEST_DIR_BASE)"
 	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode count ./...
