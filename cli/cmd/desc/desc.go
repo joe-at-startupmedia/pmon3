@@ -18,13 +18,13 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		Desc(args)
+		Desc(args[0])
 	},
 }
 
-func Desc(args []string) *protos.CmdResp {
+func Desc(idOrName string) *protos.CmdResp {
 
-	sent := base.SendCmd("desc", args[0])
+	sent := base.SendCmd("desc", idOrName)
 	newCmdResp := base.GetResponse(sent)
 	process := newCmdResp.GetProcess()
 	if process != nil {

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	forceKill bool
+	forceKillFlag bool
 )
 
 var Cmd = &cobra.Command{
@@ -21,15 +21,15 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		Del(args[0])
+		Del(args[0], forceKillFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "kill the process before deletion")
+	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "kill the process before deletion")
 }
 
-func Del(idOrName string) *protos.CmdResp {
+func Del(idOrName string, forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd
 	if forceKill {
 		sent = base.SendCmdArg2("del", idOrName, "force")
