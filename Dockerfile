@@ -14,7 +14,7 @@ RUN apk --update add build-base && \
   cd /usr/src/pmon3 && \
   git clone --single-branch --branch ${GIT_BRANCH_ARG} https://github.com/joe-at-startupmedia/pmon3.git . && \
   mkdir /usr/src/pmon3/data && \
-  mkdir /usr/src/pmon3/logs  \
+  mkdir /usr/src/pmon3/logs
 
 ENV TEST_REGEX=${TEST_REGEX_ARG}
 

@@ -44,7 +44,7 @@ jobs:
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker run -it pmon3
+        docker run -t pmon3
 
     - name: Finish
       run: |
