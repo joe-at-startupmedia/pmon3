@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		Restart("group_restart", args[0], flag.Json())
+		Restart(args[0], flag.Json())
 	},
 }
 
@@ -31,11 +32,12 @@ func init() {
 	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the processes stdout log dir")
 }
 
-func Restart(calledAs string, idOrName string, flags string) {
-	sent := base.SendCmdArg2(calledAs, idOrName, flags)
+func Restart(idOrName string, flags string) *protos.CmdResp {
+	sent := base.SendCmdArg2("group_restart", idOrName, flags)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
 		time.Sleep(cli.Config.GetCmdExecResponseWait())
 		list.Show()
 	}
+	return newCmdResp
 }

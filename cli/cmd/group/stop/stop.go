@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	table_list "pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 )
 
 var Cmd = &cobra.Command{
@@ -19,7 +20,7 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func Stop(idOrName string) {
+func Stop(idOrName string) *protos.CmdResp {
 
 	sent := base.SendCmd("group_stop", idOrName)
 	newCmdResp := base.GetResponse(sent)
@@ -32,4 +33,5 @@ func Stop(idOrName string) {
 		}
 		table_list.Render(allProcess)
 	}
+	return newCmdResp
 }

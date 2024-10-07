@@ -21,6 +21,7 @@ func OpenSender() {
 		MaxMsgSize: 32768,
 	}
 
+	XipcModule = "mem"
 	xr = xipc_mem.NewRequester(queueConfig)
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())

@@ -20,6 +20,7 @@ func OpenSender() {
 		Dir:  cli.Config.PosixMessageQueueDir,
 	}
 
+	XipcModule = "pmq"
 	xr = xipc_pmq.NewRequester(queueConfig, nil)
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())

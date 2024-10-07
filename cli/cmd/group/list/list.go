@@ -4,6 +4,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/output/group/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 
 	"github.com/spf13/cobra"
 )
@@ -19,7 +20,7 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func Show() {
+func Show() *protos.CmdResp {
 	sent := base.SendCmd("group_list", "")
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
@@ -31,4 +32,5 @@ func Show() {
 		}
 		table_list.Render(allGroups)
 	}
+	return newCmdResp
 }

@@ -28,7 +28,7 @@ func init() {
 	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "force kill before deleting processes")
 }
 
-func Drop(idOrName string, forceKill bool) {
+func Drop(idOrName string, forceKill bool) *protos.CmdResp {
 
 	var sent *protos.Cmd
 	if forceKill {
@@ -46,4 +46,5 @@ func Drop(idOrName string, forceKill bool) {
 		}
 		table_list.Render(allProcess)
 	}
+	return newCmdResp
 }

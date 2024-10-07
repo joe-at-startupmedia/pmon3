@@ -21,6 +21,7 @@ func OpenSender() {
 		ClientTimeout:    0,
 	}
 
+	XipcModule = "net"
 	xr = xipc_net.NewRequester(&queueConfig)
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())

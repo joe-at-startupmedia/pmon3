@@ -6,6 +6,7 @@ import (
 	"pmon3/cli/output/process/desc"
 	table_list "pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 )
 
@@ -21,7 +22,7 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func Desc(idOrName string) {
+func Desc(idOrName string) *protos.CmdResp {
 	sent := base.SendCmd("group_desc", idOrName)
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
@@ -39,4 +40,5 @@ func Desc(idOrName string) {
 		table_desc.Render(rel)
 		table_list.Render(allProcess)
 	}
+	return newCmdResp
 }
