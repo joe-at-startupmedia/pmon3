@@ -8,7 +8,7 @@ import (
 
 func InsertAsQueued(flags *model.ExecFlags) (*model.Process, error) {
 
-	logPath, err := process.GetLogPath(flags.LogDir, flags.Log, flags.File, flags.Name)
+	logPath, err := process.GetLogPath(flags.LogDir, flags.Log, flags.Name)
 	if err != nil {
 		return nil, err
 	}

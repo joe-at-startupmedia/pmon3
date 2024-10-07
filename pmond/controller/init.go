@@ -174,7 +174,7 @@ func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model.Process, 
 }
 
 func getExecFlagsLogPath(execFlags *model.ExecFlags) (string, error) {
-	logPath, err := process.GetLogPath(execFlags.LogDir, execFlags.Log, execFlags.File, execFlags.Name)
+	logPath, err := process.GetLogPath(execFlags.LogDir, execFlags.Log, execFlags.Name)
 	if err != nil {
 		return "", err
 	}

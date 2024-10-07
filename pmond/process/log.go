@@ -13,7 +13,7 @@ import (
 
 const logSuffix = ".log"
 
-func GetLogPath(customLogDir string, customLogFile string, processFile string, processName string) (string, error) {
+func GetLogPath(customLogDir string, customLogFile string, processName string) (string, error) {
 
 	var logDest string
 

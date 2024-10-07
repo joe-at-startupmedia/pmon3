@@ -4,8 +4,6 @@ GO_VERSION=$(shell $(GO) version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
 PACKAGES ?= $(shell $(GO) list ./...)
 GOFILES := $(shell find . -name "*.go")
 DIR_ROOT=$(shell cd "$(dirname "$0")"; pwd)
-DIR_LOGS ?= /var/log/pmond
-DIR_DATA ?= /etc/pmon3/data
 DIR_CONF ?= /etc/pmon3/config
 WHOAMI=$(shell whoami)
 TEST_REGEX ?= "Test"
@@ -106,7 +104,7 @@ run_test:
 systemd_install: systemd_uninstall install
 	cp "$(DIR_ROOT)/rpm/pmond.service" /usr/lib/systemd/system/
 	cp "$(DIR_ROOT)/rpm/pmond.logrotate" /etc/logrotate.d/pmond
-	mkdir -p $(DIR_LOGS) $(DIR_CONF) $(DIR_DATA)
+	mkdir -p $(DIR_CONF)
 	cp "$(DIR_ROOT)/config.yml" $(DIR_CONF)
 	systemctl enable pmond
 	systemctl start pmond
@@ -117,7 +115,7 @@ systemd_install: systemd_uninstall install
 
 .PHONY: systemd_uninstall
 systemd_uninstall: 
-	rm -rf $(DIR_LOGS) $(DIR_CONF) $(DIR_DATA) /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
+	rm -rf $(DIR_CONF) /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
 	systemctl stop pmond || true
 	systemctl disable pmond || true
 

@@ -17,7 +17,7 @@ func Exec(p *model.Process) (*model.Process, error) {
 	if err != nil {
 		return nil, err
 	}
-	logPath, err := GetLogPath("", p.Log, p.ProcessFile, p.Name)
+	logPath, err := GetLogPath("", p.Log, p.Name)
 	if err != nil {
 		return nil, err
 	}
