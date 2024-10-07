@@ -176,15 +176,14 @@ func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
-	assert.Equal(suite.T(), uint32(0), processList[1].GetRestartCount())
 	//@TODO Why?
 	if base.XipcModule == "pmq" {
-		assert.Equal(suite.T(), uint32(2), processList[2].GetRestartCount())
+		assert.Equal(suite.T(), uint32(2), processList[0].GetRestartCount())
 	} else {
-		assert.Equal(suite.T(), uint32(1), processList[2].GetRestartCount())
+		assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
 	}
-
+	assert.Equal(suite.T(), uint32(0), processList[1].GetRestartCount())
+	assert.Equal(suite.T(), uint32(1), processList[2].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[3].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[4].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[5].GetRestartCount())
@@ -207,14 +206,14 @@ func (suite *Pmon3GroupTestSuite) TestE_RestartGroupB() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
-	assert.Equal(suite.T(), uint32(1), processList[1].GetRestartCount())
 	//@TODO Why?
 	if base.XipcModule == "pmq" {
-		assert.Equal(suite.T(), uint32(3), processList[2].GetRestartCount())
+		assert.Equal(suite.T(), uint32(2), processList[0].GetRestartCount())
 	} else {
-		assert.Equal(suite.T(), uint32(2), processList[2].GetRestartCount())
+		assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
 	}
+	assert.Equal(suite.T(), uint32(1), processList[1].GetRestartCount())
+	assert.Equal(suite.T(), uint32(2), processList[2].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[3].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[4].GetRestartCount())
 	assert.Equal(suite.T(), uint32(0), processList[5].GetRestartCount())
