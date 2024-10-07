@@ -13,17 +13,17 @@ var Cmd = &cobra.Command{
 	Short: "Assign group(s) to process(es)",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		Assign(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Assign(args[0], args[1])
 	},
 }
 
-func Assign(args []string) {
-	base.OpenSender()
-	sent := base.SendCmdArg2("group_assign", args[0], args[1])
+func Assign(groupNameOrId string, processNameOrId string) {
+	sent := base.SendCmdArg2("group_assign", groupNameOrId, processNameOrId)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		desc.Desc(groupNameOrId)
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	desc.Desc([]string{args[0]})
 }

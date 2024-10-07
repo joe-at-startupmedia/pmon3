@@ -17,7 +17,9 @@ var Cmd = &cobra.Command{
 	Short: "(Re)start processes by group id or name",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun("group_restart", args, flag.Json())
+		base.OpenSender()
+		defer base.CloseSender()
+		Restart("group_restart", args[0], flag.Json())
 	},
 }
 
@@ -29,14 +31,11 @@ func init() {
 	Cmd.Flags().StringVarP(&flag.LogDir, "log_dir", "d", "", "the processes stdout log dir")
 }
 
-func cmdRun(calledAs string, args []string, flags string) {
-	base.OpenSender()
-	defer base.CloseSender()
-	sent := base.SendCmdArg2(calledAs, args[0], flags)
+func Restart(calledAs string, idOrName string, flags string) {
+	sent := base.SendCmdArg2(calledAs, idOrName, flags)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	list.Show()
 }

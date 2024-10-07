@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,13 +18,14 @@ var Cmd = &cobra.Command{
 	Short:   "(Re)start a process by id or name",
 	Aliases: []string{"start"},
 	Args:    cobra.ExactArgs(1),
-	PreRun: func(cmd *cobra.Command, args []string) {
-		if len(flag.User) > 0 && flag.User == "root" && !base.IsRoot() {
-			cli.Log.Fatalf("cannot set process user to root without sudo")
-		}
-	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(cmd.CalledAs(), args[0], flag.Json())
+		if len(flag.User) > 0 && flag.User == "root" && !base.IsRoot() {
+			base.OutputError("cannot set process user to root without sudo")
+		} else {
+			base.OpenSender()
+			defer base.CloseSender()
+			Restart(cmd.CalledAs(), args[0], flag.Json())
+		}
 	},
 }
 
@@ -36,14 +38,12 @@ func init() {
 	Cmd.Flags().StringSliceVarP(&flag.Dependencies, "dependencies", "d", []string{}, "provide a list of process names this process depends on")
 }
 
-func cmdRun(calledAs string, idOrName string, flags string) {
-	base.OpenSender()
-	defer base.CloseSender()
+func Restart(calledAs string, idOrName string, flags string) *protos.CmdResp {
 	sent := base.SendCmdArg2(calledAs, idOrName, flags)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	list.Show()
+	return newCmdResp
 }

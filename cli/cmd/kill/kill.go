@@ -4,7 +4,6 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
-	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 )
 
 var (
-	forceKill bool
+	forceKillFlag bool
 )
 
 var Cmd = &cobra.Command{
@@ -20,18 +19,17 @@ var Cmd = &cobra.Command{
 	Short: "Terminate all processes",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		Kill(model.StatusStopped)
+		base.OpenSender()
+		base.CloseSender()
+		Kill(forceKillFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "force kill all processes")
+	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "force kill all processes")
 }
 
-func Kill(processStatus model.ProcessStatus) {
-	base.OpenSender()
-	defer base.CloseSender()
-
+func Kill(forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd
 
 	if forceKill {
@@ -40,9 +38,9 @@ func Kill(processStatus model.ProcessStatus) {
 		sent = base.SendCmd("kill", "")
 	}
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	list.Show()
+	return newCmdResp
 }

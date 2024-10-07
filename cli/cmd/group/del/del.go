@@ -14,20 +14,17 @@ var Cmd = &cobra.Command{
 	Short: "Delete a group",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Delete(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Delete(args[0])
 	},
 }
 
-func Delete(args []string) {
-	base.OpenSender()
-	sent := base.SendCmd("group_del", args[0])
+func Delete(idOrName string) {
+	sent := base.SendCmd("group_del", idOrName)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		base.CloseSender()
-	} else {
+	if len(newCmdResp.GetError()) == 0 {
 		time.Sleep(cli.Config.GetCmdExecResponseWait())
-		//list command will call pmq.Close
 		list.Show()
 	}
-
 }

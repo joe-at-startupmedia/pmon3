@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	forceKill bool
+	forceKillFlag bool
 )
 
 var Cmd = &cobra.Command{
@@ -20,28 +20,28 @@ var Cmd = &cobra.Command{
 	Short: "Stop a process by id or name",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Stop(args[0], forceKillFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "force the process to stop")
+	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "force the process to stop")
 }
 
-func cmdRun(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
+func Stop(idOrName string, forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd
 	if forceKill {
-		sent = base.SendCmdArg2("stop", args[0], "force")
+		sent = base.SendCmdArg2("stop", idOrName, "force")
 	} else {
-		sent = base.SendCmd("stop", args[0])
+		sent = base.SendCmd("stop", idOrName)
 	}
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
+		table_one.Render(p.RenderTable())
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
-	table_one.Render(p.RenderTable())
+	return newCmdResp
 }

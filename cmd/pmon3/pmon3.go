@@ -26,7 +26,8 @@ func main() {
 
 	err := cli.Instance(conf.GetConfigFile())
 	if err != nil {
-		cli.Log.Fatal(err)
+		base.OutputError(err.Error())
+		return
 	}
 
 	skipRunCheck := os.Getenv("PMON3_SKIP_RUNCHECK")

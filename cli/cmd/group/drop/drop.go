@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	forceKill bool
+	forceKillFlag bool
 )
 
 var Cmd = &cobra.Command{
@@ -18,29 +18,32 @@ var Cmd = &cobra.Command{
 	Short:   "Delete all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdDrop(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Drop(args[0], forceKillFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "force kill before deleting processes")
+	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "force kill before deleting processes")
 }
 
-func cmdDrop(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
+func Drop(idOrName string, forceKill bool) {
+
 	var sent *protos.Cmd
 	if forceKill {
-		sent = base.SendCmdArg2("group_drop", args[0], "force")
+		sent = base.SendCmdArg2("group_drop", idOrName, "force")
 	} else {
-		sent = base.SendCmd("group_drop", args[0])
+		sent = base.SendCmd("group_drop", idOrName)
 	}
 	newCmdResp := base.GetResponse(sent)
-	all := newCmdResp.GetProcessList().GetProcesses()
-	var allProcess [][]string
-	for _, p := range all {
-		process := model.ProcessFromProtobuf(p)
-		allProcess = append(allProcess, process.RenderTable())
+	if len(newCmdResp.GetError()) == 0 {
+		all := newCmdResp.GetProcessList().GetProcesses()
+		var allProcess [][]string
+		for _, p := range all {
+			process := model.ProcessFromProtobuf(p)
+			allProcess = append(allProcess, process.RenderTable())
+		}
+		table_list.Render(allProcess)
 	}
-	table_list.Render(allProcess)
 }

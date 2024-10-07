@@ -13,17 +13,17 @@ var Cmd = &cobra.Command{
 	Short: "Remove process(es) from group(s)",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		Remove(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Remove(args[0], args[1])
 	},
 }
 
-func Remove(args []string) {
-	base.OpenSender()
-	sent := base.SendCmdArg2("group_remove", args[0], args[1])
+func Remove(groupNameOrId string, processNameOrId string) {
+	sent := base.SendCmdArg2("group_remove", groupNameOrId, processNameOrId)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		desc.Desc(groupNameOrId)
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	desc.Desc([]string{args[0]})
 }

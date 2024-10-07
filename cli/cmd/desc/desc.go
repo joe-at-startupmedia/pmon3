@@ -5,6 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/output/process/desc"
 	"pmon3/pmond/model"
+	"pmon3/pmond/protos"
 	"pmon3/pmond/utils/conv"
 	"strconv"
 )
@@ -15,17 +16,17 @@ var Cmd = &cobra.Command{
 	Short:   "Show process information by id or name",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Desc(args)
 	},
 }
 
-func cmdRun(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
+func Desc(args []string) *protos.CmdResp {
+
 	sent := base.SendCmd("desc", args[0])
 	newCmdResp := base.GetResponse(sent)
 	process := newCmdResp.GetProcess()
-
 	if process != nil {
 		rel := [][]string{
 			{"status", process.Status},
@@ -46,4 +47,5 @@ func cmdRun(args []string) {
 		}
 		table_desc.Render(rel)
 	}
+	return newCmdResp
 }

@@ -4,10 +4,11 @@ import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/cmd/list"
+	"pmon3/pmond/protos"
 )
 
 var (
-	idOrName string
+	idOrNameFlag string
 )
 
 var Cmd = &cobra.Command{
@@ -15,21 +16,22 @@ var Cmd = &cobra.Command{
 	Short: "Reset the restart counter(s)",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdRun()
+		base.OpenSender()
+		defer base.CloseSender()
+		Reset(idOrNameFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().StringVarP(&idOrName, "process", "p", "", "the id or name of the process")
+	Cmd.Flags().StringVarP(&idOrNameFlag, "process", "p", "", "the id or name of the process")
 }
 
-func cmdRun() {
-	base.OpenSender()
+func Reset(idOrName string) *protos.CmdResp {
+
 	sent := base.SendCmd("reset", idOrName)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		base.CloseSender()
-	} else {
+	if len(newCmdResp.GetError()) == 0 {
 		list.Show()
 	}
+	return newCmdResp
 }

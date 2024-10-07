@@ -24,6 +24,8 @@ var Cmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export Process Configuration",
 	Run: func(cmd *cobra.Command, args []string) {
+		base.OpenSender()
+		defer base.CloseSender()
 		Export(flag)
 	},
 }
@@ -61,14 +63,12 @@ func yamlPrettyPrint(ac *model.ProcessConfig) string {
 }
 
 func Export(f flags) {
-	base.OpenSender()
-	defer base.CloseSender()
 	exportString, err := GetExportString(f.format, f.orderBy)
 	if err != nil {
 		base.OutputError(err.Error())
-		return
+	} else {
+		fmt.Println(exportString)
 	}
-	fmt.Println(exportString)
 }
 
 func GetExportString(format string, orderBy string) (string, error) {

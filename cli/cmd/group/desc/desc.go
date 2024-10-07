@@ -15,26 +15,28 @@ var Cmd = &cobra.Command{
 	Short:   "Show group details and associated processes",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Desc(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Desc(args[0])
 	},
 }
 
-func Desc(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
-	sent := base.SendCmd("group_desc", args[0])
+func Desc(idOrName string) {
+	sent := base.SendCmd("group_desc", idOrName)
 	newCmdResp := base.GetResponse(sent)
-	group := newCmdResp.GetGroup()
-	rel := [][]string{
-		{"id", conv.Uint32ToStr(group.Id)},
-		{"name", group.Name},
+	if len(newCmdResp.GetError()) == 0 {
+		group := newCmdResp.GetGroup()
+		rel := [][]string{
+			{"id", conv.Uint32ToStr(group.Id)},
+			{"name", group.Name},
+		}
+		all := newCmdResp.GetProcessList().GetProcesses()
+		var allProcess [][]string
+		for _, p := range all {
+			process := model.ProcessFromProtobuf(p)
+			allProcess = append(allProcess, process.RenderTable())
+		}
+		table_desc.Render(rel)
+		table_list.Render(allProcess)
 	}
-	all := newCmdResp.GetProcessList().GetProcesses()
-	var allProcess [][]string
-	for _, p := range all {
-		process := model.ProcessFromProtobuf(p)
-		allProcess = append(allProcess, process.RenderTable())
-	}
-	table_desc.Render(rel)
-	table_list.Render(allProcess)
 }

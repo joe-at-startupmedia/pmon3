@@ -13,20 +13,23 @@ var Cmd = &cobra.Command{
 	Short:   "Stop all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cmdStop(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Stop(args[0])
 	},
 }
 
-func cmdStop(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
-	sent := base.SendCmd("group_stop", args[0])
+func Stop(idOrName string) {
+
+	sent := base.SendCmd("group_stop", idOrName)
 	newCmdResp := base.GetResponse(sent)
-	all := newCmdResp.GetProcessList().GetProcesses()
-	var allProcess [][]string
-	for _, p := range all {
-		process := model.ProcessFromProtobuf(p)
-		allProcess = append(allProcess, process.RenderTable())
+	if len(newCmdResp.GetError()) == 0 {
+		all := newCmdResp.GetProcessList().GetProcesses()
+		var allProcess [][]string
+		for _, p := range all {
+			process := model.ProcessFromProtobuf(p)
+			allProcess = append(allProcess, process.RenderTable())
+		}
+		table_list.Render(allProcess)
 	}
-	table_list.Render(allProcess)
 }

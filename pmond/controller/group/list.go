@@ -1,7 +1,7 @@
 package group
 
 import (
-	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
@@ -9,7 +9,7 @@ import (
 func List(cmd *protos.Cmd) *protos.CmdResp {
 	all, err := repo.Group().FindAll()
 	if err != nil {
-		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
+		return base.ErroredCmdResp(cmd, err)
 	}
 	newGroupList := protos.GroupList{}
 	for _, g := range all {

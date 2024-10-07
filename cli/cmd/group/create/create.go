@@ -14,18 +14,17 @@ var Cmd = &cobra.Command{
 	Short: "Create a new group",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Create(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Create(args[0])
 	},
 }
 
-func Create(args []string) {
-	base.OpenSender()
-	sent := base.SendCmd("group_create", args[0])
+func Create(groupName string) {
+	sent := base.SendCmd("group_create", groupName)
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		cli.Log.Fatalf(newCmdResp.GetError())
+	if len(newCmdResp.GetError()) == 0 {
+		time.Sleep(cli.Config.GetCmdExecResponseWait())
+		list.Show()
 	}
-	time.Sleep(cli.Config.GetCmdExecResponseWait())
-	//list command will call pmq.Close
-	list.Show()
 }

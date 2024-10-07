@@ -19,7 +19,9 @@ var Cmd = &cobra.Command{
 	Short: "Delete process by id or name",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		runCmd(args)
+		base.OpenSender()
+		defer base.CloseSender()
+		Del(args[0])
 	},
 }
 
@@ -27,14 +29,12 @@ func init() {
 	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "kill the process before deletion")
 }
 
-func runCmd(args []string) {
-	base.OpenSender()
-	defer base.CloseSender()
+func Del(idOrName string) *protos.CmdResp {
 	var sent *protos.Cmd
 	if forceKill {
-		sent = base.SendCmdArg2("del", args[0], "force")
+		sent = base.SendCmdArg2("del", idOrName, "force")
 	} else {
-		sent = base.SendCmd("del", args[0])
+		sent = base.SendCmd("del", idOrName)
 	}
 	newCmdResp := base.GetResponse(sent)
 	process := newCmdResp.GetProcess()
@@ -42,4 +42,6 @@ func runCmd(args []string) {
 		p := model.ProcessFromProtobuf(newCmdResp.GetProcess())
 		table_one.Render(p.RenderTable())
 	}
+
+	return newCmdResp
 }

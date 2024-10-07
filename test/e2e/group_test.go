@@ -178,6 +178,8 @@ func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 
 func (suite *Pmon3GroupTestSuite) TestE_RestartGroupB() {
 
+	time.Sleep(2 * time.Second)
+
 	suite.cliHelper.ExecBase2("group_restart", "groupB", "{}")
 
 	time.Sleep(2 * time.Second)

@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"os"
-	"pmon3/pmond"
+	"pmon3/pmond/controller/base"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
@@ -11,7 +11,7 @@ import (
 func Top(cmd *protos.Cmd) *protos.CmdResp {
 	all, err := repo.Process().FindAll()
 	if err != nil {
-		pmond.Log.Fatalf("pmon3 can find processes: %v", err)
+		return base.ErroredCmdResp(cmd, err)
 	}
 	pidsCsv := fmt.Sprintf("%d", os.Getpid())
 	for _, p := range all {

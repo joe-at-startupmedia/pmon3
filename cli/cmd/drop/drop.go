@@ -10,24 +10,24 @@ import (
 )
 
 var (
-	forceKill bool
+	forceKillFlag bool
 )
 
 var Cmd = &cobra.Command{
 	Use:   "drop",
 	Short: "Delete all processes",
 	Run: func(cmd *cobra.Command, args []string) {
-		Drop()
+		base.OpenSender()
+		defer base.CloseSender()
+		Drop(forceKillFlag)
 	},
 }
 
 func init() {
-	Cmd.Flags().BoolVarP(&forceKill, "force", "f", false, "force kill before deleting processes")
+	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "force kill before deleting processes")
 }
 
-func Drop() {
-	base.OpenSender()
-
+func Drop(forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd
 
 	if forceKill {
@@ -36,10 +36,9 @@ func Drop() {
 		sent = base.SendCmd("drop", "")
 	}
 	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) > 0 {
-		base.CloseSender()
-	} else {
+	if len(newCmdResp.GetError()) == 0 {
 		time.Sleep(cli.Config.GetCmdExecResponseWait())
 		list.Show()
 	}
+	return newCmdResp
 }

@@ -14,20 +14,21 @@ var Cmd = &cobra.Command{
 	Short:   "List all groups",
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
+		defer base.CloseSender()
 		Show()
-		base.CloseSender()
 	},
 }
 
 func Show() {
-
 	sent := base.SendCmd("group_list", "")
 	newCmdResp := base.GetResponse(sent)
-	all := newCmdResp.GetGroupList().GetGroups()
-	var allGroups [][]string
-	for _, g := range all {
-		group := model.GroupFromProtobuf(g)
-		allGroups = append(allGroups, group.RenderTable())
+	if len(newCmdResp.GetError()) == 0 {
+		all := newCmdResp.GetGroupList().GetGroups()
+		var allGroups [][]string
+		for _, g := range all {
+			group := model.GroupFromProtobuf(g)
+			allGroups = append(allGroups, group.RenderTable())
+		}
+		table_list.Render(allGroups)
 	}
-	table_list.Render(allGroups)
 }
