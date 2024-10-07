@@ -7,7 +7,7 @@ ARG CODECOV_TOKEN_ARG
 
 RUN apk --update add build-base && \
   apk add --no-cache git curl && \
-  curl -o  /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.4/codecovcli_alpine_x86_64 && \
+  curl -o  /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.5/codecovcli_alpine_x86_64 && \
   chmod +x /usr/local/bin/codecov && \
   ls -al /usr/local/bin/codecov && \
   mkdir -p /usr/src/pmon3 && \
