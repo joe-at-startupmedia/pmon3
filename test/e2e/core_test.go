@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"pmon3/cli/cmd/base"
+	"pmon3/cli/cmd/exec"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
@@ -40,7 +41,10 @@ func (suite *Pmon3CoreTestSuite) TestA_BootedFromProcessConfig() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfig() {
-	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-3\"}")
+	ef := model.ExecFlags{
+		Name: "test-server-3",
+	}
+	exec.Exec("/test/app/bin/test_app", ef)
 	time.Sleep(2 * time.Second)
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
