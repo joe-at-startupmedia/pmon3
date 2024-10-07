@@ -42,8 +42,8 @@ By default, if a process abnormally terminates, `pmond` will try to restart the 
   go build -o bin/pmon3 cmd/pmon3/pmon3.go
   go build -o bin/pmond cmd/pmond/pmond.go
   cp -R bin/pmon* /usr/local/bin/
-  #create the log, configuration and database directories
-  mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
+  #create the configuration directory
+  mkdir -p /etc/pmon3/config/
   cp config.yml /etc/pmon3/config/
   #start the daemon
   sudo /usr/local/bin/pmond &
@@ -51,7 +51,7 @@ By default, if a process abnormally terminates, `pmond` will try to restart the 
 
 ### Makefile
 The systemd installation process entails the following steps:
-1. create the log, configuration and database directories
+1. create the configuration directory
 1. create the log rotation file
 1. create the bash completion profile (requires the bash-completion package)
 1. enable and start the `pmond` system service
