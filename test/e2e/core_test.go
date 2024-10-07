@@ -44,7 +44,7 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 	ef := model.ExecFlags{
 		Name: "test-server-3",
 	}
-	exec.Exec("/test/app/bin/test_app", ef)
+	exec.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
 	time.Sleep(2 * time.Second)
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
