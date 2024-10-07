@@ -10,6 +10,7 @@ TEST_REGEX ?= "Test"
 TEST_FILE_CONFIG ?= $(DIR_ROOT)/test/e2e/config/test-config.core.yml
 TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "data_dir:" | cut -d' ' -f2)
 TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "logs_dir:" | cut -d' ' -f2)
+TEST_DIR_BASE=$(shell echo $(TEST_DIR_DATA) | cut -d'/' -f1-4)
 
 all: build
 
@@ -94,10 +95,10 @@ test_net: build run_test
 
 .PHONY: run_test
 run_test:
-	rm -rf "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
-	mkdir -p "$(TEST_DIR_DATA)" "$(TEST_DIR_LOGS)"
+	rm -rf "$(TEST_DIR_BASE)"
+	mkdir "$(TEST_DIR_BASE)"
 	cd test/app && make build
-	cp test/app/bin/test_app "$(TEST_DIR_DATA).."
+	cp test/app/bin/test_app "$(TEST_DIR_BASE)"
 	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode count ./...
 
 .PHONY: systemd_install
