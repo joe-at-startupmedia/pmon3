@@ -17,5 +17,7 @@ RUN apk --update add build-base && \
   mkdir /usr/src/pmon3/logs
 
 ENV TEST_REGEX=${TEST_REGEX_ARG}
+ENV MAKE_TARGET=${MAKE_TARGET_ARG}
+ENV CODECOV_TOKEN=${CODECOV_TOKEN_ARG}
 
-ENTRYPOINT ["/bin/sh", "-c" , "make ${MAKE_TARGET_ARG} && /usr/local/bin/codecov upload-process -t ${CODECOV_TOKEN_ARG} -F ${MAKE_TARGET_ARG}"]
+ENTRYPOINT ["/bin/sh", "-c" , "cd /usr/src/pmon3 && make ${MAKE_TARGET} && /usr/local/bin/codecov upload-process -t ${CODECOV_TOKEN} -F ${MAKE_TARGET}"]
