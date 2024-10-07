@@ -10,7 +10,7 @@ import (
 
 func Kill(cmd *protos.Cmd) *protos.CmdResp {
 	forced := cmd.GetArg1() == "force"
-	return KillByParams(cmd, forced, model.StatusStopped)
+	return KillByParams(cmd, forced)
 }
 
 //KillByParams
@@ -18,7 +18,7 @@ func Kill(cmd *protos.Cmd) *protos.CmdResp {
  * status param is the desired state to persist
  * this can either be status stopped or closed
  */
-func KillByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *protos.CmdResp {
+func KillByParams(cmd *protos.Cmd, forced bool) *protos.CmdResp {
 
 	all, err := repo.Process().FindByStatus(model.StatusRunning)
 	if err != nil {
@@ -28,7 +28,7 @@ func KillByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *pro
 	}
 
 	for _, process := range all {
-		_ = StopByParams(cmd, process.GetIdStr(), forced, status)
+		_ = StopByParams(cmd, process.GetIdStr(), forced)
 	}
 
 	newCmdResp := protos.CmdResp{

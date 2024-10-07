@@ -57,11 +57,11 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 		}
 
 	} else {
-		if process.IsRunning(p.Pid) {
-			if err := process.KillAndSaveStatus(p, model.StatusStopped, false); err != nil {
-				return nil, err
-			}
+
+		if err := process.KillAndSaveStatus(p, model.StatusRestarting, false); err != nil {
+			return nil, err
 		}
+
 		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
 		if err != nil {
@@ -83,7 +83,7 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 
 func UpdateAsQueued(m *model.Process, flags *model.ExecFlags) error {
 	// only stopped and failed process can be restarted
-	if m.Status != model.StatusStopped && m.Status != model.StatusFailed {
+	if m.Status != model.StatusStopped && m.Status != model.StatusFailed && m.Status != model.StatusRestarting {
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {

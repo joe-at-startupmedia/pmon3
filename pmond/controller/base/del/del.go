@@ -9,7 +9,7 @@ import (
 )
 
 func ByProcess(p *model.Process, forced bool) error {
-	stopErr := stop.ByProcess(p, forced, model.StatusStopped)
+	stopErr := stop.ByProcess(p, forced)
 	delErr := repo.ProcessOf(p).Delete()
 	logErr := os.Remove(p.Log)
 	return errors.Join(stopErr, delErr, logErr)

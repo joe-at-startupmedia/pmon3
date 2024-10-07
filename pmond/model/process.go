@@ -29,6 +29,7 @@ const (
 	StatusFailed
 	StatusClosed
 	StatusBackoff
+	StatusRestarting
 )
 
 func (s ProcessStatus) String() string {
@@ -47,6 +48,8 @@ func (s ProcessStatus) String() string {
 		return "closed"
 	case StatusBackoff:
 		return "backoff"
+	case StatusRestarting:
+		return "restarting"
 	}
 	return "unknown"
 }
@@ -67,6 +70,8 @@ func StringToProcessStatus(s string) ProcessStatus {
 		return StatusClosed
 	case "backoff":
 		return StatusBackoff
+	case "restarting":
+		return StatusRestarting
 	}
 	return StatusFailed
 }

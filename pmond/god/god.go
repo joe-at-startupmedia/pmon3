@@ -43,7 +43,7 @@ func Banish() {
 	processMonitorInterval := time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)
 	time.Sleep(2 * processMonitorInterval) //wait for the runMonitor loop to break
 	if pmond.Config.HandleInterrupts {
-		controller.KillByParams(&protos.Cmd{}, true, model.StatusClosed)
+		controller.KillByParams(&protos.Cmd{}, true)
 	}
 	err := closeResponder()
 	if err != nil {

@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
-func ByProcess(p *model.Process, forced bool, status model.ProcessStatus) error {
+func ByProcess(p *model.Process, forced bool) error {
+
+	status := model.StatusStopped
 	// check process is running
 	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
 	//if process is not currently running
