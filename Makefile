@@ -99,7 +99,7 @@ run_test:
 	mkdir -p "$(TEST_DIR_BASE)"
 	cd ./test/app && make build
 	cp ./test/app/bin/test_app "$(TEST_DIR_BASE)"
-	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode atomic -coverpkg=pmon3/cli,pmon3/cli/cmd,pmon3/cli/cmd/base,pmon3/cli/cmd/completion,pmon3/cli/cmd/del,pmon3/cli/cmd/desc,pmon3/cli/cmd/dgraph,pmon3/cli/cmd/drop,pmon3/cli/cmd/exec,pmon3/cli/cmd/export,pmon3/cli/cmd/group,pmon3/cli/cmd/group/assign,pmon3/cli/cmd/group/create,pmon3/cli/cmd/group/del,pmon3/cli/cmd/group/desc,pmon3/cli/cmd/group/drop,pmon3/cli/cmd/group/list,pmon3/cli/cmd/group/remove,pmon3/cli/cmd/group/restart,pmon3/cli/cmd/group/stop,pmon3/cli/cmd/init,pmon3/cli/cmd/kill,pmon3/cli/cmd/list,pmon3/cli/cmd/log,pmon3/cli/cmd/logf,pmon3/cli/cmd/reset,pmon3/cli/cmd/restart,pmon3/cli/cmd/stop,pmon3/cli/cmd/topn,pmon3/cli/output/group/list,pmon3/cli/output/process/desc,pmon3/cli/output/process/list,pmon3/cli/output/process/one,pmon3/conf,pmon3/pmond,pmon3/pmond/controller,pmon3/pmond/controller/base,pmon3/pmond/controller/base/del,pmon3/pmond/controller/base/exec,pmon3/pmond/controller/base/restart,pmon3/pmond/controller/base/stop,pmon3/pmond/controller/group,pmon3/pmond/db,pmon3/pmond/god,pmon3/pmond/model,pmon3/pmond/observer,pmon3/pmond/process,pmon3/pmond/repo ./test/e2e/...
+	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode atomic ./test/e2e/... 
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
