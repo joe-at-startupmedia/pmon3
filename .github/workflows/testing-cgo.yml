@@ -1,15 +1,6 @@
 name: Testing CGO
 
 on:
-  push:
-    branches: [ "master", "develop" ]
-    paths-ignore:
-      - '**.md'
-      - '**.sh'
-      - '**.yml'
-      - '**.yaml'
-  pull_request:
-    branches: [ "master", "develop" ]
   workflow_dispatch:
 
 jobs:

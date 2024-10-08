@@ -99,8 +99,7 @@ run_test:
 	mkdir -p "$(TEST_DIR_BASE)"
 	cd ./test/app && make build
 	cp ./test/app/bin/test_app "$(TEST_DIR_BASE)"
-	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode atomic -coverpkg=pmon3/pmond/...
-	./test/e2e/...
+	PROJECT_PATH=$(DIR_ROOT) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -covermode atomic -coverpkg=pmon3/pmond/... ./test/e2e/...
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
