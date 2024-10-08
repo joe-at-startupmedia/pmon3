@@ -87,7 +87,9 @@ func getErrorFromShellCommand(cmdString string) error {
 	rel = shell.RunCmd(cmdString)
 
 	if !rel.Ok {
-		return errors.New(string(rel.Output))
+		errString := string(rel.Output)
+		pmond.Log.Warnf("%s errored with: %s", cmdString, errString)
+		return errors.New(errString)
 	}
 
 	return nil

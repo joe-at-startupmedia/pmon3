@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/user"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
@@ -121,26 +120,17 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 }
 
 func SendOsKillSignal(p *model.Process, forced bool) error {
-	var cmd *exec.Cmd
 
 	if !IsRunning(p.Pid) {
 		pmond.Log.Warnf("Cannot kill process (%s - %s) that isnt running", p.Stringify(), p.GetPidStr())
 		return nil
 	}
 
-	var err error
-
 	if forced {
-		err = os_cmd.ExecKillProcessForcefully(p)
+		return os_cmd.ExecKillProcessForcefully(p)
 	} else {
-		err = os_cmd.ExecKillProcess(p)
+		return os_cmd.ExecKillProcess(p)
 	}
-
-	if err != nil {
-		pmond.Log.Warnf("%s errored with: %s", cmd.String(), err.Error())
-	}
-
-	return err
 }
 
 func KillAndSaveStatus(p *model.Process, status model.ProcessStatus, forced bool) error {
