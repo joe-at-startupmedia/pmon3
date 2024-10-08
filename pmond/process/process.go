@@ -9,13 +9,10 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/observer"
+	"pmon3/pmond/os_cmd"
 	"pmon3/pmond/repo"
-	"pmon3/pmond/utils/conv"
 	"strconv"
-	"strings"
 	"time"
-
-	"github.com/goinbox/shell"
 )
 
 func IsRunning(pid uint32) bool {
@@ -31,35 +28,19 @@ func IsRunning(pid uint32) bool {
 }
 
 func findPidFromPsCmd(p *model.Process) uint32 {
-	var rel *shell.ShellResult
 	if len(p.Args) > 0 {
-		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $2}'", p.Name, p.Args))
+		return os_cmd.ExecFindPidFromProcessNameAndArgs(p)
 	} else {
-		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s$' | grep -v grep | awk '{print $2}'", p.Name))
+		return os_cmd.ExecFindPidFromProcessName(p)
 	}
-	if rel.Ok {
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := conv.StrToUint32(newPidStr)
-		return newPid
-	}
-
-	return 0
 }
 
 func findPpidFromPsCmd(p *model.Process) uint32 {
-	var rel *shell.ShellResult
 	if len(p.Args) > 0 {
-		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s %s$' | grep -v grep | awk '{print $3}'", p.Name, p.Args))
+		return os_cmd.ExecFindPpidFromProcessNameAndArgs(p)
 	} else {
-		rel = shell.RunCmd(fmt.Sprintf("ps -ef | grep ' %s$' | grep -v grep | awk '{print $3}'", p.Name))
+		return os_cmd.ExecFindPpidFromProcessName(p)
 	}
-	if rel.Ok {
-		newPpidStr := strings.TrimSpace(string(rel.Output))
-		newPpid := conv.StrToUint32(newPpidStr)
-		return newPpid
-	}
-
-	return 0
 }
 
 // used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
@@ -147,13 +128,14 @@ func SendOsKillSignal(p *model.Process, forced bool) error {
 		return nil
 	}
 
+	var err error
+
 	if forced {
-		cmd = exec.Command("kill", "-9", p.GetPidStr())
+		err = os_cmd.ExecKillProcessForcefully(p)
 	} else {
-		cmd = exec.Command("kill", p.GetPidStr())
+		err = os_cmd.ExecKillProcess(p)
 	}
 
-	err := cmd.Run()
 	if err != nil {
 		pmond.Log.Warnf("%s errored with: %s", cmd.String(), err.Error())
 	}

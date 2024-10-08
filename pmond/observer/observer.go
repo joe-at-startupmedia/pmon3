@@ -2,9 +2,9 @@ package observer
 
 import (
 	"fmt"
-	"github.com/goinbox/shell"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/os_cmd"
 	"strings"
 )
 
@@ -65,8 +65,5 @@ func onEventExec(evt *Event, cmd string) {
 	}
 	execCmd := fmt.Sprintf("%s \"%s\"", cmd, jsonEscape(processJson))
 	pmond.Log.Debugf("Attempting event executor(%s): %s", evt.Type.String(), execCmd)
-	rel := shell.RunCmd(execCmd)
-	if !rel.Ok {
-		pmond.Log.Errorf("event executor encountered an err: %s", rel.Output)
-	}
+	os_cmd.HandleOnEventExec(execCmd)
 }
