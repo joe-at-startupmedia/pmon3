@@ -5,7 +5,7 @@ import (
 	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
-	"pmon3/pmond/os_cmd"
+	"pmon3/pmond/shell"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 		pmond.Log.Fatal(err)
 	}
 
-	if os_cmd.ExecIsPmondRunning(os.Getpid()) {
+	if shell.ExecIsPmondRunning(os.Getpid()) {
 		pmond.Log.Fatal("pmond is already running")
 	}
 

@@ -3,7 +3,7 @@ package process
 import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
-	"pmon3/pmond/os_cmd"
+	"pmon3/pmond/shell"
 	"time"
 )
 
@@ -72,7 +72,7 @@ func (r *ProcStat) processExistCheck(p *model.Process) {
 				return
 			}
 		case <-timer.C: // check process status by proc file
-			isRunning := os_cmd.ExecIsRunning(p)
+			isRunning := shell.ExecIsRunning(p)
 			if isRunning {
 				r.Done <- 0
 			} else {

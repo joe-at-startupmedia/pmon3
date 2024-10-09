@@ -1,4 +1,4 @@
-package os_cmd
+package shell
 
 import (
 	"strconv"

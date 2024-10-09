@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/os_cmd"
+	"pmon3/cli/shell"
 	"pmon3/pmond/protos"
 	"sync"
 	"syscall"
@@ -58,7 +58,7 @@ func Logf(idOrName string, numLines string, ctx context.Context) *protos.CmdResp
 
 		logFile := newCmdResp.GetProcess().GetLog()
 
-		c := os_cmd.ExecTailFLogFile(logFile, numLines)
+		c := shell.ExecTailFLogFile(logFile, numLines)
 
 		if stdout, err := c.StdoutPipe(); err != nil {
 			base.OutputError(err.Error())

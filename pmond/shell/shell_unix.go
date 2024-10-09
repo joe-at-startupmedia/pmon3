@@ -1,11 +1,11 @@
-package os_cmd
+package shell
 
 import (
 	"fmt"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/utils/conv"
-	"pmon3/utils/os_cmd"
+	"pmon3/utils/shell"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func killProcessForcefully(p *model.Process) string {
 }
 
 func execIsPmondRunning(pid int) bool {
-	rel, _ := os_cmd.GetResultWithErrorFromShellCommand(isPmondRunning(pid))
+	rel, _ := shell.GetResultWithErrorFromShellCommand(isPmondRunning(pid))
 	if rel.Ok {
 		pmond.Log.Debugf("%s", string(rel.Output))
 		newPidStr := strings.TrimSpace(string(rel.Output))

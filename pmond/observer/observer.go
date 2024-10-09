@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
-	"pmon3/pmond/os_cmd"
+	"pmon3/pmond/shell"
 	"strings"
 )
 
@@ -65,5 +65,5 @@ func onEventExec(evt *Event, cmd string) {
 	}
 	execCmd := fmt.Sprintf("%s \"%s\"", cmd, jsonEscape(processJson))
 	pmond.Log.Debugf("Attempting event executor(%s): %s", evt.Type.String(), execCmd)
-	os_cmd.HandleOnEventExec(execCmd)
+	shell.HandleOnEventExec(execCmd)
 }

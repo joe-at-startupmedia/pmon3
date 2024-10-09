@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"pmon3/pmond/model"
-	"pmon3/pmond/os_cmd"
+	"pmon3/pmond/shell"
 	"pmon3/utils/conv"
 	"strings"
 )
@@ -30,7 +30,7 @@ func Exec(p *model.Process) (*model.Process, error) {
 		envVars = append(envVars, strings.Fields(p.EnvVars)...)
 	}
 
-	process, err := os_cmd.StartProcess(p, logFile, user, groupIds, envVars)
+	process, err := shell.StartProcess(p, logFile, user, groupIds, envVars)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

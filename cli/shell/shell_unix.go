@@ -1,11 +1,11 @@
-package os_cmd
+package shell
 
 import (
 	"fmt"
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/utils/conv"
-	"pmon3/utils/os_cmd"
+	"pmon3/utils/shell"
 	"strings"
 )
 
@@ -30,19 +30,19 @@ func execTopCmd(pidArr []string, sortField string, refreshInterval int) *exec.Cm
 }
 
 func execTailLogFile(logFileName string, numLines string) *exec.Cmd {
-	return os_cmd.ExecBashCommand(tailLogFile(logFileName, numLines))
+	return shell.ExecBashCommand(tailLogFile(logFileName, numLines))
 }
 
 func execTailFLogFile(logFileName string, numLines string) *exec.Cmd {
-	return os_cmd.ExecBashCommand(tailFLogFile(logFileName, numLines))
+	return shell.ExecBashCommand(tailFLogFile(logFileName, numLines))
 }
 
 func execCatArchivedLogs(logFileName string) *exec.Cmd {
-	return os_cmd.ExecBashCommand(catArchivedLogs(logFileName))
+	return shell.ExecBashCommand(catArchivedLogs(logFileName))
 }
 
 func execIsPmondRunning() bool {
-	rel, _ := os_cmd.GetResultWithErrorFromShellCommand(isPmondRunning())
+	rel, _ := shell.GetResultWithErrorFromShellCommand(isPmondRunning())
 	if rel.Ok {
 		cli.Log.Debugf("%s", string(rel.Output))
 		newPidStr := strings.TrimSpace(string(rel.Output))

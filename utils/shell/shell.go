@@ -1,4 +1,4 @@
-package os_cmd
+package shell
 
 import (
 	"errors"
@@ -29,9 +29,7 @@ func GetErrorFromShellCommand(cmdString string) error {
 
 func GetResultWithErrorFromShellCommand(cmdString string) (*shell.ShellResult, error) {
 
-	var rel *shell.ShellResult
-
-	rel = shell.RunCmd(cmdString)
+	rel := shell.RunCmd(cmdString)
 
 	if !rel.Ok {
 		errString := string(rel.Output)

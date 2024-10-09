@@ -7,25 +7,25 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/observer"
-	"pmon3/pmond/os_cmd"
 	"pmon3/pmond/repo"
+	"pmon3/pmond/shell"
 	"strconv"
 	"time"
 )
 
 func findPidFromPsCmd(p *model.Process) uint32 {
 	if len(p.Args) > 0 {
-		return os_cmd.ExecFindPidFromProcessNameAndArgs(p)
+		return shell.ExecFindPidFromProcessNameAndArgs(p)
 	} else {
-		return os_cmd.ExecFindPidFromProcessName(p)
+		return shell.ExecFindPidFromProcessName(p)
 	}
 }
 
 func findPpidFromPsCmd(p *model.Process) uint32 {
 	if len(p.Args) > 0 {
-		return os_cmd.ExecFindPpidFromProcessNameAndArgs(p)
+		return shell.ExecFindPpidFromProcessNameAndArgs(p)
 	} else {
-		return os_cmd.ExecFindPpidFromProcessName(p)
+		return shell.ExecFindPpidFromProcessName(p)
 	}
 }
 
@@ -50,7 +50,7 @@ func updatedFromPsCmd(p *model.Process) bool {
 }
 
 func Enqueue(p *model.Process, force bool) error {
-	if (!os_cmd.ExecIsRunning(p) && p.Status == model.StatusQueued) || force {
+	if (!shell.ExecIsRunning(p) && p.Status == model.StatusQueued) || force {
 		if updatedFromPsCmd(p) {
 			return nil
 		}
@@ -66,7 +66,7 @@ func Enqueue(p *model.Process, force bool) error {
 
 func Restart(p *model.Process, isInitializing bool) (bool, error) {
 	restarted := false
-	if !os_cmd.ExecIsRunning(p) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
+	if !shell.ExecIsRunning(p) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
 			return false, nil
 		}
@@ -108,15 +108,15 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 
 func SendOsKillSignal(p *model.Process, forced bool) error {
 
-	if !os_cmd.ExecIsRunning(p) {
+	if !shell.ExecIsRunning(p) {
 		pmond.Log.Warnf("Cannot kill process (%s - %s) that isnt running", p.Stringify(), p.GetPidStr())
 		return nil
 	}
 
 	if forced {
-		return os_cmd.ExecKillProcessForcefully(p)
+		return shell.ExecKillProcessForcefully(p)
 	} else {
-		return os_cmd.ExecKillProcess(p)
+		return shell.ExecKillProcess(p)
 	}
 }
 

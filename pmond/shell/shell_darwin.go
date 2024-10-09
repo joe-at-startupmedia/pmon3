@@ -1,4 +1,4 @@
-package os_cmd
+package shell
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/utils/conv"
-	"pmon3/utils/os_cmd"
+	"pmon3/utils/shell"
 	"strings"
 	"syscall"
 )
@@ -32,9 +32,9 @@ func findPpidFromProcessName(p *model.Process) string {
 func execIsRunning(p *model.Process) bool {
 	var pid uint32
 	if len(p.Args) > 0 {
-		pid = os_cmd.GetUint32FromShellCommand(findPidFromProcessNameAndArgs(p))
+		pid = shell.GetUint32FromShellCommand(findPidFromProcessNameAndArgs(p))
 	} else {
-		pid = os_cmd.GetUint32FromShellCommand(findPidFromProcessName(p))
+		pid = shell.GetUint32FromShellCommand(findPidFromProcessName(p))
 	}
 
 	return pid > 0

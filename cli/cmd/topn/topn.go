@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/os_cmd"
+	"pmon3/cli/shell"
 	"strings"
 	"sync"
 	"time"
@@ -127,7 +127,7 @@ func displayTop(refreshInterval int, writer *uilive.Writer, pidArr []string, sor
 	} else {
 		sortField = "mem"
 	}
-	cmd = os_cmd.ExecTopCmd(pidArr, sortField, refreshInterval)
+	cmd = shell.ExecTopCmd(pidArr, sortField, refreshInterval)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)

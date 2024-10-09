@@ -5,7 +5,7 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/os_cmd"
+	"pmon3/cli/shell"
 	"pmon3/conf"
 )
 
@@ -19,7 +19,7 @@ func main() {
 
 	skipRunCheck := os.Getenv("PMON3_SKIP_RUNCHECK")
 
-	if skipRunCheck != "true" && !os_cmd.ExecIsPmondRunning() {
+	if skipRunCheck != "true" && !shell.ExecIsPmondRunning() {
 		base.OutputError("pmond must be running")
 		return
 	}
