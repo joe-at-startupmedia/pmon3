@@ -57,7 +57,7 @@ func Exec() error {
 		verCmd,
 	)
 
-	if runtime.GOOS != "darwin" {
+	if runtime.GOOS == "linux" {
 		rootCmd.AddCommand(topn.Cmd)
 	}
 
