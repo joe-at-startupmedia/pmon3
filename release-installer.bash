@@ -33,9 +33,9 @@ systemd_install() {
   sudo cp -R bin/pmon* /usr/local/bin/
   sudo cp "rpm/pmond.service" /usr/lib/systemd/system/
   sudo cp "rpm/pmond.logrotate" /etc/logrotate.d/pmond
-  sudo mkdir -p /var/log/pmond/ /etc/pmon3/config/ /etc/pmon3/data/
   # prevent configuration overwrite from previous installation
   if [ ! -f /etc/pmon3/config/config.yml ]; then
+    sudo mkdir -p /etc/pmon3/config/
     sudo cp "config.yml" /etc/pmon3/config/
   fi
   sudo systemctl enable pmond
@@ -51,7 +51,7 @@ systemd_install() {
 
 echo "Installing $PROJECT_NAME from release: $RELEASE"
 
-#the extracted folder isnt prepended by the letter v
+#the extracted folder isn't prepended by the letter v
 download_from_project "$PROJECT_URL/archive/refs/tags/v$RELEASE.tar.gz" "$RELEASE_ARCHIVE.tar.gz"
 
 
