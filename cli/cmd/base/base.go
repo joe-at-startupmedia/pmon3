@@ -76,11 +76,11 @@ func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	defer cancel()
 
 	go func() {
-		timer := time.NewTicker(time.Millisecond * 500)
+		timer := time.NewTicker(time.Millisecond * 100)
 		for {
 			_, err := waitForResponse(newCmdResp)
 			if newCmdResp.GetId() != sent.GetId() {
-				cli.Log.Errorf("response (%s) doesn't match sent (%s). skipping.", newCmdResp.GetId(), sent.GetId())
+				cli.Log.Debugf("response (%s) doesn't match sent (%s). skipping.", newCmdResp.GetId(), sent.GetId())
 				<-timer.C
 				continue
 			}

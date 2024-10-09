@@ -5,6 +5,7 @@ package god
 import (
 	"github.com/joe-at-startupmedia/xipc"
 	xipc_pmq "github.com/joe-at-startupmedia/xipc/pmq"
+	"os"
 	"pmon3/pmond"
 )
 
@@ -13,6 +14,13 @@ func connectResponder() {
 	queueName := "pmon3_pmq"
 	if len(pmond.Config.MessageQueueSuffix) > 0 {
 		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	}
+
+	pmqDir := pmond.Config.PosixMessageQueueDir
+	_, err := os.Stat(pmqDir)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(pmqDir, 0644)
+		handleOpenError(err) //fatal
 	}
 
 	queueConfig := xipc_pmq.QueueConfig{

@@ -3,6 +3,7 @@ package process
 import (
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/pmond/os_cmd"
 	"time"
 )
 
@@ -43,39 +44,39 @@ func (r *ProcStat) Wait() *model.Process {
 
 func (r *ProcStat) run() {
 	go r.processWait(r.Process)
-	go r.processExistCheck(r.Process.Pid)
+	go r.processExistCheck(r.Process)
 }
 
 func (r *ProcStat) processWait(process *model.Process) {
 	processState, err := process.Pointer.Wait()
 	if err != nil {
-		pmond.Log.Debugf("ProcStat processWait error: %v", err)
+		pmond.Log.Warnf("ProcStat processWait error: %v", err)
 		r.Done <- 1
 		return
 	}
-	pmond.Log.Debugf("ProcStat processWait: %v", processState)
+	pmond.Log.Infof("ProcStat processWait: %v", processState)
 	if processState.Exited() {
 		r.Done <- processState.ExitCode()
 	}
 }
 
-func (r *ProcStat) processExistCheck(pid uint32) {
+func (r *ProcStat) processExistCheck(p *model.Process) {
 	timer := time.NewTicker(time.Millisecond * 200)
 	defer timer.Stop()
 	for {
 		select {
 		case existCode := <-r.Done:
-			pmond.Log.Debugf("ProcStat exitCode: %d", existCode)
+			pmond.Log.Warnf("ProcStat exitCode: %d", existCode)
 			if existCode != 0 { // process exist exception
 				r.Done <- 1
 				return
 			}
 		case <-timer.C: // check process status by proc file
-			isRunning := IsRunning(pid)
-			pmond.Log.Debugf("ProcStat timer.C IsRunning: %t", isRunning)
+			isRunning := os_cmd.ExecIsRunning(p)
 			if isRunning {
 				r.Done <- 0
 			} else {
+				pmond.Log.Warnf("ProcStat timer.C IsRunning: %t", isRunning)
 				r.Done <- 1
 			}
 			return

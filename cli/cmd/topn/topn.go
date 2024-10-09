@@ -38,10 +38,12 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.Flags().IntVarP(&secondsFlag, "seconds", "s", 1, "refresh every (n) seconds")
+	var intervalDefault = 1
+	Cmd.Flags().IntVarP(&secondsFlag, "seconds", "s", intervalDefault, "refresh every (n) seconds")
 }
 
 func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup) {
+
 	sent := base.SendCmd("top", "")
 	newCmdResp := base.GetResponse(sent)
 	pidCsv := newCmdResp.GetValueStr()
@@ -121,12 +123,11 @@ func displayTop(refreshInterval int, writer *uilive.Writer, pidArr []string, sor
 
 	var sortField string
 	if sortBit {
-		sortField = "%CPU"
+		sortField = "cpu"
 	} else {
-		sortField = "%MEM"
+		sortField = "mem"
 	}
 	cmd = os_cmd.ExecTopCmd(pidArr, sortField, refreshInterval)
-	//fmt.Printf("%s", cmd.String())
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)

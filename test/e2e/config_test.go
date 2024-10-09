@@ -83,9 +83,9 @@ func (suite *Pmon3ConfigTestSuite) TestC_BootCliWithTestConfigFile() {
 
 	assert.Equal(suite.T(), 30*time.Second, cli.Config.GetInitializationPeriod())
 
-	assert.Equal(suite.T(), "/usr/src/pmon3/data/nonexistent/data.db", cli.Config.GetDatabaseFile())
+	assert.Equal(suite.T(), suite.cliHelper.ArtifactPath+"/data/nonexistent/data.db", cli.Config.GetDatabaseFile())
 
-	assert.DirExists(suite.T(), "/usr/src/pmon3/data/nonexistent/")
+	assert.DirExists(suite.T(), suite.cliHelper.ArtifactPath+"/data/nonexistent/")
 
 	os.Setenv("PMON3_DEBUG", "true")
 

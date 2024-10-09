@@ -17,14 +17,16 @@ import (
 )
 
 type CliHelper struct {
-	suite       *suite.Suite
-	ProjectPath string
-	shouldError bool
+	suite        *suite.Suite
+	ProjectPath  string
+	ArtifactPath string
+	shouldError  bool
 }
 
 func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, messageQueueSuffix string) *CliHelper {
 	projectPath := os.Getenv("PROJECT_PATH")
-	cliHelper := New(s, projectPath)
+	artifactPath := os.Getenv("ARTIFACT_PATH")
+	cliHelper := New(s, projectPath, artifactPath)
 
 	if err := pmond.Instance(projectPath+configFile, projectPath+processConfigFile); err != nil {
 		s.FailNow(err.Error())
@@ -46,10 +48,11 @@ func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, mes
 	return cliHelper
 }
 
-func New(suite *suite.Suite, projectPath string) *CliHelper {
+func New(suite *suite.Suite, projectPath string, artifactPath string) *CliHelper {
 	return &CliHelper{
 		suite,
 		projectPath,
+		artifactPath,
 		false,
 	}
 }

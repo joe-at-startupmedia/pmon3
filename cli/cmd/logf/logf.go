@@ -60,35 +60,31 @@ func Logf(idOrName string, numLines string, ctx context.Context) *protos.CmdResp
 
 		c := os_cmd.ExecTailFLogFile(logFile, numLines)
 
-		if err := c.Start(); err != nil {
+		if stdout, err := c.StdoutPipe(); err != nil {
 			base.OutputError(err.Error())
 		} else {
 
-			if stdout, err := c.StdoutPipe(); err != nil {
-				base.OutputError(err.Error())
-			} else {
-
-				wg := sync.WaitGroup{}
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					reader := bufio.NewReader(stdout)
-					for {
-						select {
-						case <-ctx.Done():
+			wg := sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				reader := bufio.NewReader(stdout)
+				for {
+					select {
+					case <-ctx.Done():
+						return
+					default:
+						readString, err := reader.ReadString('\n')
+						if err != nil || err == io.EOF {
 							return
-						default:
-							readString, err := reader.ReadString('\n')
-							if err != nil || err == io.EOF {
-								return
-							}
-							fmt.Print(readString)
 						}
+						fmt.Print(readString)
 					}
-				}()
-				wg.Wait()
-			}
+				}
+			}()
+			wg.Wait()
 		}
+
 	}
 
 	return newCmdResp

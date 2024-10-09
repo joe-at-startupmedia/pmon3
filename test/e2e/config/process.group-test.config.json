@@ -1,31 +1,31 @@
 {
   "processes": [
     {
-      "file": "/usr/src/pmon3/test_app",
+      "file": "/tmp/pmon3/test_app",
       "name": "group-test-server-1",
       "groups": ["groupA"],
       "env_vars": "TEST_APP_PORT=11010"
     },
     {
-      "file": "/usr/src/pmon3/test_app",
+      "file": "/tmp/pmon3/test_app",
       "name": "group-test-server-2",
       "groups": ["groupB"],
       "env_vars": "TEST_APP_PORT=11011"
     },
     {
-      "file": "/usr/src/pmon3/test_app",
+      "file": "/tmp/pmon3/test_app",
       "name": "group-test-server-3",
       "groups": ["groupA","groupB"],
       "env_vars": "TEST_APP_PORT=11012"
     },
     {
-      "file": "/usr/src/pmon3/test_app",
+      "file": "/tmp/pmon3/test_app",
       "name": "group-test-server-4",
       "groups": ["groupC"],
       "env_vars": "TEST_APP_PORT=11013"
     },
     {
-      "file": "/usr/src/pmon3/test_app",
+      "file": "/tmp/pmon3/test_app",
       "name": "group-test-server-5",
       "env_vars": "TEST_APP_PORT=11014"
     }

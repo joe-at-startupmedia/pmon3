@@ -16,6 +16,13 @@ func connectResponder() {
 		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
 	}
 
+	shmemDir := pmond.Config.ShmemDir
+	_, err := os.Stat(shmemDir)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(shmemDir, 0644)
+		handleOpenError(err) //fatal
+	}
+
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       queueName,
 		BasePath:   pmond.Config.ShmemDir,

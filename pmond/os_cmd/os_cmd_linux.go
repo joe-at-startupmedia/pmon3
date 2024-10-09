@@ -2,11 +2,14 @@ package os_cmd
 
 import (
 	"fmt"
+	"os"
+	"os/user"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
+	"pmon3/utils/array"
 	"pmon3/utils/conv"
-	"pmon3/utils/os_cmd"
 	"strings"
+	"syscall"
 )
 
 func findPidFromProcessNameAndArgs(p *model.Process) string {
@@ -25,25 +28,39 @@ func findPpidFromProcessName(p *model.Process) string {
 	return fmt.Sprintf("ps -ef | grep ' %s$' | grep -v grep | awk '{print $3}'", p.Name)
 }
 
-func killProcess(p *model.Process) string {
-	return fmt.Sprintf("kill %s", p.GetPidStr())
-}
+func execIsRunning(p *model.Process) bool {
+	_, err := os.Stat(fmt.Sprintf("/proc/%s/status", p.GetPidStr()))
 
-func killProcessForcefully(p *model.Process) string {
-	return fmt.Sprintf("kill -9 %s", p.GetPidStr())
-}
-
-func isPmondRunning(pid int) string {
-	return fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %d | head -n 1", pid)
-}
-
-func execIsPmondRunning(pid int) bool {
-	rel, _ := os_cmd.GetResultWithErrorFromShellCommand(isPmondRunning(pid))
-	if rel.Ok {
-		pmond.Log.Debugf("%s", string(rel.Output))
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := conv.StrToUint32(newPidStr)
-		return newPid != 0
+	//if it doesn't exist in proc/n/status ask the OS
+	if err != nil {
+		//it's running if it exists
+		return !os.IsNotExist(err)
 	}
-	return false
+
+	return true
+}
+
+func startProcess(p *model.Process, logFile *os.File, user *user.User, groupIds []string, envVars []string) (*os.Process, error) {
+	lastSepIdx := strings.LastIndex(p.ProcessFile, string(os.PathSeparator))
+	attr := &os.ProcAttr{
+		Dir:   p.ProcessFile[0 : lastSepIdx+1],
+		Env:   envVars,
+		Files: []*os.File{nil, logFile, logFile},
+		Sys: &syscall.SysProcAttr{
+			Credential: &syscall.Credential{
+				Uid:    conv.StrToUint32(user.Uid),
+				Gid:    conv.StrToUint32(user.Gid),
+				Groups: array.Map(groupIds, func(gid string) uint32 { return conv.StrToUint32(gid) }),
+			},
+			Setsid: true,
+		},
+	}
+
+	var processParams = []string{p.Name}
+	if len(p.Args) > 0 {
+		processParams = append(processParams, strings.Split(p.Args, " ")...)
+	}
+
+	pmond.Log.Infof("os.StartProcess: %s %s %-v", p.ProcessFile, processParams, attr)
+	return os.StartProcess(p.ProcessFile, processParams, attr)
 }

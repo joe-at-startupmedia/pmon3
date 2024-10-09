@@ -1,14 +1,12 @@
 package process
 
 import (
+	"github.com/pkg/errors"
 	"os"
 	"pmon3/pmond/model"
-	"pmon3/utils/array"
+	"pmon3/pmond/os_cmd"
 	"pmon3/utils/conv"
 	"strings"
-	"syscall"
-
-	"github.com/pkg/errors"
 )
 
 func Exec(p *model.Process) (*model.Process, error) {
@@ -21,38 +19,18 @@ func Exec(p *model.Process) (*model.Process, error) {
 	if err != nil {
 		return nil, err
 	}
-	logOutput, err := GetLogFile(logPath, *user)
+	logFile, err := GetLogFile(logPath, *user)
 	if err != nil {
 		return nil, err
 	}
 
-	Env := os.Environ()
+	envVars := os.Environ()
 
 	if len(p.EnvVars) > 0 {
-		Env = append(Env, strings.Fields(p.EnvVars)...)
+		envVars = append(envVars, strings.Fields(p.EnvVars)...)
 	}
 
-	lastSepIdx := strings.LastIndex(p.ProcessFile, string(os.PathSeparator))
-	attr := &os.ProcAttr{
-		Dir:   p.ProcessFile[0 : lastSepIdx+1],
-		Env:   Env,
-		Files: []*os.File{nil, logOutput, logOutput},
-		Sys: &syscall.SysProcAttr{
-			Credential: &syscall.Credential{
-				Uid:    conv.StrToUint32(user.Uid),
-				Gid:    conv.StrToUint32(user.Gid),
-				Groups: array.Map(groupIds, func(gid string) uint32 { return conv.StrToUint32(gid) }),
-			},
-			Setsid: true,
-		},
-	}
-
-	var processParams = []string{p.Name}
-	if len(p.Args) > 0 {
-		processParams = append(processParams, strings.Split(p.Args, " ")...)
-	}
-
-	process, err := os.StartProcess(p.ProcessFile, processParams, attr)
+	process, err := os_cmd.StartProcess(p, logFile, user, groupIds, envVars)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -62,7 +40,7 @@ func Exec(p *model.Process) (*model.Process, error) {
 		Log:          logPath,
 		Name:         p.Name,
 		ProcessFile:  p.ProcessFile,
-		Args:         strings.Join(processParams[1:], " "),
+		Args:         p.Args,
 		EnvVars:      p.EnvVars,
 		Pointer:      process,
 		Status:       model.StatusInit,

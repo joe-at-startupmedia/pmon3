@@ -2,7 +2,6 @@ package process
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/user"
 	"pmon3/pmond"
@@ -13,18 +12,6 @@ import (
 	"strconv"
 	"time"
 )
-
-func IsRunning(pid uint32) bool {
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", pid))
-
-	//if it doesn't exist in proc/n/status ask the OS
-	if err != nil {
-		//it's running if it exists
-		return !os.IsNotExist(err)
-	}
-
-	return true
-}
 
 func findPidFromPsCmd(p *model.Process) uint32 {
 	if len(p.Args) > 0 {
@@ -63,7 +50,7 @@ func updatedFromPsCmd(p *model.Process) bool {
 }
 
 func Enqueue(p *model.Process, force bool) error {
-	if (!IsRunning(p.Pid) && p.Status == model.StatusQueued) || force {
+	if (!os_cmd.ExecIsRunning(p) && p.Status == model.StatusQueued) || force {
 		if updatedFromPsCmd(p) {
 			return nil
 		}
@@ -79,7 +66,7 @@ func Enqueue(p *model.Process, force bool) error {
 
 func Restart(p *model.Process, isInitializing bool) (bool, error) {
 	restarted := false
-	if !IsRunning(p.Pid) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
+	if !os_cmd.ExecIsRunning(p) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
 			return false, nil
 		}
@@ -121,7 +108,7 @@ func Restart(p *model.Process, isInitializing bool) (bool, error) {
 
 func SendOsKillSignal(p *model.Process, forced bool) error {
 
-	if !IsRunning(p.Pid) {
+	if !os_cmd.ExecIsRunning(p) {
 		pmond.Log.Warnf("Cannot kill process (%s - %s) that isnt running", p.Stringify(), p.GetPidStr())
 		return nil
 	}

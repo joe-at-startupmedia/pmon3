@@ -1,6 +1,8 @@
 package os_cmd
 
 import (
+	"os"
+	"os/user"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/utils/os_cmd"
@@ -38,4 +40,12 @@ func HandleOnEventExec(cmdString string) {
 
 func ExecIsPmondRunning(pid int) bool {
 	return execIsPmondRunning(pid)
+}
+
+func ExecIsRunning(p *model.Process) bool {
+	return execIsRunning(p)
+}
+
+func StartProcess(p *model.Process, logFile *os.File, user *user.User, groupIds []string, envVars []string) (*os.Process, error) {
+	return startProcess(p, logFile, user, groupIds, envVars)
 }

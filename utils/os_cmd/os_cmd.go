@@ -10,7 +10,10 @@ import (
 )
 
 func GetUint32FromShellCommand(cmdString string) uint32 {
-	rel, _ := GetResultWithErrorFromShellCommand(cmdString)
+	rel, err := GetResultWithErrorFromShellCommand(cmdString)
+	if err != nil {
+		return 0
+	}
 	if rel.Ok {
 		newPpidStr := strings.TrimSpace(string(rel.Output))
 		newPpid := conv.StrToUint32(newPpidStr)

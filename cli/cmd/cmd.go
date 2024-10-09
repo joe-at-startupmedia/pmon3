@@ -20,6 +20,7 @@ import (
 	"pmon3/cli/cmd/stop"
 	"pmon3/cli/cmd/topn"
 	"pmon3/conf"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -52,10 +53,13 @@ func Exec() error {
 		reset.Cmd,
 		restart.Cmd,
 		stop.Cmd,
-		topn.Cmd,
 		export.Cmd,
 		verCmd,
 	)
+
+	if runtime.GOOS != "darwin" {
+		rootCmd.AddCommand(topn.Cmd)
+	}
 
 	return rootCmd.Execute()
 }

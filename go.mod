@@ -2,7 +2,7 @@ module pmon3
 
 go 1.22
 
-toolchain go1.22.4
+toolchain go1.22.8
 
 require (
 	github.com/BurntSushi/toml v1.2.0

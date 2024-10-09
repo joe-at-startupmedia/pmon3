@@ -20,7 +20,7 @@ var Cmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
-		base.CloseSender()
+		defer base.CloseSender()
 		Kill(forceKillFlag)
 	},
 }

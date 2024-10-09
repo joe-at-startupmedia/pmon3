@@ -13,6 +13,7 @@ import (
 	"pmon3/pmond/repo"
 	"pmon3/utils/conv"
 	"strings"
+	"time"
 )
 
 func setExecFileAbsPath(execFlags *model.ExecFlags) error {
@@ -58,7 +59,15 @@ func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string,
 
 	} else {
 
-		if err := process.KillAndSaveStatus(p, model.StatusRestarting, false); err != nil {
+		if err := repo.ProcessOf(p).UpdateStatus(model.StatusRestarting); err != nil {
+			return nil, err
+		}
+
+		//prevent a race condition that results in duplicate restarts
+		//@TODO test removing or shortening
+		time.Sleep(100 * time.Millisecond)
+
+		if err := process.SendOsKillSignal(p, true); err != nil {
 			return nil, err
 		}
 

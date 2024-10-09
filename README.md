@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/joe-at-startupmedia/pmon3/graph/badge.svg?token=RAILGSJ6XQ)](https://codecov.io/gh/joe-at-startupmedia/pmon3)
 
 
-`pmon3` is a process manager which allows you to keep processes alive forever. Processes can be declared directly via the [CLI](#section_commands) or in a [configuration file](#section_processconfig). `pmon3` allows you to get started quickly while providing configuration granularity at both the [system](#section_config) and [process](#section_processconfig) levels.
+`pmon3` is a process manager (currently supports Linux and MacOSX) which allows you to keep processes alive forever. Processes can be declared directly via the [CLI](#section_commands) or in a [configuration file](#section_processconfig). `pmon3` allows you to get started quickly while providing configuration granularity at both the [system](#section_config) and [process](#section_processconfig) levels.
 
 <img width="537" alt="pmon3_ls" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/5d79ad53-664d-4ee7-bfac-f3fc94c2b316">
 

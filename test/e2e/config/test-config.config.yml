@@ -5,9 +5,9 @@
 # All commented values are the default when empty or omitted
 #
 # directory where the database is stored
-data_dir: /usr/src/pmon3/data/nonexistent/
+data_dir: /tmp/pmon3/data/nonexistent/
 # directory where the logs are stored
-logs_dir: /usr/src/pmon3/logs/
+logs_dir: /tmp/pmon3/logs/
 # log levels: debug/info/warn/error
 log_level: warn
 # kill processes on termination
@@ -37,7 +37,7 @@ dependent_process_enqueued_wait: 21000
 # specify a custom posix_mq directory in order to apply the appropriate permissions
 #posix_mq_dir: /dev/mqueue/
 # specify a custom shared memory directory in order to apply the appropriate permissions
-#shmem_dir: /dev/shm/
+shmem_dir: /tmp/shm/
 # specify a custom user to access files in posix_mq_dir  or shmem_dir
 #mq_user:
 # specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
