@@ -34,7 +34,7 @@ func killProcessForcefully(p *model.Process) string {
 }
 
 func isPmondRunning(pid string) string {
-	return fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %d | head -n 1", pid)
+	return fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %s | head -n 1", pid)
 }
 
 func execIsPmondRunning(pid string) bool {
