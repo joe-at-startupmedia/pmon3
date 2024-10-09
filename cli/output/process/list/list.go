@@ -3,7 +3,7 @@ package table_list
 import (
 	"log"
 	"os"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/conv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"

@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/user"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
-	"pmon3/pmond/utils/cpu"
+	"pmon3/utils/conv"
+	"pmon3/utils/cpu"
 	"strings"
 	"time"
 )

@@ -7,7 +7,7 @@ import (
 	table_list "pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/conv"
 )
 
 var Cmd = &cobra.Command{

@@ -14,8 +14,8 @@ import (
 	"pmon3/cli/cmd/group/stop"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/array"
 	"pmon3/test/e2e/cli_helper"
+	"pmon3/utils/array"
 	"testing"
 	"time"
 )

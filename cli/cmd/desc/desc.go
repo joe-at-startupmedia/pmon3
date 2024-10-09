@@ -6,7 +6,7 @@ import (
 	"pmon3/cli/output/process/desc"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/conv"
 	"strconv"
 )
 

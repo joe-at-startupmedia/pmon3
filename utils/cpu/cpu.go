@@ -3,7 +3,7 @@ package cpu
 import (
 	"fmt"
 	"github.com/struCoder/pidusage"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/conv"
 )
 
 func GetExtraInfo(pid int) (string, string) {

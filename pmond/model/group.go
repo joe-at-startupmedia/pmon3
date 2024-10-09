@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"pmon3/pmond/protos"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/conv"
 )
 
 type Group struct {

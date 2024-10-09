@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/signal"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
+	"pmon3/cli/os_cmd"
 	"pmon3/pmond/protos"
 	"sync"
 	"syscall"
@@ -58,7 +58,7 @@ func Logf(idOrName string, numLines string, ctx context.Context) *protos.CmdResp
 
 		logFile := newCmdResp.GetProcess().GetLog()
 
-		c := exec.Command("bash", "-c", "tail -f "+logFile+" -n "+numLines)
+		c := os_cmd.ExecTailFLogFile(logFile, numLines)
 
 		if err := c.Start(); err != nil {
 			base.OutputError(err.Error())

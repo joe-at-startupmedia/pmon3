@@ -2,8 +2,8 @@ package log
 
 import (
 	"fmt"
-	"os/exec"
 	"pmon3/cli/cmd/base"
+	"pmon3/cli/os_cmd"
 	"pmon3/pmond/protos"
 
 	"github.com/spf13/cobra"
@@ -37,12 +37,14 @@ func Log(idOrName string, logRotated bool, numLines string) *protos.CmdResp {
 		logFile := newCmdResp.GetProcess().GetLog()
 
 		if logRotated {
-			c := exec.Command("bash", "-c", "zcat -v "+logFile+"*.gz")
+			c := os_cmd.ExecCatArchivedLogs(logFile)
 			output, _ := c.CombinedOutput()
-			fmt.Println(string(output))
+			if len(output) > 0 {
+				fmt.Println(string(output))
+			}
 		}
 
-		c := exec.Command("bash", "-c", "tail "+logFile+" -n "+numLines)
+		c := os_cmd.ExecTailLogFile(logFile, numLines)
 		output, _ := c.CombinedOutput()
 		fmt.Println(string(output))
 	}

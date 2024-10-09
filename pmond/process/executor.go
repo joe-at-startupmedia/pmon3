@@ -3,8 +3,8 @@ package process
 import (
 	"os"
 	"pmon3/pmond/model"
-	"pmon3/pmond/utils/array"
-	"pmon3/pmond/utils/conv"
+	"pmon3/utils/array"
+	"pmon3/utils/conv"
 	"strings"
 	"syscall"
 

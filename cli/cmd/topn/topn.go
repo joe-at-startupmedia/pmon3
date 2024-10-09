@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/cmd/base"
-	"strconv"
+	"pmon3/cli/os_cmd"
 	"strings"
 	"sync"
 	"time"
@@ -41,12 +41,12 @@ func init() {
 	Cmd.Flags().IntVarP(&secondsFlag, "seconds", "s", 1, "refresh every (n) seconds")
 }
 
-func Topn(seconds int, ctx context.Context, wg *sync.WaitGroup) {
+func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup) {
 	sent := base.SendCmd("top", "")
 	newCmdResp := base.GetResponse(sent)
-	pidsCsv := newCmdResp.GetValueStr()
-	pids := strings.Split(pidsCsv, ",")
-	pidLen := len(pids)
+	pidCsv := newCmdResp.GetValueStr()
+	pidArr := strings.Split(pidCsv, ",")
+	pidLen := len(pidArr)
 	if pidLen == 0 {
 		//this should never happen because it should always return at least the pmond pid
 		base.OutputError("process list was empty")
@@ -65,7 +65,7 @@ func Topn(seconds int, ctx context.Context, wg *sync.WaitGroup) {
 		}()
 
 		topCtx, topCancel := context.WithCancel(ctx)
-		topIteration(topCtx, seconds, writer, &sortBit, pidsCsv, &pids, pidLen)
+		topIteration(topCtx, refreshInterval, writer, &sortBit, pidArr, pidLen)
 
 		for {
 			select {
@@ -88,34 +88,34 @@ func Topn(seconds int, ctx context.Context, wg *sync.WaitGroup) {
 					topCancel()
 					topCtx, topCancel = context.WithCancel(ctx)
 					sortBit = !sortBit
-					topIteration(topCtx, seconds, writer, &sortBit, pidsCsv, &pids, pidLen)
+					topIteration(topCtx, refreshInterval, writer, &sortBit, pidArr, pidLen)
 				}
 			}
 		}
 	}
 }
 
-func topIteration(ctx context.Context, seconds int, writer *uilive.Writer, sortBit *bool, pidsCsv string, pids *[]string, pidLen int) {
+func topIteration(ctx context.Context, refreshInterval int, writer *uilive.Writer, sortBit *bool, pidArr []string, pidLen int) {
 	if pidLen > 20 {
-		go displayTopLoop(ctx, seconds, writer, getRandomizedLargePidList(pids), *sortBit)
+		go displayTopLoop(ctx, refreshInterval, writer, getRandomizedLargePidList(pidArr), *sortBit)
 	} else {
-		go displayTopLoop(ctx, seconds, writer, pidsCsv, *sortBit)
+		go displayTopLoop(ctx, refreshInterval, writer, pidArr, *sortBit)
 	}
 }
 
-func displayTopLoop(ctx context.Context, seconds int, writer *uilive.Writer, pidsCsv string, sortBit bool) {
+func displayTopLoop(ctx context.Context, refreshInterval int, writer *uilive.Writer, pidArr []string, sortBit bool) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			go displayTop(seconds, writer, pidsCsv, sortBit)
-			time.Sleep(time.Duration(seconds) * time.Second)
+			go displayTop(refreshInterval, writer, pidArr, sortBit)
+			time.Sleep(time.Duration(refreshInterval) * time.Second)
 		}
 	}
 }
 
-func displayTop(seconds int, writer *uilive.Writer, pidsCsv string, sortBit bool) {
+func displayTop(refreshInterval int, writer *uilive.Writer, pidArr []string, sortBit bool) {
 
 	var cmd *exec.Cmd
 
@@ -125,7 +125,7 @@ func displayTop(seconds int, writer *uilive.Writer, pidsCsv string, sortBit bool
 	} else {
 		sortField = "%MEM"
 	}
-	cmd = exec.Command("top", "-p", pidsCsv, "-o", sortField, "-d", strconv.Itoa(seconds), "-b")
+	cmd = os_cmd.ExecTopCmd(pidArr, sortField, refreshInterval)
 	//fmt.Printf("%s", cmd.String())
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -162,12 +162,11 @@ func displayTop(seconds int, writer *uilive.Writer, pidsCsv string, sortBit bool
 	}
 }
 
-func getRandomizedLargePidList(pidsPtr *[]string) string {
-	pids := *pidsPtr
+func getRandomizedLargePidList(pidArr []string) []string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	for n := len(pids); n > 0; n-- {
+	for n := len(pidArr); n > 0; n-- {
 		randIndex := r.Intn(n)
-		pids[n-1], pids[randIndex] = pids[randIndex], pids[n-1]
+		pidArr[n-1], pidArr[randIndex] = pidArr[randIndex], pidArr[n-1]
 	}
-	return strings.Join(pids[:20], ",")
+	return pidArr[:20]
 }
