@@ -33,11 +33,11 @@ func killProcessForcefully(p *model.Process) string {
 	return fmt.Sprintf("kill -9 %s", p.GetPidStr())
 }
 
-func isPmondRunning(pid string) string {
-	return fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %s | head -n 1", pid)
+func isPmondRunning(pid int) string {
+	return fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %d | head -n 1", pid)
 }
 
-func execIsPmondRunning(pid string) bool {
+func execIsPmondRunning(pid int) bool {
 	rel, _ := os_cmd.GetResultWithErrorFromShellCommand(isPmondRunning(pid))
 	if rel.Ok {
 		pmond.Log.Debugf("%s", string(rel.Output))

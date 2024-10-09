@@ -36,6 +36,6 @@ func HandleOnEventExec(cmdString string) {
 	}
 }
 
-func ExecIsPmondRunning(pid string) bool {
+func ExecIsPmondRunning(pid int) bool {
 	return execIsPmondRunning(pid)
 }

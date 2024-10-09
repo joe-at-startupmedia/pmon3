@@ -1,27 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"github.com/goinbox/shell"
 	"os"
 	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
-	"pmon3/utils/conv"
-	"strings"
+	"pmon3/pmond/os_cmd"
 )
-
-func isPmondRunning() bool {
-	currentPid := os.Getpid()
-	rel := shell.RunCmd(fmt.Sprintf("ps -e -H -o pid,comm | awk '$2 ~ /pmond/ { print $1}' | grep -v %d | head -n 1", currentPid))
-	if rel.Ok {
-		pmond.Log.Debugf("%s", string(rel.Output))
-		newPidStr := strings.TrimSpace(string(rel.Output))
-		newPid := conv.StrToUint32(newPidStr)
-		return newPid != 0
-	}
-	return false
-}
 
 func main() {
 
@@ -30,7 +15,7 @@ func main() {
 		pmond.Log.Fatal(err)
 	}
 
-	if isPmondRunning() {
+	if os_cmd.ExecIsPmondRunning(os.Getpid()) {
 		pmond.Log.Fatal("pmond is already running")
 	}
 
