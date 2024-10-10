@@ -579,9 +579,9 @@ pmon3 init
 
 ```yaml
 event_handling:
-  #  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  # a script to execute when a process is restarted which accepts the process details json as the first argument
   process_restart:
-  #  -- a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+  # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
   process_failure:
 ```
 
@@ -589,7 +589,7 @@ event_handling:
 #### /etc/pmond/config/config.yml
 ```yaml
 event_handling:
-  #  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  # a script to execute when a process is restarted which accepts the process details json as the first argument
   process_restart: "/etc/pmon3/bin/on_restart.bash"
 ```
 
@@ -628,7 +628,7 @@ Flap Detection provides the ability to detect processes which are in a perpetual
 ### Enabling
 ```yaml
 flap_detection:
-  #  -- enable flap detection
+  # enable flap detection
   is_enabled: true
 ```
 
@@ -636,7 +636,7 @@ flap_detection:
 Defaulted to `5`, is the amount of process restarts before the flap prevention process begins at which point the process will cease restarts and enter the backoff state.
 ```yaml
 flap_detection:
-  #  -- the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
+  # the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
   threshold_restarted: 5
 ```
 
@@ -644,7 +644,7 @@ flap_detection:
 Defaulted to `120`, is the amount of process monitor intervals until the flap prevention process (backoff state) ends and the process (if still in a perpetually failed state) will resume restarting as normal until the restart threshold is met again. The process monitor interval can also be set in the [configuration file](#section_config) which would affect the time in which it would take to countdown back to zero.
 ```yaml
 flap_detection:
-  #  -- the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
+  # the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
   threshold_countdown: 120
 ```
 
@@ -652,7 +652,7 @@ flap_detection:
 Defaulted to `60`, disabled with `0`, is the amount of process monitor intervals during the flap prevention process (backoff state) until the internal process restart counter is decremented. This can affect how the countdown is reached effectively staggering process restarts during the countdown process. This is useful when you don't want to completely back off and allow for intermittent restarts during the flap prevention process (backoff state).
 ```yaml
 flap_detection:
-  #  -- the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
+  # the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
   threshold_decrement: 60
 ```
 
