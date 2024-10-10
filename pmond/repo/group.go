@@ -39,10 +39,6 @@ func (gr *GroupRepo) Create(name string) (*model.Group, error) {
 	return group, err
 }
 
-func (gr *GroupRepo) Save() error {
-	return gr.db.Save(&gr.cur).Error
-}
-
 func (gr *GroupRepo) Delete(idOrName string) error {
 	g, err := gr.FindByIdOrName(idOrName)
 	if err != nil {
@@ -53,16 +49,6 @@ func (gr *GroupRepo) Delete(idOrName string) error {
 		return gr.db.Unscoped().Delete(g).Error
 	}
 	return nil
-}
-
-func (gr *GroupRepo) FindById(id uint32) (*model.Group, error) {
-	var found model.Group
-	err := gr.db.Preload("Processes").First(&found, id).Error
-	if err != nil {
-		pmond.Log.Infof("could not find group in database: %d %-v", id, err)
-		return nil, err
-	}
-	return &found, nil
 }
 
 func (gr *GroupRepo) FindByIdOrName(idOrName string) (*model.Group, error) {
