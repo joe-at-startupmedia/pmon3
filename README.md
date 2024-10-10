@@ -505,7 +505,7 @@ All possible `flags` values matching those specified in the [exec](#exec_flags) 
 <a name="section_dependencies"></a>
 ## Dependencies
 
-Dependencies (provided as an array) determine the order in which the processes are started. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes. Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait `[n]` amount of seconds between spawning dependent processes by utilziing the `dependent_process_enqueued_wait` configuration variable (currently defaults to `2` seconds).
+Dependencies (provided as an array) determine the order in which the processes are started. They are sorted using a directed acyclic graph meaning that there cannot be cyclical dependencies between processes. Dependency resolution can be debugged using the [dgraph](#pmon3_dgraph) command. Parent processes can wait `[n]` amount of seconds between spawning dependent processes by utilizing the `dependent_process_enqueued` configuration variable (currently defaults to `2` seconds).
 
 <a name="section_groups"></a>
 ## Groups
