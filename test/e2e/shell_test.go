@@ -49,7 +49,7 @@ func (suite *Pmon3ShellTestSuite) TestB_PmondIsntRunningFromPmond() {
 var pid int
 
 func (suite *Pmon3ShellTestSuite) TestC_PmondIsRunningAfterStarting() {
-	cmd := exec.Command("pmond")
+	cmd := exec.Command("/pmond")
 	cmd.Env = []string{
 		fmt.Sprintf("PMON3_CONF=%s/test/e2e/config/test-config.core.yml", suite.cliHelper.ProjectPath),
 	}
