@@ -69,8 +69,8 @@ github.com/joe-at-startupmedia/shmemipc v0.0.12 h1:K7Uxq5mK9yIhd2+Mx8CHl5fF5KzwA
 github.com/joe-at-startupmedia/shmemipc v0.0.12/go.mod h1:7WyKrzdmQEHKZGM9BKzkEKR8AH0/4rZ29r3Vy5BD8sU=
 github.com/joe-at-startupmedia/sqlite v0.0.1 h1:icVtthRliO/RoFniW7MNkPK8KOuDX0LEzwX2aHaTEoM=
 github.com/joe-at-startupmedia/sqlite v0.0.1/go.mod h1:8OmR/zkldw8ZSL5SQ/ej7UO4PJTCNpH9CdD7B9ulMYo=
-github.com/joe-at-startupmedia/xipc v0.0.12 h1:4/fcgQHTkPkqlpT1cPuzh4Q/fDbzscnnlrHnGCdpNfE=
-github.com/joe-at-startupmedia/xipc v0.0.12/go.mod h1:Ub7Ev8LECOW2CyzN7D+GiwZw1etrdLwJD0i4P5OgHWs=
+github.com/joe-at-startupmedia/xipc v0.0.13 h1:vSdiGbZUWMIaDiys7yOzqM5JfOjSHV5Hj2nfkD8BLMs=
+github.com/joe-at-startupmedia/xipc v0.0.13/go.mod h1:XeZbnF1Lk1KgogbsrpcLSglXkbg+4LJ8IYhLEjk7VVg=
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=

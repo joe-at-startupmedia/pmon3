@@ -19,7 +19,7 @@ func connectResponder() {
 	pmqDir := pmond.Config.Directory.PosixMQ
 	_, err := os.Stat(pmqDir)
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(pmqDir, 0644)
+		err = os.MkdirAll(pmqDir, 0777)
 		handleOpenError(err) //fatal
 	}
 

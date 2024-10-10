@@ -19,7 +19,7 @@ func connectResponder() {
 	shmemDir := pmond.Config.Directory.Shmem
 	_, err := os.Stat(shmemDir)
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(shmemDir, 0644)
+		err = os.MkdirAll(shmemDir, 0777)
 		handleOpenError(err) //fatal
 	}
 
@@ -28,7 +28,7 @@ func connectResponder() {
 		BasePath:   pmond.Config.Directory.Shmem,
 		MaxMsgSize: 32768,
 		Flags:      os.O_RDWR | os.O_CREATE | os.O_TRUNC,
-		Mode:       0666,
+		Mode:       0660,
 	}
 	ownership := xipc.Ownership{
 		Group:    pmond.Config.MessageQueue.Group,
