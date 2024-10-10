@@ -45,29 +45,49 @@ func GetProcessConfigFile() string {
 }
 
 type Config struct {
-	ProcessConfig                   *model.ProcessConfig
-	ConfigFile                      string
-	ProcessConfigFile               string `yaml:"process_config_file"`
-	DataDir                         string `yaml:"data_dir" default:"/etc/pmon3/data"`
-	LogsDir                         string `yaml:"logs_dir" default:"/var/log/pmond"`
-	PosixMessageQueueDir            string `yaml:"posix_mq_dir" default:"/dev/mqueue/"`
-	ShmemDir                        string `yaml:"shmem_dir" default:"/dev/shm/"`
-	MessageQueueUser                string `yaml:"mq_user"`
-	MessageQueueGroup               string `yaml:"mq_group"`
-	MessageQueueSuffix              string `yaml:"mq_suffix"`
-	LogLevel                        string `yaml:"log_level" default:"info"`
-	OnProcessRestartExec            string `yaml:"on_process_restart_exec"`
-	OnProcessFailureExec            string `yaml:"on_process_failure_exec"`
-	CmdExecResponseWait             int32  `yaml:"cmd_exec_response_wait" default:"1500"`
-	IpcConnectionWait               int32  `yaml:"ipc_connection_wait"`
-	HandleInterrupts                bool   `yaml:"handle_interrupts" default:"true"`
-	InitializationPeriod            int16  `yaml:"initialization_period" default:"30"`
-	ProcessMonitorInterval          int32  `yaml:"process_monitor_interval" default:"500"`
-	FlapDetectionEnabled            bool   `yaml:"flap_detection_enabled" default:"false"`
-	FlapDetectionThresholdRestarted int16  `yaml:"flap_detection_threshold_restarted" default:"5"`
-	FlapDetectionThresholdCountdown int32  `yaml:"flap_detection_threshold_countdown" default:"120"`
-	FlapDetectionThresholdDecrement int32  `yaml:"flap_detection_threshold_decrement" default:"60"`
-	DependentProcessEnqueuedWait    int32  `yaml:"dependent_process_enqueued_wait" default:"1000"`
+	ProcessConfig          *model.ProcessConfig
+	Directory              DirectoryConfig    `yaml:"directory"`
+	MessageQueue           MessageQueueConfig `yaml:"message_queue"`
+	EventHandler           EventHandlerConfig `yaml:"event_handling"`
+	ConfigFile             string
+	ProcessConfigFile      string              `yaml:"process_config_file"`
+	LogLevel               string              `yaml:"log_level" default:"info"`
+	Wait                   WaitConfig          `yaml:"wait"`
+	FlapDetection          FlapDetectionConfig `yaml:"flap_detection"`
+	ProcessMonitorInterval int32               `yaml:"process_monitor_interval" default:"500"`
+	InitializationPeriod   int16               `yaml:"initialization_period" default:"30"`
+	HandleInterrupts       bool                `yaml:"handle_interrupts" default:"true"`
+}
+
+type DirectoryConfig struct {
+	Data    string `yaml:"data" default:"/etc/pmon3/data"`
+	Logs    string `yaml:"logs" default:"/var/log/pmond"`
+	Shmem   string `yaml:"shmem" default:"/dev/shm/"`
+	PosixMQ string `yaml:"posix_mq" default:"/dev/mqueue/"`
+}
+
+type MessageQueueConfig struct {
+	User       string `yaml:"user"`
+	Group      string `yaml:"group"`
+	NameSuffix string `yaml:"name_suffix"`
+}
+
+type FlapDetectionConfig struct {
+	IsEnabled          bool  `yaml:"is_enabled" default:"false"`
+	ThresholdRestarted int16 `yaml:"threshold_restarted" default:"5"`
+	ThresholdCountdown int32 `yaml:"threshold_countdown" default:"120"`
+	ThresholdDecrement int32 `yaml:"threshold_decrement" default:"60"`
+}
+
+type WaitConfig struct {
+	CmdExecResponse          int32 `yaml:"cmd_exec_response" default:"1500"`
+	IpcConnection            int32 `yaml:"ipc_connection"`
+	DependentProcessEnqueued int32 `yaml:"dependent_process_enqueued" default:"1000"`
+}
+
+type EventHandlerConfig struct {
+	ProcessRestart string `yaml:"process_restart"`
+	ProcessFailure string `yaml:"process_failure"`
 }
 
 func Load(configFile string, processConfigFile string) (*Config, error) {
@@ -108,8 +128,8 @@ func Load(configFile string, processConfigFile string) (*Config, error) {
 }
 
 func (c *Config) GetCmdExecResponseWait() time.Duration {
-	if c.CmdExecResponseWait >= 0 && c.CmdExecResponseWait <= 10000 {
-		return time.Duration(c.CmdExecResponseWait) * time.Millisecond
+	if c.Wait.CmdExecResponse >= 0 && c.Wait.CmdExecResponse <= 10000 {
+		return time.Duration(c.Wait.CmdExecResponse) * time.Millisecond
 	} else {
 		log.Println("cmd_exec_response_wait configuration value must be between 0 and 10000 ms")
 		return 1500 * time.Millisecond
@@ -117,8 +137,8 @@ func (c *Config) GetCmdExecResponseWait() time.Duration {
 }
 
 func (c *Config) GetDependentProcessEnqueuedWait() time.Duration {
-	if c.DependentProcessEnqueuedWait >= 0 && c.DependentProcessEnqueuedWait <= 20000 {
-		return time.Duration(c.DependentProcessEnqueuedWait) * time.Millisecond
+	if c.Wait.DependentProcessEnqueued >= 0 && c.Wait.DependentProcessEnqueued <= 20000 {
+		return time.Duration(c.Wait.DependentProcessEnqueued) * time.Millisecond
 	} else {
 		log.Println("dependent_process_enqueued_wait configuration value must be between 0 and 10000 ms")
 		return 1000 * time.Millisecond
@@ -126,8 +146,8 @@ func (c *Config) GetDependentProcessEnqueuedWait() time.Duration {
 }
 
 func (c *Config) GetIpcConnectionWait() time.Duration {
-	if c.IpcConnectionWait >= 0 && c.IpcConnectionWait <= 5000 {
-		return time.Duration(c.IpcConnectionWait) * time.Millisecond
+	if c.Wait.IpcConnection >= 0 && c.Wait.IpcConnection <= 5000 {
+		return time.Duration(c.Wait.IpcConnection) * time.Millisecond
 	} else {
 		log.Println("ipc_connection_wait configuration value must be between 0 and 5000 ms")
 		return 200 * time.Millisecond
@@ -157,7 +177,7 @@ func (c *Config) GetLogLevel() logrus.Level {
 }
 
 func (c *Config) GetDatabaseFile() string {
-	return strings.ReplaceAll(c.DataDir+"/data.db", "//", "/")
+	return strings.ReplaceAll(c.Directory.Data+"/data.db", "//", "/")
 }
 
 func strToLogLevel(str string) logrus.Level {

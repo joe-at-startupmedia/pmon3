@@ -124,7 +124,7 @@ func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 				restarted, err := process.Restart(cur, isInitializing)
 				if err != nil {
 					pmond.Log.Errorf("task monitor encountered error attempting to restart process(%s): %s", cur.Stringify(), err)
-				} else if restarted && pmond.Config.FlapDetectionEnabled {
+				} else if restarted && pmond.Config.FlapDetection.IsEnabled {
 					flapDetector.RestartProcess()
 				}
 			} else if cur.Status == model.StatusQueued {
@@ -145,7 +145,7 @@ func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 
 func detectFlapping(p *model.Process) *process.FlapDetector {
 	var flapDetector *process.FlapDetector
-	if pmond.Config.FlapDetectionEnabled {
+	if pmond.Config.FlapDetection.IsEnabled {
 		flapDetector = process.GetFlapDetectorByProcessId(p.ID, pmond.Config)
 
 		if flapDetector.ShouldBackOff(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)) {

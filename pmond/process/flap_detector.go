@@ -27,9 +27,9 @@ func GetFlapDetectorByProcessId(processId uint32, conf *conf.Config) *FlapDetect
 			time.Now(),
 			0,
 			0,
-			int(conf.FlapDetectionThresholdRestarted),
-			int(conf.FlapDetectionThresholdCountdown),
-			int(conf.FlapDetectionThresholdDecrement),
+			int(conf.FlapDetection.ThresholdRestarted),
+			int(conf.FlapDetection.ThresholdCountdown),
+			int(conf.FlapDetection.ThresholdDecrement),
 		}
 		flapDetectors[processId] = fd
 	}

@@ -285,46 +285,69 @@ pmon3 topn
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
 The following configuration options are available:
 ```yaml
-# directory where the database is stored
-data_dir: /etc/pmon3/data
-# directory where the logs are stored
-logs_dir: /var/log/pmond
-# log levels: debug/info/warn/error
+# --------------------------------
+# pmon3 config
+# --------------------------------
+#
+# All commented values are the default when empty or omitted
+#
+
+# -- log levels: debug/info/warn/error
 log_level: info
-# kill processes on termination
+
+# -- kill processes on termination
 handle_interrupts: true
-# poll processes every [n] milliseconds
+
+# -- poll processes every [n] milliseconds
 process_monitor_interval: 500
-# wait [n] seconds before monitoring process statuses
+
+# -- wait [n] seconds before monitoring process statuses
 initialization_period: 30
-# enable flap detection
-flap_detection_enabled: false
-# the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
-flap_detection_threshold_restarted: 5
-# the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
-flap_detection_threshold_countdown: 120
-# the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
-flap_detection_threshold_decrement: 60
-# wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
-cmd_exec_response_wait: 1500
-# wait [n] milliseconds after connecting to IPC client before issuing commands
-ipc_connection_wait: 0
-# wait [n] milliseconds after enqueueing a dependent process
-dependent_process_enqueued_wait: 2000
-# a script to execute when a process is restarted which accepts the process details json as the first argument
-on_process_restart_exec:
-# a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
-on_process_failure_exec:
-# specify a custom posix_mq directory in order to apply the appropriate permissions
-#posix_mq_dir: /dev/mqueue/
-# specify a custom shared memory directory in order to apply the appropriate permissions
-shmem_dir: /dev/shm/
-# specify a custom user to access files in posix_mq_dir  or shmem_dir
-mq_user:
-# specify a custom group to access files in posix_mq_dir or shmem_dir (must also provide a user)
-mq_group:
-# a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
+
+# -- a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
 process_config_file: /etc/pmon3/config/process.config.json
+
+wait:
+#  -- wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
+  cmd_exec_response: 1500
+#  -- wait [n] milliseconds after connecting to IPC client before issuing commands
+  ipc_connection: 0
+#  -- wait [n] milliseconds after enqueueing a dependent process
+  dependent_process_enqueued: 2000
+
+directory:
+#  -- directory where the database is stored
+  data: /etc/pmon3/data
+#  -- directory where the logs are stored
+  logs: /var/log/pmond
+#  -- custom shared memory directory
+  shmem: /dev/shm/
+#  -- custom posix_mq directory
+  posix_mq: /dev/mqueue/
+
+message_queue:
+#  -- specify an OS user to access files in posix_mq directory or shmem directory
+  user:
+#  -- specify an OS group to access files in posix_mq directory or shmem directory (must also provide a user)
+  group:
+#  -- a string to append to the name of the queue
+  name_suffix:
+
+event_handling:
+#  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  process_restart:
+#  -- a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+  process_failure:
+
+flap_detection:
+#  -- enable flap detection
+  is_enabled: false
+#  -- the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
+  threshold_restarted: 5
+#  -- the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
+  threshold_countdown: 120
+#  -- the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
+  threshold_decrement: 60
 ```
 
 Restarting pmond is usually unnecessary: All configuration changes should take effect when the next command is issued.
@@ -334,26 +357,27 @@ Restarting pmond is usually unnecessary: All configuration changes should take e
 
 The configuration values can be overridden using environment variables:
 
-* `CONFIGOR_DATADIR`
-* `CONFIGOR_LOGSDIR`
-* `CONFIGOR_LOGLEVEL`
-* `CONFIGOR_HANDLEINTERRUPTS`
-* `CONFIGOR_INITIALIZATIONPERIOD`
-* `CONFIGOR_PROCESSMONITORINTERVAL`
-* `CONFIGOR_FLAPDETECTIONENABLED`
-* `CONFIGOR_FLAPDETECTIONTHRESHOLDRESTARTED`
-* `CONFIGOR_FLAPDETECTIONTHRESHOLDCOUNTDOWN`
-* `CONFIGOR_FLAPDETECTIONTHRESHOLDDECREMENT`
-* `CONFIGOR_CMDEXECRESPONSEWAIT`
-* `CONFIGOR_IPCCONNECTIONWAIT`
-* `CONFIGOR_DEPENDENTPROCESSENQUEUEDWAIT`
-* `CONFIGOR_ONPROCESSRESTARTEXEC`
-* `CONFIGOR_ONPROCESSFAILUREEXEC`
-* `CONFIGOR_POSIXMESSAGEQUEUEDIR`
-* `CONFIGOR_SHMEMDIR`
-* `CONFIGOR_MESSAGEQUEUEUSER`
-* `CONFIGOR_MESSAGEQUEUEGROUP`
-* `CONFIGOR_PROCESSCONFIGFILE`
+* CONFIGOR_LOGLEVEL
+* CONFIGOR_HANDLEINTERRUPTS
+* CONFIGOR_PROCESSMONITORINTERVAL
+* CONFIGOR_INITIALIZATIONPERIOD
+* CONFIGOR_PROCESSCONFIGFILE
+* CONFIGOR_WAIT_CMDEXECRESPONSE
+* CONFIGOR_WAIT_IPCCONNECTION
+* CONFIGOR_WAIT_DEPENDENTPROCESSENQUEUED
+* CONFIGOR_DIRECTORY_DATA
+* CONFIGOR_DIRECTORY_LOGS
+* CONFIGOR_DIRECTORY_SHMEM
+* CONFIGOR_DIRECTORY_POSIXMQ
+* CONFIGOR_MESSAGEQUEUE_USER
+* CONFIGOR_MESSAGEQUEUE_GROUP
+* CONFIGOR_MESSAGEQUEUE_NAMESUFFIX
+* CONFIGOR_EVENTHANDLER_PROCESSRESTART
+* CONFIGOR_EVENTHANDLER_PROCESSFAILURE
+* CONFIGOR_FLAPDETECTION_ISENABLED
+* CONFIGOR_FLAPDETECTION_THRESHOLDRESTARTED
+* CONFIGOR_FLAPDETECTION_THRESHOLDCOUNTDOWN
+* CONFIGOR_FLAPDETECTION_THRESHOLDDECREMENT
 
 <a name="section_processconfig"></a>
 ## Process Configuration
@@ -554,16 +578,19 @@ pmon3 init
 ## Event Handling With Custom Scripts
 
 ```yaml
-# a script to execute when a process is restarted which accepts the process details json as the first argument
-on_process_restart_exec: ""
-# a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
-on_process_failure_exec: ""
+event_handling:
+  #  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  process_restart:
+  #  -- a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+  process_failure:
 ```
 
 ### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
 #### /etc/pmond/config/config.yml
 ```yaml
-on_process_restart_exec: "/etc/pmon3/bin/on_restart.bash"
+event_handling:
+  #  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  process_restart: "/etc/pmon3/bin/on_restart.bash"
 ```
 
 ### 2. create the script to accept the json-escaped process details:
@@ -600,25 +627,33 @@ Flap Detection provides the ability to detect processes which are in a perpetual
 
 ### Enabling
 ```yaml
-flap_detection_enabled: true
+flap_detection:
+  #  -- enable flap detection
+  is_enabled: true
 ```
 
 ### Restart Threshold
 Defaulted to `5`, is the amount of process restarts before the flap prevention process begins at which point the process will cease restarts and enter the backoff state.
 ```yaml
-flap_detection_threshold_restarted: 5
+flap_detection:
+  #  -- the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
+  threshold_restarted: 5
 ```
 
 ### Countdown Threshold
 Defaulted to `120`, is the amount of process monitor intervals until the flap prevention process (backoff state) ends and the process (if still in a perpetually failed state) will resume restarting as normal until the restart threshold is met again. The process monitor interval can also be set in the [configuration file](#section_config) which would affect the time in which it would take to countdown back to zero.
 ```yaml
-flap_detection_threshold_countdown: 120
+flap_detection:
+  #  -- the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
+  threshold_countdown: 120
 ```
 
 ### Decrement Threshold
 Defaulted to `60`, disabled with `0`, is the amount of process monitor intervals during the flap prevention process (backoff state) until the internal process restart counter is decremented. This can affect how the countdown is reached effectively staggering process restarts during the countdown process. This is useful when you don't want to completely back off and allow for intermittent restarts during the flap prevention process (backoff state).
 ```yaml
-flap_detection_threshold_decrement: 60
+flap_detection:
+  #  -- the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
+  threshold_decrement: 60
 ```
 
 ### Example 

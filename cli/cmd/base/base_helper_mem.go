@@ -11,13 +11,13 @@ import (
 func OpenSender() {
 
 	queueName := "pmon3_mem"
-	if len(cli.Config.MessageQueueSuffix) > 0 {
-		queueName = queueName + "_" + cli.Config.MessageQueueSuffix
+	if len(cli.Config.MessageQueue.NameSuffix) > 0 {
+		queueName = queueName + "_" + cli.Config.MessageQueue.NameSuffix
 	}
 
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       queueName,
-		BasePath:   cli.Config.ShmemDir,
+		BasePath:   cli.Config.Directory.Shmem,
 		MaxMsgSize: 32768,
 	}
 

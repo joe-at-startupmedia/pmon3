@@ -20,7 +20,7 @@ func GetLogPath(customLogDir string, customLogFile string, processName string) (
 	if len(customLogDir) > 0 {
 		logDest = strings.TrimRight(customLogDir, "/")
 	} else {
-		logDest = strings.TrimRight(pmond.Config.LogsDir, "/")
+		logDest = strings.TrimRight(pmond.Config.Directory.Logs, "/")
 	}
 
 	if len(customLogFile) > 0 {

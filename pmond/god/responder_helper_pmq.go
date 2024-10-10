@@ -12,11 +12,11 @@ import (
 func connectResponder() {
 
 	queueName := "pmon3_pmq"
-	if len(pmond.Config.MessageQueueSuffix) > 0 {
-		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	if len(pmond.Config.MessageQueue.NameSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueue.NameSuffix
 	}
 
-	pmqDir := pmond.Config.PosixMessageQueueDir
+	pmqDir := pmond.Config.Directory.PosixMQ
 	_, err := os.Stat(pmqDir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(pmqDir, 0644)
@@ -25,12 +25,12 @@ func connectResponder() {
 
 	queueConfig := xipc_pmq.QueueConfig{
 		Name:  queueName,
-		Dir:   pmond.Config.PosixMessageQueueDir,
+		Dir:   pmond.Config.Directory.PosixMQ,
 		Flags: xipc_pmq.O_RDWR | xipc_pmq.O_CREAT, //| xipc_pmq.O_NONBLOCK,
 	}
 	ownership := xipc.Ownership{
-		Group:    pmond.Config.MessageQueueGroup,
-		Username: pmond.Config.MessageQueueUser,
+		Group:    pmond.Config.MessageQueue.Group,
+		Username: pmond.Config.MessageQueue.User,
 	}
 	xr = xipc_pmq.NewResponder(&queueConfig, &ownership)
 	if xr.HasErrors() {

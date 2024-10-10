@@ -11,8 +11,8 @@ import (
 func OpenSender() {
 
 	queueName := "pmon3_net"
-	if len(cli.Config.MessageQueueSuffix) > 0 {
-		queueName = queueName + "_" + cli.Config.MessageQueueSuffix
+	if len(cli.Config.MessageQueue.NameSuffix) > 0 {
+		queueName = queueName + "_" + cli.Config.MessageQueue.NameSuffix
 	}
 
 	queueConfig := xipc_net.QueueConfig{

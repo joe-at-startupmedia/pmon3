@@ -31,7 +31,7 @@ func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, mes
 	if err := pmond.Instance(projectPath+configFile, projectPath+processConfigFile); err != nil {
 		s.FailNow(err.Error())
 	}
-	pmond.Config.MessageQueueSuffix = messageQueueSuffix
+	pmond.Config.MessageQueue.NameSuffix = messageQueueSuffix
 
 	ctx := context.Background()
 	go god.Summon(ctx)
@@ -41,7 +41,7 @@ func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, mes
 	if err := cli.Instance(projectPath + configFile); err != nil {
 		s.FailNow(err.Error())
 	}
-	cli.Config.MessageQueueSuffix = messageQueueSuffix
+	cli.Config.MessageQueue.NameSuffix = messageQueueSuffix
 
 	base.OpenSender()
 

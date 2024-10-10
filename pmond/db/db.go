@@ -13,7 +13,7 @@ var db *gorm.DB
 
 func Db() *gorm.DB {
 	dbOnce.Do(func() {
-		pmondDbDir := pmond.Config.DataDir
+		pmondDbDir := pmond.Config.Directory.Data
 		_, err := os.Stat(pmondDbDir)
 		if os.IsNotExist(err) {
 			err = os.MkdirAll(pmondDbDir, 0755)

@@ -86,6 +86,7 @@ func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 // this is necessary because TearDownSuite executes concurrently with the
 // initialization of the next suite
 func (suite *Pmon3ExportTestSuite) TestZ_TearDown() {
+	time.Sleep(2 * time.Second)
 	suite.cliHelper.DropAndClose()
 }
 

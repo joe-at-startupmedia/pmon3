@@ -36,7 +36,7 @@ func HandleEvent(evt *Event) {
 
 func onFailedEvent(evt *Event) {
 	pmond.Log.Errorf("process failed and not restarting: %s", evt.Process.Stringify())
-	oPE := pmond.Config.OnProcessFailureExec
+	oPE := pmond.Config.EventHandler.ProcessFailure
 	if len(oPE) > 0 {
 		onEventExec(evt, oPE)
 	}
@@ -44,7 +44,7 @@ func onFailedEvent(evt *Event) {
 
 func onRestartEvent(evt *Event) {
 	pmond.Log.Warnf("restarting process: %s", evt.Process.Stringify())
-	oPE := pmond.Config.OnProcessRestartExec
+	oPE := pmond.Config.EventHandler.ProcessRestart
 	if len(oPE) > 0 {
 		onEventExec(evt, oPE)
 	}

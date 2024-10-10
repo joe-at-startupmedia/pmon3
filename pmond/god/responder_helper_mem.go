@@ -12,11 +12,11 @@ import (
 func connectResponder() {
 
 	queueName := "pmon3_mem"
-	if len(pmond.Config.MessageQueueSuffix) > 0 {
-		queueName = queueName + "_" + pmond.Config.MessageQueueSuffix
+	if len(pmond.Config.MessageQueue.NameSuffix) > 0 {
+		queueName = queueName + "_" + pmond.Config.MessageQueue.NameSuffix
 	}
 
-	shmemDir := pmond.Config.ShmemDir
+	shmemDir := pmond.Config.Directory.Shmem
 	_, err := os.Stat(shmemDir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(shmemDir, 0644)
@@ -25,14 +25,14 @@ func connectResponder() {
 
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       queueName,
-		BasePath:   pmond.Config.ShmemDir,
+		BasePath:   pmond.Config.Directory.Shmem,
 		MaxMsgSize: 32768,
 		Flags:      os.O_RDWR | os.O_CREATE | os.O_TRUNC,
 		Mode:       0666,
 	}
 	ownership := xipc.Ownership{
-		Group:    pmond.Config.MessageQueueGroup,
-		Username: pmond.Config.MessageQueueUser,
+		Group:    pmond.Config.MessageQueue.Group,
+		Username: pmond.Config.MessageQueue.User,
 	}
 	xr = xipc_mem.NewResponder(queueConfig, &ownership)
 	if xr.HasErrors() {

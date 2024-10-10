@@ -11,13 +11,13 @@ import (
 func OpenSender() {
 
 	queueName := "pmon3_pmq"
-	if len(cli.Config.MessageQueueSuffix) > 0 {
-		queueName = queueName + "_" + cli.Config.MessageQueueSuffix
+	if len(cli.Config.MessageQueue.NameSuffix) > 0 {
+		queueName = queueName + "_" + cli.Config.MessageQueue.NameSuffix
 	}
 
 	queueConfig := &xipc_pmq.QueueConfig{
 		Name: queueName,
-		Dir:  cli.Config.PosixMessageQueueDir,
+		Dir:  cli.Config.Directory.PosixMQ,
 	}
 
 	XipcModule = "pmq"
