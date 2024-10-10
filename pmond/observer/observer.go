@@ -19,7 +19,6 @@ func (w EventType) String() string {
 	return [...]string{"restarted", "failed"}[w-1]
 }
 
-// Event with some payload
 type Event struct {
 	Process *model.Process
 	Type    EventType
