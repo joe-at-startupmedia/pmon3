@@ -53,14 +53,14 @@ misspell:
 .PHONY: betteralign_check
 betteralign_check:
 	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@v0.5.1; \
+		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
 	betteralign ./...
 
 .PHONY: betteralign
 betteralign:
 	@hash betteralign > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@v0.5.1; \
+		$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest; \
 	fi
 	betteralign -apply ./...
 
@@ -68,7 +68,7 @@ betteralign:
 tools:
 	$(GO) install golang.org/x/lint/golint@latest
 	$(GO) install github.com/client9/misspell/cmd/misspell@latest
-	$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@v0.5.1
+	$(GO) install github.com/dkorunic/betteralign/cmd/betteralign@latest
 
 .PHONY: base_build
 base_build: misspell_check betteralign_check

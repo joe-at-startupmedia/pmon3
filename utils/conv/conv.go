@@ -6,7 +6,7 @@ import (
 )
 
 func StrToUint32(val string) uint32 {
-	return uint32(uint(StrToInt(val)))
+	return uint32(StrToInt(val))
 }
 
 func StrToInt(val string) int {
