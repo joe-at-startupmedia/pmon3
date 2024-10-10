@@ -19,9 +19,12 @@ on:
         description: 'passed to the go test -run flag'
         type: string
         default: 'Test'
+        required: true
       make_target:
         description: 'the name of the make target'
         type: string
+        default: 'test'
+        required: true
 
 jobs:
 
