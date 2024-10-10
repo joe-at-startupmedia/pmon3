@@ -10,6 +10,8 @@ import (
 	"pmon3/cli/cmd/exec"
 	initialize "pmon3/cli/cmd/init"
 	"pmon3/cli/cmd/kill"
+	"pmon3/cli/cmd/log"
+	"pmon3/cli/cmd/logf"
 	"pmon3/cli/cmd/reset"
 	"pmon3/cli/cmd/topn"
 	"pmon3/pmond/model"
@@ -293,6 +295,21 @@ func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
 	p := model.ProcessFromProtobuf(processList[0])
 
 	assert.Equal(suite.T(), "test-server-2", p.Name)
+}
+
+func (suite *Pmon3CoreTestSuite) TestU_LogProcess() {
+	cmdResp := log.Log("test-server-2", true, "10")
+	assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
+}
+
+func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		cmdResp := logf.Logf("test-server-2", "10", ctx)
+		assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
+	}()
+	time.Sleep(time.Second * 5)
+	cancel()
 }
 
 // this is necessary because TearDownSuite executes concurrently with the
