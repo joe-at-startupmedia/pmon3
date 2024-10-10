@@ -11,6 +11,17 @@ on:
   pull_request:
     branches: [ "master", "develop" ]
   workflow_dispatch:
+    inputs:
+      cover_packages:
+        description: 'passed to the go test -coverpkg flag'
+        type: string
+      run_regex:
+        description: 'passed to the go test -run flag'
+        type: string
+        default: 'Test'
+      make_target:
+        description: 'the name of the make target'
+        type: string
 
 jobs:
 
@@ -38,7 +49,7 @@ jobs:
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --build-arg TEST_REGEX_ARG=Test --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} -t pmon3 .
+        docker build --build-arg TEST_PACKAGES_ARG=${{inputs.cover_packages}} --build-arg TEST_REGEX_ARG=${{inputs.run_regex}} --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=${{inputs.make_target}} -t pmon3 .
 
     - name: Docker Testing
       run: |

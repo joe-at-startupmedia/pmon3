@@ -3,6 +3,7 @@ FROM golang:1.23-alpine
 ARG GIT_BRANCH_ARG=master
 ARG MAKE_TARGET_ARG=test
 ARG TEST_REGEX_ARG=Test
+ARG TEST_PACKAGES_ARG
 ARG CODECOV_TOKEN_ARG
 
 RUN apk --update add build-base && \
@@ -12,8 +13,9 @@ RUN apk --update add build-base && \
   cd /opt/ && \
   git clone --single-branch --branch ${GIT_BRANCH_ARG} https://github.com/joe-at-startupmedia/pmon3.git
 
+ENV CODECOV_TOKEN=${CODECOV_TOKEN_ARG}
 ENV TEST_REGEX=${TEST_REGEX_ARG}
 ENV MAKE_TARGET=${MAKE_TARGET_ARG}
-ENV CODECOV_TOKEN=${CODECOV_TOKEN_ARG}
+ENV TEST_PACKAGES=${TEST_PACKAGES_ARG}
 
 ENTRYPOINT ["/bin/sh", "-c" , "cd /opt/pmon3 && make ${MAKE_TARGET} && /usr/local/bin/codecov upload-process -t ${CODECOV_TOKEN} -F ${MAKE_TARGET}"]
