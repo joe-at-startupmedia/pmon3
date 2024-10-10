@@ -285,68 +285,68 @@ pmon3 topn
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
 The following configuration options are available:
 ```yaml
-# --------------------------------
-# pmon3 config
-# --------------------------------
+# --------------
+# pmon3 config  
+# --------------
 #
 # All commented values are the default when empty or omitted
 #
 
-# -- log levels: debug/info/warn/error
+# log levels: debug/info/warn/error
 log_level: info
 
-# -- kill processes on termination
+# kill processes on termination
 handle_interrupts: true
 
-# -- poll processes every [n] milliseconds
+# poll processes every [n] milliseconds
 process_monitor_interval: 500
 
-# -- wait [n] seconds before monitoring process statuses
+# wait [n] seconds before monitoring process statuses
 initialization_period: 30
 
-# -- a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
+# a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
 process_config_file: /etc/pmon3/config/process.config.json
 
 wait:
-#  -- wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
+  # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
   cmd_exec_response: 1500
-#  -- wait [n] milliseconds after connecting to IPC client before issuing commands
+  # wait [n] milliseconds after connecting to IPC client before issuing commands
   ipc_connection: 0
-#  -- wait [n] milliseconds after enqueueing a dependent process
-  dependent_process_enqueued: 2000
+  # wait [n] milliseconds after enqueueing a dependent process
+  dependent_process_enqueued: 1000
 
 directory:
-#  -- directory where the database is stored
+  # directory where the database is stored
   data: /etc/pmon3/data
-#  -- directory where the logs are stored
+  # directory where the logs are stored
   logs: /var/log/pmond
-#  -- custom shared memory directory
+  # custom shared memory directory
   shmem: /dev/shm/
-#  -- custom posix_mq directory
+  # custom posix_mq directory
   posix_mq: /dev/mqueue/
 
 message_queue:
-#  -- specify an OS user to access files in posix_mq directory or shmem directory
+  # an OS user to access files in posix_mq directory or shmem directory
   user:
-#  -- specify an OS group to access files in posix_mq directory or shmem directory (must also provide a user)
+  # an OS group to access files in posix_mq directory or shmem directory (must also provide a user)
   group:
-#  -- a string to append to the name of the queue
+  # a string to append to the name of the queue
   name_suffix:
 
 event_handling:
-#  -- a script to execute when a process is restarted which accepts the process details json as the first argument
+  # a script to execute when a process is restarted which accepts the process details json as the first argument
   process_restart:
-#  -- a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
+  # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
   process_failure:
 
 flap_detection:
-#  -- enable flap detection
+  # enable flap detection
   is_enabled: false
-#  -- the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
+  # the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
   threshold_restarted: 5
-#  -- the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
+  # the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
   threshold_countdown: 120
-#  -- the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
+  # the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
   threshold_decrement: 60
 ```
 
