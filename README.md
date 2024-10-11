@@ -315,11 +315,11 @@ permissions:
   # an OS group to access files in data/logs/message_queue directory (must also provide a user)
   group:
   # the mode to apply to the data/logs/message_queue directory
-  directory_mode:
-  # the mode to apply to files within the data/logs/message_queue directory  
-  file_mode:
+  directory_mode: 0770
+  # the mode to apply to files within the data/logs/message_queue directory
+  file_mode: 0660
 
-#settings specific to the logs directory (inherits permissions by default)
+#settings specific to the logs directory (inherits from permissions by default)
 logs:
   # directory where the logs are stored
   directory: /var/log/pmond
@@ -328,11 +328,11 @@ logs:
   # an OS group to access files in logs directory (must also provide a user)
   group:
   # the mode to apply to the logs directory
-  directory_mode:
-  # the mode to apply to files within the logs directory   
+  directory_mode: 0775
+  # the mode to apply to files within the logs directory
   file_mode:
 
-#settings specific to the data directory (inherits permissions by default)
+#settings specific to the data directory (inherits from permissions by default)
 data:
   # directory where the database is stored
   directory: /etc/pmon3/data
@@ -345,7 +345,7 @@ data:
   # the mode to apply to files within the data directory
   file_mode:
 
-#settings specific to the message_queue directory (inherits permissions by default)    
+#settings specific to the message_queue directory (inherits from permissions by default)
 message_queue:
   # directory where the messages are stored
   directory:
@@ -360,9 +360,9 @@ message_queue:
   # an OS group to access files in message_queue directory (must also provide a user)
   group:
   # the mode to apply to the message_queue directory
-  directory_mode:
-  # the mode to apply to files within the message_queue directory  
-  file_mode:
+  directory_mode: 0775
+  # the mode to apply to files within the message_queue directory
+  file_mode: 0666
 
 event_handling:
   # a script to execute when a process is restarted which accepts the process details json as the first argument
