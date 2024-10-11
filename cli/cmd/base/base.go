@@ -17,8 +17,6 @@ import (
 
 var xr xipc.IRequester
 
-var XipcModule string
-
 const SEND_RECEIVE_TIMEOUT = time.Second * 5
 
 var errorStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("9")).Margin(1)

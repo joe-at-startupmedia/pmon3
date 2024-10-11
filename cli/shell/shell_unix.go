@@ -10,11 +10,11 @@ import (
 )
 
 func tailLogFile(logFileName string, numLines string) string {
-	return fmt.Sprintf("tail %s -n %s", logFileName, numLines)
+	return fmt.Sprintf("tail -n %s %s ", numLines, logFileName)
 }
 
 func tailFLogFile(logFileName string, numLines string) string {
-	return fmt.Sprintf("tail -f %s -n %s", logFileName, numLines)
+	return fmt.Sprintf("tail -n %s -f %s ", numLines, logFileName)
 }
 
 func catArchivedLogs(logFileName string) string {

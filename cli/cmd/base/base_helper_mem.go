@@ -10,18 +10,14 @@ import (
 
 func OpenSender() {
 
-	queueName := "pmon3_mem"
-	if len(cli.Config.MessageQueue.NameSuffix) > 0 {
-		queueName = queueName + "_" + cli.Config.MessageQueue.NameSuffix
-	}
+	queueName := cli.Config.GetMessageQueueName("pmon3_mem")
 
 	queueConfig := &xipc_mem.QueueConfig{
 		Name:       queueName,
-		BasePath:   cli.Config.Directory.Shmem,
+		BasePath:   cli.Config.MessageQueue.Directory.Shmem,
 		MaxMsgSize: 32768,
 	}
 
-	XipcModule = "mem"
 	xr = xipc_mem.NewRequester(queueConfig)
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())

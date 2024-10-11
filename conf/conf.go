@@ -45,10 +45,13 @@ func GetProcessConfigFile() string {
 }
 
 type Config struct {
+	Logger                 *logrus.Logger
 	ProcessConfig          *model.ProcessConfig
-	Directory              DirectoryConfig    `yaml:"directory"`
-	MessageQueue           MessageQueueConfig `yaml:"message_queue"`
-	EventHandler           EventHandlerConfig `yaml:"event_handling"`
+	Permissions            FileOwnershipConfig `yaml:"permissions"`
+	Logs                   LogsConfig          `yaml:"logs"`
+	Data                   DataConfig          `yaml:"data"`
+	MessageQueue           MessageQueueConfig  `yaml:"message_queue"`
+	EventHandler           EventHandlerConfig  `yaml:"event_handling"`
 	ConfigFile             string
 	ProcessConfigFile      string              `yaml:"process_config_file"`
 	LogLevel               string              `yaml:"log_level" default:"info"`
@@ -59,17 +62,34 @@ type Config struct {
 	HandleInterrupts       bool                `yaml:"handle_interrupts" default:"true"`
 }
 
-type DirectoryConfig struct {
-	Data    string `yaml:"data" default:"/etc/pmon3/data"`
-	Logs    string `yaml:"logs" default:"/var/log/pmond"`
+type LogsConfig struct {
+	Directory     string `yaml:"directory" default:"/var/log/pmond"`
+	User          string `yaml:"user"`
+	Group         string `yaml:"group"`
+	DirectoryMode string `yaml:"directory_mode" default:"0775"`
+	FileMode      string `yaml:"file_mode" default:"0660"`
+}
+
+type DataConfig struct {
+	Directory     string `yaml:"directory" default:"/etc/pmon3/data"`
+	User          string `yaml:"user"`
+	Group         string `yaml:"group"`
+	DirectoryMode string `yaml:"directory_mode" default:"0770"`
+	FileMode      string `yaml:"file_mode" default:"0660"`
+}
+
+type MessageQueueDirectoryConfig struct {
 	Shmem   string `yaml:"shmem" default:"/dev/shm/"`
 	PosixMQ string `yaml:"posix_mq" default:"/dev/mqueue/"`
 }
 
 type MessageQueueConfig struct {
-	User       string `yaml:"user"`
-	Group      string `yaml:"group"`
-	NameSuffix string `yaml:"name_suffix"`
+	Directory     MessageQueueDirectoryConfig `yaml:"directory"`
+	NameSuffix    string                      `yaml:"name_suffix"`
+	User          string                      `yaml:"user"`
+	Group         string                      `yaml:"group"`
+	DirectoryMode string                      `yaml:"directory_mode" default:"0775"`
+	FileMode      string                      `yaml:"file_mode" default:"0666"`
 }
 
 type FlapDetectionConfig struct {
@@ -177,7 +197,32 @@ func (c *Config) GetLogLevel() logrus.Level {
 }
 
 func (c *Config) GetDatabaseFile() string {
-	return strings.ReplaceAll(c.Directory.Data+"/data.db", "//", "/")
+	return strings.ReplaceAll(c.Data.Directory+"/data.db", "//", "/")
+}
+
+func (c *Config) GetMessageQueueName(prefix string) string {
+	queueName := prefix
+	if len(c.MessageQueue.NameSuffix) > 0 {
+		queueName = prefix + "_" + c.MessageQueue.NameSuffix
+	}
+	return queueName
+}
+
+func (c *Config) GetLogger() *logrus.Logger {
+	if c.Logger != nil && c.Logger.GetLevel() == c.GetLogLevel() {
+		return c.Logger
+	}
+	logger := logrus.New()
+	loglevel := c.GetLogLevel()
+	if loglevel > logrus.WarnLevel {
+		logger.SetReportCaller(true)
+	}
+	logger.SetLevel(loglevel)
+	logger.SetOutput(os.Stdout)
+	logger.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp: true,
+	})
+	return logger
 }
 
 func strToLogLevel(str string) logrus.Level {

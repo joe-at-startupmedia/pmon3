@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"os"
 	"pmon3/conf"
 
 	"github.com/sirupsen/logrus"
@@ -16,19 +15,7 @@ func Instance(confDir string) error {
 	if err != nil {
 		return err
 	}
-
 	Config = config
-
-	Log = logrus.New()
-	loglevel := config.GetLogLevel()
-	if loglevel > logrus.WarnLevel {
-		Log.SetReportCaller(true)
-	}
-	Log.SetLevel(loglevel)
-	Log.SetOutput(os.Stdout)
-	Log.SetFormatter(&logrus.TextFormatter{
-		DisableTimestamp: true,
-	})
-
+	Log = config.GetLogger()
 	return nil
 }

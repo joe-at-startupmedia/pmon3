@@ -10,10 +10,7 @@ import (
 
 func OpenSender() {
 
-	queueName := "pmon3_net"
-	if len(cli.Config.MessageQueue.NameSuffix) > 0 {
-		queueName = queueName + "_" + cli.Config.MessageQueue.NameSuffix
-	}
+	queueName := cli.Config.GetMessageQueueName("pmon3_net")
 
 	queueConfig := xipc_net.QueueConfig{
 		Name:             queueName,
@@ -21,7 +18,6 @@ func OpenSender() {
 		ClientTimeout:    0,
 	}
 
-	XipcModule = "net"
 	xr = xipc_net.NewRequester(&queueConfig)
 	cli.Log.Debugf("Waiting %d ns before contacting pmond: ", cli.Config.GetIpcConnectionWait())
 	time.Sleep(cli.Config.GetIpcConnectionWait())

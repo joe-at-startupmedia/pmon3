@@ -285,13 +285,6 @@ pmon3 topn
 The default path of the configuration file is `/etc/pmon3/config/config.yml`. This value can be overridden with the `PMON3_CONF` environment variable. 
 The following configuration options are available:
 ```yaml
-# --------------
-# pmon3 config  
-# --------------
-#
-# All commented values are the default when empty or omitted
-#
-
 # log levels: debug/info/warn/error
 log_level: info
 
@@ -315,23 +308,61 @@ wait:
   # wait [n] milliseconds after enqueueing a dependent process
   dependent_process_enqueued: 1000
 
-directory:
-  # directory where the database is stored
-  data: /etc/pmon3/data
-  # directory where the logs are stored
-  logs: /var/log/pmond
-  # custom shared memory directory
-  shmem: /dev/shm/
-  # custom posix_mq directory
-  posix_mq: /dev/mqueue/
-
-message_queue:
-  # an OS user to access files in posix_mq directory or shmem directory
+#permission settings applied to files and directories of data/logs/message_queue
+permissions:
+  # an OS user to access files in data/logs/message_queue directory
   user:
-  # an OS group to access files in posix_mq directory or shmem directory (must also provide a user)
+  # an OS group to access files in data/logs/message_queue directory (must also provide a user)
   group:
+  # the mode to apply to the data/logs/message_queue directory
+  directory_mode:
+  # the mode to apply to files within the data/logs/message_queue directory  
+  file_mode:
+
+#settings specific to the logs directory (inherits permissions by default)
+logs:
+  # directory where the logs are stored
+  directory: /var/log/pmond
+  # an OS user to access files in logs directory
+  user:
+  # an OS group to access files in logs directory (must also provide a user)
+  group:
+  # the mode to apply to the logs directory
+  directory_mode:
+  # the mode to apply to files within the logs directory   
+  file_mode:
+
+#settings specific to the data directory (inherits permissions by default)
+data:
+  # directory where the database is stored
+  directory: /etc/pmon3/data
+  # an OS user to access files in data directory
+  user:
+  # an OS group to access files in data directory (must also provide a user)
+  group:
+  # the mode to apply to the data directory
+  directory_mode:
+  # the mode to apply to files within the data directory
+  file_mode:
+
+#settings specific to the message_queue directory (inherits permissions by default)    
+message_queue:
+  # directory where the messages are stored
+  directory:
+    # custom shared memory directory
+    shmem: /dev/shm/
+    # custom posix_mq directory
+    posix_mq: /dev/mqueue/
   # a string to append to the name of the queue
   name_suffix:
+  # an OS user to access files in message_queue directory
+  user:
+  # an OS group to access files in message_queue directory (must also provide a user)
+  group:
+  # the mode to apply to the message_queue directory
+  directory_mode:
+  # the mode to apply to files within the message_queue directory  
+  file_mode:
 
 event_handling:
   # a script to execute when a process is restarted which accepts the process details json as the first argument

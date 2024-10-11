@@ -20,19 +20,20 @@ func GetLogPath(customLogDir string, customLogFile string, processName string) (
 	if len(customLogDir) > 0 {
 		logDest = strings.TrimRight(customLogDir, "/")
 	} else {
-		logDest = strings.TrimRight(pmond.Config.Directory.Logs, "/")
+		logDest = strings.TrimRight(pmond.Config.Logs.Directory, "/")
 	}
 
 	if len(customLogFile) > 0 {
 		logDest = customLogFile
 	} else {
-		_, err := os.Stat(logDest)
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(logDest, 0755)
-			if err != nil {
-				return "", errors.Wrapf(err, "err: %s, logs dir: '%s'", err.Error(), logDest)
-			}
+		foc := pmond.Config.GetLogsFileOwnershipConfig()
+
+		err := foc.CreateDirectoryIfNonExistent(logDest)
+
+		if err != nil {
+			return "", errors.Wrapf(err, "err: %s, logs dir: '%s'", err.Error(), logDest)
 		}
+
 		logDest = logDest + "/" + processName + logSuffix
 	}
 
@@ -42,14 +43,19 @@ func GetLogPath(customLogDir string, customLogFile string, processName string) (
 }
 
 func GetLogFile(logFileName string, user user.User) (*os.File, error) {
-	logFile, err := os.OpenFile(logFileName, syscall.O_CREAT|syscall.O_APPEND|syscall.O_WRONLY, 0640)
+	foc := pmond.Config.GetLogsFileOwnershipConfig()
+	logFile, err := os.OpenFile(logFileName, syscall.O_CREAT|syscall.O_APPEND|syscall.O_WRONLY, foc.GetFileMode())
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	err = os.Chown(logFile.Name(), conv.StrToInt(user.Uid), conv.StrToInt(user.Gid))
-	if err != nil {
-		return nil, errors.WithStack(err)
+	if err := foc.ApplyFilePermissions(logFileName); err != nil {
+		return nil, err
 	}
-
+	if user.Username != "root" {
+		err = os.Chown(logFile.Name(), conv.StrToInt(user.Uid), conv.StrToInt(user.Gid))
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+	}
 	return logFile, nil
 }

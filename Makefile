@@ -8,9 +8,8 @@ DIR_CONF ?= /etc/pmon3/config
 WHOAMI=$(shell whoami)
 TEST_REGEX := $(or $(TEST_REGEX),"Test")
 TEST_FILE_CONFIG ?= $(PROJECT_PATH)/test/e2e/config/test-config.core.yml
-TEST_DIR_DATA=$(shell cat $(TEST_FILE_CONFIG) | grep "^  data:" | cut -d' ' -f4)
-TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "^  logs:" | cut -d' ' -f4)
-TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_DATA)")
+TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "directory:" | sed -n "1 p" | cut -d' ' -f4)
+TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_LOGS)")
 DEFAULT_TEST_PACKAGES := "pmon3/cli/...,pmon3/conf,pmon3/pmond/controller/...,pmon3/pmond/db,pmon3/pmond/god,pmon3/pmond/model,pmon3/pmond/observer,pmon3/pmond/process,pmon3/pmond/repo,pmon3/pmond/shell"
 TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))
 
@@ -95,12 +94,19 @@ test_cgo: build_cgo run_test
 test_net: BUILD_FLAGS=$(shell echo '-tags net')
 test_net: build run_test
 
-.PHONY: run_test
-run_test:
+.PHONY: clean_test_artifacts
+clean_test_artifacts:
 	rm -rf "$(TEST_ARTIFACT_PATH)"
 	mkdir -p "$(TEST_ARTIFACT_PATH)"
+
+.PHONY: make_test_app
+make_test_app:
 	cd ./test/app && make build
 	cp ./test/app/bin/test_app "$(TEST_ARTIFACT_PATH)"
+	cp ./test/app/bin/test_app "$(TEST_ARTIFACT_PATH)"
+
+.PHONY: run_test
+run_test: clean_test_artifacts make_test_app
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -coverpkg=$(TEST_PACKAGES) ./test/e2e/
 
 .PHONY: systemd_install
@@ -112,7 +118,6 @@ systemd_install: systemd_uninstall install
 	systemctl enable pmond
 	systemctl start pmond
 	sh -c "$(PROJECT_PATH)/bin/pmon3 completion bash > /etc/profile.d/pmon3.sh"
-	$(MAKE) systemd_permissions
 	$(PROJECT_PATH)/bin/pmon3 ls
 	$(PROJECT_PATH)/bin/pmon3 --help
 
@@ -121,12 +126,6 @@ systemd_uninstall:
 	rm -rf $(DIR_CONF) /etc/logrotate.d/pmond /etc/profile.d/pmon3.sh
 	systemctl stop pmond || true
 	systemctl disable pmond || true
-
-.PHONY: systemd_permissions
-systemd_permissions:
-	sleep 2
-	chown -R root:$(WHOAMI) $(DIR_LOGS)
-	chmod 660 "$(DIR_LOGS)/*" || true
 
 .PHONY: install
 install:
