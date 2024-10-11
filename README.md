@@ -733,7 +733,7 @@ XIPC_DEBUG=true PMON3_DEBUG=true pmon3 ls
 
 ### Configuration File
 
-If you want more control over the verbosity you can set the loglevel in the yaml configuration file.
+You can set the log level in the yaml configuration file.
 
 ##### /etc/pmond/config/config.yml
 ```yaml
@@ -826,13 +826,7 @@ sudo systemctl start pmond
 
 ### 5. Should I use `sudo` commands?
 
-You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. The following Makefile command applies the adequate non-root permissions to the log files.
-
-#### Applying permissions
-```bash
-#This is automatically called by make systemd_install
-make systemd_permissions
-```
+You should only use `sudo` to start the `pmond` process which requires superuser privileges due to the required process forking commands. However, the `pmon3` cli should be used *without* `sudo` to ensure that the spawned processes are attached to the correct parent pid. When using `sudo`, the processes will be attached to ppid 1 and as a result, will become orphaned if the `pmond` process exits prematurely. Using `sudo` also prevents non-root users from being able to access the log files. 
 
 #### Spawn a new process as the root user
 You must have sudo privileges to do this for security reasons. The `--user root` flag is redundant because the process is spawned as the calling user by default and commands ran as sudo are called by the root user.
