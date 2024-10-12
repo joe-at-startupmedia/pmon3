@@ -8,7 +8,9 @@ import (
 	"os/signal"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
+	"pmon3/pmond/flap_detector"
 	"pmon3/pmond/model"
+	"pmon3/pmond/observer"
 	"pmon3/pmond/process"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
@@ -143,14 +145,20 @@ func runningTask(processRepo *repo.ProcessRepo, isInitializing bool) {
 	}
 }
 
-func detectFlapping(p *model.Process) *process.FlapDetector {
-	var flapDetector *process.FlapDetector
+func detectFlapping(p *model.Process) *flap_detector.FlapDetector {
+
+	var flapDetector *flap_detector.FlapDetector
+
 	if pmond.Config.FlapDetection.IsEnabled {
-		flapDetector = process.GetFlapDetectorByProcessId(p.ID, pmond.Config)
+		flapDetector = flap_detector.FromProcessId(p.ID, pmond.Config)
 
 		if flapDetector.ShouldBackOff(time.Millisecond * time.Duration(pmond.Config.ProcessMonitorInterval)) {
 			if p.Status != model.StatusBackoff {
 				repo.ProcessOf(p).UpdateStatus(model.StatusBackoff)
+				observer.HandleEvent(&observer.Event{
+					Type:    observer.BackoffEvent,
+					Process: p,
+				})
 			}
 		} else if p.Status == model.StatusBackoff {
 			//set it back to failed so process evaluation can resume

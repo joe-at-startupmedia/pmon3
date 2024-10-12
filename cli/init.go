@@ -10,12 +10,12 @@ var Log *logrus.Logger
 var Config *conf.Config
 
 func Instance(confDir string) error {
+	Config = &conf.Config{}
 	//cli doesnt need the process config file
-	config, err := conf.Load(confDir, "")
-	if err != nil {
+	if err := conf.Load(confDir, "", Config); err != nil {
+
 		return err
 	}
-	Config = config
-	Log = config.GetLogger()
+	Log = Config.GetLogger()
 	return nil
 }

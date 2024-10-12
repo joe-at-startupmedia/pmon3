@@ -2,6 +2,7 @@ package cli_helper
 
 import (
 	"context"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"os"
@@ -18,6 +19,7 @@ import (
 
 type CliHelper struct {
 	suite        *suite.Suite
+	cancelGodCtx context.CancelFunc
 	ProjectPath  string
 	ArtifactPath string
 	shouldError  bool
@@ -26,14 +28,13 @@ type CliHelper struct {
 func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, messageQueueSuffix string) *CliHelper {
 	projectPath := os.Getenv("PROJECT_PATH")
 	artifactPath := os.Getenv("ARTIFACT_PATH")
-	cliHelper := New(s, projectPath, artifactPath)
 
 	if err := pmond.Instance(projectPath+configFile, projectPath+processConfigFile); err != nil {
 		s.FailNow(err.Error())
 	}
 	pmond.Config.MessageQueue.NameSuffix = messageQueueSuffix
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	go god.Summon(ctx)
 
 	time.Sleep(5 * time.Second)
@@ -45,12 +46,15 @@ func SetupSuite(s *suite.Suite, configFile string, processConfigFile string, mes
 
 	base.OpenSender()
 
-	return cliHelper
+	fmt.Println(pmond.Config.Yaml())
+
+	return New(s, projectPath, artifactPath, cancel)
 }
 
-func New(suite *suite.Suite, projectPath string, artifactPath string) *CliHelper {
+func New(suite *suite.Suite, projectPath string, artifactPath string, cancelGodCtx context.CancelFunc) *CliHelper {
 	return &CliHelper{
 		suite,
+		cancelGodCtx,
 		projectPath,
 		artifactPath,
 		false,
@@ -167,8 +171,13 @@ func (cliHelper *CliHelper) ShouldKill(expectedProcessLen int, waitBeforeAsserti
 
 func (cliHelper *CliHelper) DropAndClose() {
 	cliHelper.ExecBase1("drop", "force")
+	cliHelper.Close()
+}
+
+func (cliHelper *CliHelper) Close() {
 	time.Sleep(3 * time.Second)
 	god.Banish()
+	cliHelper.cancelGodCtx()
 	base.CloseSender()
 	time.Sleep(1 * time.Second)
 }

@@ -9,21 +9,11 @@ var Log *logrus.Logger
 var Config *conf.Config
 
 func Instance(confFile string, processConfFile string) error {
-	config, err := conf.Load(confFile, processConfFile)
-	if err != nil {
+	Config = &conf.Config{}
+	if err := conf.Load(confFile, processConfFile, Config); err != nil {
 		return err
 	}
-	Config = config
-	Log = config.GetLogger()
-	Log.Info(config)
+	Log = Config.GetLogger()
+	Log.Info(Config)
 	return nil
-}
-
-func ReloadConf() {
-	config, err := conf.Load(Config.ConfigFile, Config.ProcessConfigFile)
-	if err != nil {
-		Log.Fatal(err)
-	}
-
-	Config = config
 }

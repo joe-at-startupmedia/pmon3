@@ -1,5 +1,5 @@
 # log levels: debug/info/warn/error
-log_level: warn
+log_level: info
 
 # kill processes on termination
 #handle_interrupts: true
@@ -11,29 +11,29 @@ log_level: warn
 #process_monitor_interval: 500
 
 # wait [n] seconds before monitoring process statuses
-initialization_period: 1
+#initialization_period: 30
 
 # a configuration file to specify a list of processes to start on the first initialization (json, yaml or toml)
-process_config_file: /etc/pmon3/config/process.config.json
+#process_config_file: /etc/pmon3/config/process.config.json
 
-wait:
+#wait:
   # wait [n] milliseconds before outputting list after running init/stop/restart/kill/drop/exec
-  cmd_exec_response: 11000
+  #cmd_exec_response: 1500
   # wait [n] milliseconds after connecting to IPC client before issuing commands
-  ipc_connection: 6000
+  #ipc_connection: 0
   # wait [n] milliseconds after enqueueing a dependent process
-  dependent_process_enqueued: 21000
+  #dependent_process_enqueued: 1000
 
 #permission settings applied to files and directories of data/logs/message_queue
-permissions:
+#permissions:
   # an OS user to access files in data/logs/message_queue directory
-  user:
+  #user:
   # an OS group to access files in data/logs/message_queue directory (must also provide a user)
-  group:
+  #group:
   # the mode to apply to the data/logs/message_queue directory
-  directory_mode:
+  #directory_mode:
   # the mode to apply to files within the data/logs/message_queue directory
-  file_mode:
+  #file_mode:
 
 #settings specific to the logs directory (inherits permissions by default)
 logs:
@@ -51,7 +51,7 @@ logs:
 #settings specific to the data directory (inherits permissions by default)
 data:
   # directory where the database is stored
-  directory: /tmp/pmon3/data/nonexistent/
+  directory: /tmp/pmon3/data/
   # an OS user to access files in data directory
   #user:
   # an OS group to access files in data directory (must also provide a user)
@@ -88,12 +88,12 @@ message_queue:
   # a script to execute when a process backs off when flap detection is enabled
   #process_backoff:
 
-#flap_detection:
+flap_detection:
   # enable flap detection
-  #is_enabled: false
+  is_enabled: true
   # the amount of times a process can restart (within the countdown threshold) until backoff evaluation begins
-  #threshold_restarted: 5
+  threshold_restarted: 3
   # the amount of process monitor intervals during a processes backoff period until process evaluation proceeds as normal
-  #threshold_countdown: 120
+  threshold_countdown: 120
   # the amount of process monitor intervals during a processes backoff period until the processes restart counter is decremented. disabled with 0 value.
-  #threshold_decrement: 60
+  threshold_decrement: 30

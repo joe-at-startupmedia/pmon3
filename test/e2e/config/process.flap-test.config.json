@@ -1,0 +1,25 @@
+{
+  "processes": [
+    {
+      "file": "/tmp/pmon3/test_app",
+      "name": "test-server-20",
+      "env_vars": "TEST_APP_PORT=11021"
+    },
+    {
+      "file": "/tmp/pmon3/test_app",
+      "name": "test-server-21",
+      "env_vars": "TEST_APP_PORT=11021"
+    },
+    {
+      "file": "/tmp/pmon3/test_app",
+      "name": "test-server-22",
+      "env_vars": "TEST_APP_PORT=11022"
+    },
+    {
+      "file": "/tmp/pmon3/test_app",
+      "name": "test-server-23",
+      "env_vars": "TEST_APP_PORT=11022",
+      "no_auto_restart": true
+    }
+  ]
+}

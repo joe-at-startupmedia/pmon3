@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"os"
 	"os/exec"
-	"pmon3/cli/cmd/base"
 	"pmon3/cli/shell"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
@@ -97,5 +96,5 @@ func (suite *Pmon3ShellTestSuite) TestG_PmondIsntRunningFromCli() {
 // this is necessary because TearDownSuite executes concurrently with the
 // initialization of the next suite
 func (suite *Pmon3ShellTestSuite) TestZ_TearDown() {
-	base.CloseSender()
+	suite.cliHelper.Close()
 }

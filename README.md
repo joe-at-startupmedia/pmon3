@@ -291,6 +291,9 @@ log_level: info
 # kill processes on termination
 handle_interrupts: true
 
+# whether to reload from the configuration before executing a command
+disable_reloads: false
+
 # poll processes every [n] milliseconds
 process_monitor_interval: 500
 
@@ -369,6 +372,8 @@ event_handling:
   process_restart:
   # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
   process_failure:
+  # a script to execute when a process backs off when flap detection is enabled
+  process_backoff:
 
 flap_detection:
   # enable flap detection
@@ -629,9 +634,11 @@ event_handling:
   process_restart:
   # a script to execute when a process fails (--no-autorestart) which accepts the process details json as the first argument
   process_failure:
+  # a script to execute when a process backs off when flap detection is enabled
+  process_backoff:
 ```
 
-### 1. Specify the executable script to run for the `on_process_restart_exec` value. `pmond` will pass a json-escaped string of the process details as the first argument.
+### 1. Specify the executable script to run for the `process_restart` value. `pmond` will pass a json-escaped string of the process details as the first argument.
 #### /etc/pmond/config/config.yml
 ```yaml
 event_handling:

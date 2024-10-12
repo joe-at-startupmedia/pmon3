@@ -2,6 +2,7 @@ package conf
 
 import (
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"pmon3/pmond/model"
@@ -45,13 +46,13 @@ func GetProcessConfigFile() string {
 }
 
 type Config struct {
-	Logger                 *logrus.Logger
-	ProcessConfig          *model.ProcessConfig
-	Permissions            FileOwnershipConfig `yaml:"permissions"`
-	Logs                   LogsConfig          `yaml:"logs"`
-	Data                   DataConfig          `yaml:"data"`
-	MessageQueue           MessageQueueConfig  `yaml:"message_queue"`
-	EventHandler           EventHandlerConfig  `yaml:"event_handling"`
+	Logger                 *logrus.Logger       `yaml:"-"`
+	ProcessConfig          *model.ProcessConfig `yaml:"-"`
+	Permissions            FileOwnershipConfig  `yaml:"permissions"`
+	Logs                   LogsConfig           `yaml:"logs"`
+	Data                   DataConfig           `yaml:"data"`
+	MessageQueue           MessageQueueConfig   `yaml:"message_queue"`
+	EventHandler           EventHandlerConfig   `yaml:"event_handling,omitempty"`
 	ConfigFile             string
 	ProcessConfigFile      string              `yaml:"process_config_file"`
 	LogLevel               string              `yaml:"log_level" default:"info"`
@@ -60,20 +61,21 @@ type Config struct {
 	ProcessMonitorInterval int32               `yaml:"process_monitor_interval" default:"500"`
 	InitializationPeriod   int16               `yaml:"initialization_period" default:"30"`
 	HandleInterrupts       bool                `yaml:"handle_interrupts" default:"true"`
+	DisableReloads         bool                `yaml:"disable_reloads" default:"false"`
 }
 
 type LogsConfig struct {
 	Directory     string `yaml:"directory" default:"/var/log/pmond"`
-	User          string `yaml:"user"`
-	Group         string `yaml:"group"`
+	User          string `yaml:"user,omitempty"`
+	Group         string `yaml:"group,omitempty"`
 	DirectoryMode string `yaml:"directory_mode" default:"0775"`
 	FileMode      string `yaml:"file_mode" default:"0660"`
 }
 
 type DataConfig struct {
 	Directory     string `yaml:"directory" default:"/etc/pmon3/data"`
-	User          string `yaml:"user"`
-	Group         string `yaml:"group"`
+	User          string `yaml:"user,omitempty"`
+	Group         string `yaml:"group,omitempty"`
 	DirectoryMode string `yaml:"directory_mode" default:"0770"`
 	FileMode      string `yaml:"file_mode" default:"0660"`
 }
@@ -86,8 +88,8 @@ type MessageQueueDirectoryConfig struct {
 type MessageQueueConfig struct {
 	Directory     MessageQueueDirectoryConfig `yaml:"directory"`
 	NameSuffix    string                      `yaml:"name_suffix"`
-	User          string                      `yaml:"user"`
-	Group         string                      `yaml:"group"`
+	User          string                      `yaml:"user,omitempty"`
+	Group         string                      `yaml:"group,omitempty"`
 	DirectoryMode string                      `yaml:"directory_mode" default:"0775"`
 	FileMode      string                      `yaml:"file_mode" default:"0666"`
 }
@@ -106,14 +108,17 @@ type WaitConfig struct {
 }
 
 type EventHandlerConfig struct {
-	ProcessRestart string `yaml:"process_restart"`
-	ProcessFailure string `yaml:"process_failure"`
+	ProcessRestart string `yaml:"process_restart,omitempty"`
+	ProcessFailure string `yaml:"process_failure,omitempty"`
+	ProcessBackoff string `yaml:"process_backoff,omitempty"`
 }
 
-func Load(configFile string, processConfigFile string) (*Config, error) {
+func (c *Config) Yaml() (string, error) {
+	output, err := yaml.Marshal(c)
+	return string(output), err
+}
 
-	c := &Config{}
-
+func Load(configFile string, processConfigFile string, c *Config) error {
 	//toggled only by the environment variable
 	logLevel := c.GetLogLevel()
 	shouldDebug := logLevel == logrus.DebugLevel
@@ -125,7 +130,7 @@ func Load(configFile string, processConfigFile string) (*Config, error) {
 	})
 
 	if err := configorInst.Load(c, configFile); err != nil {
-		return nil, err
+		return err
 	}
 
 	c.ConfigFile = configFile
@@ -135,16 +140,16 @@ func Load(configFile string, processConfigFile string) (*Config, error) {
 	c.ProcessConfig = &model.ProcessConfig{}
 	if len(c.ProcessConfigFile) > 0 {
 		if err := configorInst.Load(c.ProcessConfig, c.ProcessConfigFile); err != nil {
-			return nil, err
+			return err
 		}
 	} else if len(processConfigFile) > 0 {
 		if err := configorInst.Load(c.ProcessConfig, processConfigFile); err != nil {
-			return nil, err
+			return err
 		}
 		c.ProcessConfigFile = processConfigFile
 	}
 
-	return c, nil
+	return nil
 }
 
 func (c *Config) GetCmdExecResponseWait() time.Duration {
@@ -191,9 +196,10 @@ func (c *Config) GetLogLevel() logrus.Level {
 		} else {
 			return strToLogLevel(debugEnv)
 		}
-	} else {
+	} else if c != nil {
 		return strToLogLevel(c.LogLevel)
 	}
+	return strToLogLevel("")
 }
 
 func (c *Config) GetDatabaseFile() string {
@@ -223,6 +229,15 @@ func (c *Config) GetLogger() *logrus.Logger {
 		DisableTimestamp: true,
 	})
 	return logger
+}
+
+func (c *Config) Reload() {
+	if c.DisableReloads {
+		return
+	}
+	if err := Load(c.ConfigFile, c.ProcessConfigFile, c); err != nil {
+		c.GetLogger().Error(err)
+	}
 }
 
 func strToLogLevel(str string) logrus.Level {

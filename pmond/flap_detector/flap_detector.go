@@ -1,4 +1,4 @@
-package process
+package flap_detector
 
 import (
 	"pmon3/conf"
@@ -19,7 +19,7 @@ type FlapDetector struct {
 var mutex = sync.Mutex{}
 var flapDetectors = map[uint32]*FlapDetector{}
 
-func GetFlapDetectorByProcessId(processId uint32, conf *conf.Config) *FlapDetector {
+func FromProcessId(processId uint32, conf *conf.Config) *FlapDetector {
 	mutex.Lock()
 	fd := flapDetectors[processId]
 	if fd == nil {
@@ -68,4 +68,16 @@ func (fd *FlapDetector) RestartProcess() {
 		fd.countdown = fd.thresholdCountdown
 		fd.lastForgiven = time.Now()
 	}
+}
+
+func Delete(processId uint32) {
+	mutex.Lock()
+	delete(flapDetectors, processId)
+	mutex.Unlock()
+}
+
+func Reset() {
+	mutex.Lock()
+	flapDetectors = map[uint32]*FlapDetector{}
+	mutex.Unlock()
 }

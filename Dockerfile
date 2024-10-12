@@ -7,7 +7,7 @@ ARG TEST_PACKAGES_ARG
 ARG CODECOV_TOKEN_ARG
 
 RUN apk --update add build-base && \
-  apk add --no-cache git curl bash && \
+  apk add --no-cache git curl bash jq && \
   curl -L -o /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.5/codecovcli_alpine_x86_64 && \
   chmod +x /usr/local/bin/codecov && \
   cd /opt/ && \

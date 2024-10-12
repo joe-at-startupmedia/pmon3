@@ -8,8 +8,8 @@ import (
 
 type FileOwnershipConfig struct {
 	config        *Config
-	User          string `yaml:"user"`
-	Group         string `yaml:"group"`
+	User          string `yaml:"user,omitempty"`
+	Group         string `yaml:"group,omitempty"`
 	DirectoryMode string `yaml:"directory_mode" default:"0770"`
 	FileMode      string `yaml:"file_mode" default:"0660"`
 }
