@@ -1,7 +1,6 @@
 package desc
 
 import (
-	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
 	"pmon3/cli/output/process/desc"
 	table_list "pmon3/cli/output/process/list"
@@ -9,18 +8,6 @@ import (
 	"pmon3/pmond/protos"
 	"pmon3/utils/conv"
 )
-
-var Cmd = &cobra.Command{
-	Use:     "desc [id or name]",
-	Aliases: []string{"show"},
-	Short:   "Show group details and associated processes",
-	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		base.OpenSender()
-		defer base.CloseSender()
-		Desc(args[0])
-	},
-}
 
 func Desc(idOrName string) *protos.CmdResp {
 	sent := base.SendCmd("group_desc", idOrName)

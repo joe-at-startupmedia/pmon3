@@ -3,8 +3,7 @@ package reset
 import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/list"
-	"pmon3/pmond/protos"
+	"pmon3/cli/cmd/reset"
 )
 
 var (
@@ -18,20 +17,10 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		Reset(idOrNameFlag)
+		reset.Reset(idOrNameFlag)
 	},
 }
 
 func init() {
 	Cmd.Flags().StringVarP(&idOrNameFlag, "process", "p", "", "the id or name of the process")
-}
-
-func Reset(idOrName string) *protos.CmdResp {
-
-	sent := base.SendCmd("reset", idOrName)
-	newCmdResp := base.GetResponse(sent)
-	if len(newCmdResp.GetError()) == 0 {
-		list.Show()
-	}
-	return newCmdResp
 }

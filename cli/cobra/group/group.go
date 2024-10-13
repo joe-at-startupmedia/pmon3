@@ -2,15 +2,15 @@ package group
 
 import (
 	"github.com/spf13/cobra"
-	"pmon3/cli/cmd/group/assign"
-	"pmon3/cli/cmd/group/create"
-	"pmon3/cli/cmd/group/del"
-	"pmon3/cli/cmd/group/desc"
-	"pmon3/cli/cmd/group/drop"
-	"pmon3/cli/cmd/group/list"
-	"pmon3/cli/cmd/group/remove"
-	"pmon3/cli/cmd/group/restart"
-	"pmon3/cli/cmd/group/stop"
+	"pmon3/cli/cobra/group/assign"
+	"pmon3/cli/cobra/group/create"
+	"pmon3/cli/cobra/group/del"
+	"pmon3/cli/cobra/group/desc"
+	"pmon3/cli/cobra/group/drop"
+	"pmon3/cli/cobra/group/list"
+	"pmon3/cli/cobra/group/remove"
+	"pmon3/cli/cobra/group/restart"
+	"pmon3/cli/cobra/group/stop"
 )
 
 var Cmd = &cobra.Command{

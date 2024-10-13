@@ -1,24 +1,24 @@
-package cmd
+package cobra
 
 import (
 	"fmt"
-	"pmon3/cli/cmd/completion"
-	"pmon3/cli/cmd/del"
-	"pmon3/cli/cmd/desc"
-	"pmon3/cli/cmd/dgraph"
-	"pmon3/cli/cmd/drop"
-	"pmon3/cli/cmd/exec"
-	"pmon3/cli/cmd/export"
-	"pmon3/cli/cmd/group"
-	initialize "pmon3/cli/cmd/init"
-	"pmon3/cli/cmd/kill"
-	"pmon3/cli/cmd/list"
-	"pmon3/cli/cmd/log"
-	"pmon3/cli/cmd/logf"
-	"pmon3/cli/cmd/reset"
-	"pmon3/cli/cmd/restart"
-	"pmon3/cli/cmd/stop"
-	"pmon3/cli/cmd/topn"
+	"pmon3/cli/cobra/completion"
+	"pmon3/cli/cobra/del"
+	"pmon3/cli/cobra/desc"
+	"pmon3/cli/cobra/dgraph"
+	"pmon3/cli/cobra/drop"
+	"pmon3/cli/cobra/exec"
+	"pmon3/cli/cobra/export"
+	"pmon3/cli/cobra/group"
+	initialize "pmon3/cli/cobra/init"
+	"pmon3/cli/cobra/kill"
+	"pmon3/cli/cobra/list"
+	"pmon3/cli/cobra/log"
+	"pmon3/cli/cobra/logf"
+	"pmon3/cli/cobra/reset"
+	"pmon3/cli/cobra/restart"
+	"pmon3/cli/cobra/stop"
+	"pmon3/cli/cobra/topn"
 	"pmon3/conf"
 	"runtime"
 
@@ -36,7 +36,7 @@ var verCmd = &cobra.Command{
 	},
 }
 
-func Exec() error {
+func Bootstrap() error {
 	rootCmd.AddCommand(
 		completion.Cmd,
 		del.Cmd,

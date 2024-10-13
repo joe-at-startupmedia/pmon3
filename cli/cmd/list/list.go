@@ -5,20 +5,7 @@ import (
 	"pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
-
-	"github.com/spf13/cobra"
 )
-
-var Cmd = &cobra.Command{
-	Use:     "ls",
-	Aliases: []string{"list"},
-	Short:   "List all processes",
-	Run: func(cmd *cobra.Command, args []string) {
-		base.OpenSender()
-		defer base.CloseSender()
-		Show()
-	},
-}
 
 func Show() *protos.CmdResp {
 	sent := base.SendCmd("list", "")

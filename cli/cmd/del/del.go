@@ -6,28 +6,7 @@ import (
 	"pmon3/pmond/protos"
 
 	"pmon3/pmond/model"
-
-	"github.com/spf13/cobra"
 )
-
-var (
-	forceKillFlag bool
-)
-
-var Cmd = &cobra.Command{
-	Use:   "del [id or name]",
-	Short: "Delete process by id or name",
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		base.OpenSender()
-		defer base.CloseSender()
-		Del(args[0], forceKillFlag)
-	},
-}
-
-func init() {
-	Cmd.Flags().BoolVarP(&forceKillFlag, "force", "f", false, "kill the process before deletion")
-}
 
 func Del(idOrName string, forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd

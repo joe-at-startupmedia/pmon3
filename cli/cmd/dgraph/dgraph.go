@@ -5,28 +5,7 @@ import (
 	"pmon3/cli/cmd/base"
 	"pmon3/pmond/protos"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
-
-var (
-	processConfigOnlyFlag bool
-)
-
-var Cmd = &cobra.Command{
-	Use:     "dgraph",
-	Aliases: []string{"order"},
-	Short:   "Show the process queue order",
-	Run: func(cmd *cobra.Command, args []string) {
-		base.OpenSender()
-		defer base.CloseSender()
-		Dgraph(processConfigOnlyFlag)
-	},
-}
-
-func init() {
-	Cmd.Flags().BoolVarP(&processConfigOnlyFlag, "process-config-only", "c", false, "only initialize processes specified in the Processes Config file")
-}
 
 func Dgraph(processConfigOnly bool) *protos.CmdResp {
 

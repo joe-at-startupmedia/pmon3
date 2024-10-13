@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"pmon3/cli"
-	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
+	"pmon3/cli/cobra"
 	"pmon3/cli/shell"
 	"pmon3/conf"
 )
@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	err = cmd.Exec()
+	err = cobra.Bootstrap()
 	if err != nil {
 		base.OutputError(err.Error())
 	}
