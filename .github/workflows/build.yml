@@ -27,8 +27,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.22
+          go-version: 1.23
 
+      - name: Vet
+        run: go vet ./...
+        shell: bash
 
       - name: Build amd64
         run: |
