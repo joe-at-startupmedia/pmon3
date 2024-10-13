@@ -1,0 +1,47 @@
+name: Manual Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      cover_packages:
+        description: 'passed to the go test -coverpkg flag'
+        type: string
+      run_regex:
+        description: 'passed to the go test -run flag'
+        type: string
+        default: 'Test'
+        required: true
+      make_target:
+        description: 'make target'
+        type: string
+        default: 'test'
+        required: true
+
+jobs:
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Docker Build
+        run: |
+          GOPATH_BIN=$(go env GOPATH)/bin
+          export PATH="${GOPATH_BIN}:${PATH}"
+          docker build --build-arg TEST_PACKAGES_ARG=${{inputs.cover_packages}} --build-arg TEST_REGEX_ARG=${{inputs.run_regex}} --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=${{inputs.make_target}} -t pmon3 .
+
+      - name: Docker Testing
+        run: |
+          GOPATH_BIN=$(go env GOPATH)/bin
+          export PATH="${GOPATH_BIN}:${PATH}"
+          docker run -t pmon3
+
+      - name: Finish
+        run: |
+          echo ":rocket: Testing complete!" >> $GITHUB_STEP_SUMMARY

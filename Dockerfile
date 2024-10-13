@@ -18,4 +18,4 @@ ENV TEST_REGEX=${TEST_REGEX_ARG}
 ENV MAKE_TARGET=${MAKE_TARGET_ARG}
 ENV TEST_PACKAGES=${TEST_PACKAGES_ARG}
 
-ENTRYPOINT ["/bin/sh", "-c" , "cd /opt/pmon3 && make build && make install && make ${MAKE_TARGET}"]
+ENTRYPOINT ["/bin/sh", "-c" , "cd /opt/pmon3 && make build && make install && CODECOV_TOKEN=${CODECOV_TOKEN} CODECOV_FLAG=${MAKE_TARGET} make ${MAKE_TARGET}"]
