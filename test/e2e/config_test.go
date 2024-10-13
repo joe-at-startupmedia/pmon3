@@ -7,6 +7,7 @@ import (
 	"os"
 	"pmon3/cli"
 	"pmon3/conf"
+	"pmon3/pmond"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 	"time"
@@ -106,6 +107,16 @@ func (suite *Pmon3ConfigTestSuite) TestC_BootCliWithTestConfigFile() {
 	os.Setenv("PMON3_DEBUG", "debug")
 
 	assert.Equal(suite.T(), logrus.DebugLevel, cli.Config.GetLogLevel())
+}
+
+func (suite *Pmon3ConfigTestSuite) TestD_InitPmondWithNonExistentConfigFile() {
+	err := pmond.Instance(suite.cliHelper.ProjectPath+"/test/e2e/config/test-config.broken.yml", "")
+	assert.ErrorContains(suite.T(), err, "cannot unmarshal !!seq into string")
+}
+
+func (suite *Pmon3ConfigTestSuite) TestE_InitPmon3CliWithNonExistentConfigFile() {
+	err := cli.Instance(suite.cliHelper.ProjectPath + "/test/e2e/config/test-config.broken.yml")
+	assert.ErrorContains(suite.T(), err, "cannot unmarshal !!seq into string")
 }
 
 func (suite *Pmon3ConfigTestSuite) TestZ_TearDown() {
