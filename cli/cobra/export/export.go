@@ -7,21 +7,24 @@ import (
 )
 
 var (
-	format  string
+	format  = "json"
 	orderBy string
 )
 
 var Cmd = &cobra.Command{
-	Use:   "export",
+	Use:   "export [format]",
 	Short: "Export Process Configuration",
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
+		if len(args) == 1 {
+			format = args[0]
+		}
 		controller.Export(format, orderBy)
 	},
 }
 
 func init() {
-	Cmd.Flags().StringVarP(&format, "format", "f", "json", "the format to export")
-	Cmd.Flags().StringVarP(&orderBy, "order", "o", "json", "the field by which to order by")
+	Cmd.Flags().StringVarP(&orderBy, "order", "o", "id", "the field by which to order by")
 }

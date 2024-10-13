@@ -11,16 +11,15 @@ var (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "reset",
+	Use:   "reset [process_id_or_name]",
 	Short: "Reset the restart counter(s)",
-	Args:  cobra.ExactArgs(0),
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
+		if len(args) == 1 {
+			idOrNameFlag = args[0]
+		}
 		controller.Reset(idOrNameFlag)
 	},
-}
-
-func init() {
-	Cmd.Flags().StringVarP(&idOrNameFlag, "process", "p", "", "the id or name of the process")
 }

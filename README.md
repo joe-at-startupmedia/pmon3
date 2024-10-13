@@ -162,20 +162,20 @@ pmon3 exec ./bin/gin --args "-prjHome=`pwd`" --user joe
 
 :exclamation: Parameter arguments need to use the absolute path.
 
-### View List  [ list/ls ]
+### View List  [list/ls]
 
 ```bash
 pmon3 ls
 ```
 
-### (re)start the process [ restart/start ]
+### (re)start the process [restart/start]
 
 ```bash
 pmon3 restart [id or name]
 ```
 
 <a name="pmon3_stop"></a>
-### Stop the process  [ stop ]
+### Stop the process  [stop]
 
 ```bash
 pmon3 stop [id or name]
@@ -194,13 +194,13 @@ pmon3 log -a [id or name]
 pmon3 logf [id or name]
 ```
 
-### Delete the process  [ del/delete ]
+### Delete the process  [del/delete]
 
 ```bash
 pmon3 del [id or name]
 ```
 
-### View details [ show/desc ]
+### View details [show/desc]
 
 ```bash
 pmon3 show [id or name]
@@ -209,13 +209,13 @@ pmon3 show [id or name]
 <img width="475" alt="pmon3_show" src="https://github.com/joe-at-startupmedia/pmon3/assets/13522698/6b564a1c-0e26-468c-bd01-6dabce0c7620">
 
 <a name="pmon3_kill"></a>
-### Terminate all running process [ kill ]
+### Terminate all running process [kill]
 ```bash
 pmon3 kill [--force]
 ```
 
 <a name="pmon3_init"></a>
-### (re)start all stopped process [ init ]
+### (re)start all stopped process [init]
 ```bash
 #(re)start processes specified in the Process Config only
 pmon3 init --process-config-only
@@ -225,13 +225,13 @@ pmon3 init
 ```
 
 <a name="pmon3_drop"></a>
-### Terminate and delete all processes [ drop ]
+### Terminate and delete all processes [drop]
 ```bash
 pmon3 drop [--force]
 ```
 
 <a name="pmon3_dgraph"></a>
-### Display the dependency graph [ dgraph/order ]
+### Display the dependency graph [dgraph/order]
 
 This command is useful to debug dependency resolution without (re)starting processes
 
@@ -244,7 +244,7 @@ pmon3 dgraph
 ```
 
 <a name="pmon3_reset"></a>
-### Reset the restart counter(s) [ reset ]
+### Reset the restart counter(s) [reset]
 
 This command will reset the restart counter back to 0. This is useful to establish a clean slate without having to restart the pmond process.
 
@@ -253,25 +253,31 @@ This command will reset the restart counter back to 0. This is useful to establi
 pmon3 reset
 
 #reset the restart counter on a specific process
-pmon3 reset -p [id_or_name]
+pmon3 reset [process_id_or_name]
 ```
 
 <a name="pmon3_export"></a>
-### Export Process Configuration [ export ]
+### Export Process Configuration [export]
 
 This command is useful when you want to generate [Process Configuration](#section_appconfig) to use for pmond initialization from the specified `process_config_file`.
 
 ```bash
 pmon3 export
 
+#specify json as a format (default)
+pmon3 export json
+
 #specify toml as a format
-pmon3 export -f toml
+pmon3 export toml
 
 #specify yaml as a format
-pmon3 export -f yaml
+pmon3 export yaml
+
+#order by name ascending instead of id
+pmon3 export yaml -o name
 ```
 
-### Top Native [ topn ]
+### Top Native [topn]
 
 This will output the resource utilization of all processes using the native `top` command that is pre-installed on most unix-based operating systems. It will only show those processes managed by (and including) the `pmond` process.
 
