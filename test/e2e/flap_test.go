@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	initialize "pmon3/cli/cmd/init"
-	"pmon3/cli/cmd/list"
+	initialize "pmon3/cli/cmd"
 	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/flap_detector"
@@ -68,7 +67,7 @@ func (suite *Pmon3FlapTestSuite) TestB_ShouldBackoff() {
 	}
 
 	for range 5 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -78,7 +77,7 @@ func (suite *Pmon3FlapTestSuite) TestB_ShouldBackoff() {
 	assert.Equal(suite.T(), "failed", newCmdResp.GetProcess().GetStatus())
 
 	for range 3 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -92,7 +91,7 @@ func (suite *Pmon3FlapTestSuite) TestB_ShouldBackoff() {
 func (suite *Pmon3FlapTestSuite) TestC_ShouldBackoffWith3Restarts() {
 
 	for range 8 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 		fmt.Println(flap_detector.FromProcessId(2, pmond.Config))
 	}
@@ -105,7 +104,7 @@ func (suite *Pmon3FlapTestSuite) TestC_ShouldBackoffWith3Restarts() {
 	assert.Equal(suite.T(), 1, eventCounters["restart"])
 
 	for range 8 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -117,7 +116,7 @@ func (suite *Pmon3FlapTestSuite) TestC_ShouldBackoffWith3Restarts() {
 	assert.Equal(suite.T(), 2, eventCounters["restart"])
 
 	for range 8 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -153,7 +152,7 @@ func (suite *Pmon3FlapTestSuite) TestD_ShouldBackoff() {
 	}
 
 	for range 5 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -165,7 +164,7 @@ func (suite *Pmon3FlapTestSuite) TestD_ShouldBackoff() {
 	assert.Equal(suite.T(), 2, eventCounters["restart"])
 
 	for range 3 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -180,7 +179,7 @@ func (suite *Pmon3FlapTestSuite) TestD_ShouldBackoff() {
 func (suite *Pmon3FlapTestSuite) TestE_ShouldBackoffWith3Restarts() {
 
 	for range 8 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -192,7 +191,7 @@ func (suite *Pmon3FlapTestSuite) TestE_ShouldBackoffWith3Restarts() {
 	assert.Equal(suite.T(), 3, eventCounters["restart"])
 
 	for range 7 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -204,7 +203,7 @@ func (suite *Pmon3FlapTestSuite) TestE_ShouldBackoffWith3Restarts() {
 	assert.Equal(suite.T(), 4, eventCounters["restart"])
 
 	for range 2 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 
@@ -216,7 +215,7 @@ func (suite *Pmon3FlapTestSuite) TestE_ShouldBackoffWith3Restarts() {
 	assert.Equal(suite.T(), 5, eventCounters["restart"])
 
 	for range 8 {
-		list.Show()
+		initialize.List()
 		time.Sleep(time.Second * 2)
 	}
 

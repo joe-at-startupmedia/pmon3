@@ -3,7 +3,7 @@ package restart
 import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group/restart"
+	"pmon3/cli/cmd/group"
 	"pmon3/pmond/model"
 )
 
@@ -13,10 +13,10 @@ var Cmd = &cobra.Command{
 	Use:   "restart [group_id_or_name]",
 	Short: "(Re)start processes by group id or name",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		restart.Restart(args[0], flag.Json())
+		group.Restart(args[0], flag.Json())
 	},
 }
 

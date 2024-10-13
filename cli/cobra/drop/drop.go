@@ -2,8 +2,8 @@ package drop
 
 import (
 	"github.com/spf13/cobra"
+	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/drop"
 )
 
 var (
@@ -13,10 +13,10 @@ var (
 var Cmd = &cobra.Command{
 	Use:   "drop",
 	Short: "Delete all processes",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		drop.Drop(forceKillFlag)
+		cmd.Drop(forceKillFlag)
 	},
 }
 

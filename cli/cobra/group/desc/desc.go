@@ -3,7 +3,7 @@ package desc
 import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group/desc"
+	"pmon3/cli/cmd/group"
 )
 
 var Cmd = &cobra.Command{
@@ -11,9 +11,9 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"show"},
 	Short:   "Show group details and associated processes",
 	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		desc.Desc(args[0])
+		group.Desc(args[0])
 	},
 }

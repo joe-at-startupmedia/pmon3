@@ -3,7 +3,7 @@ package drop
 import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group/drop"
+	"pmon3/cli/cmd/group"
 )
 
 var (
@@ -15,10 +15,10 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"show"},
 	Short:   "Delete all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		drop.Drop(args[0], forceKillFlag)
+		group.Drop(args[0], forceKillFlag)
 	},
 }
 

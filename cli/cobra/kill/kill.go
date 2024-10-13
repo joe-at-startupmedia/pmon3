@@ -2,8 +2,8 @@ package kill
 
 import (
 	"github.com/spf13/cobra"
+	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/kill"
 )
 
 var (
@@ -14,10 +14,10 @@ var Cmd = &cobra.Command{
 	Use:   "kill",
 	Short: "Terminate all processes",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		kill.Kill(forceKillFlag)
+		cmd.Kill(forceKillFlag)
 	},
 }
 

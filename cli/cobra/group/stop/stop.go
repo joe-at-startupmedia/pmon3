@@ -3,7 +3,7 @@ package stop
 import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group/stop"
+	"pmon3/cli/cmd/group"
 )
 
 var Cmd = &cobra.Command{
@@ -11,9 +11,9 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"show"},
 	Short:   "Stop all processes associated to a group",
 	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		stop.Stop(args[0])
+		group.Stop(args[0])
 	},
 }

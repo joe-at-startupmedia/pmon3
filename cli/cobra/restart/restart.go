@@ -2,8 +2,8 @@ package restart
 
 import (
 	"github.com/spf13/cobra"
+	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/restart"
 	"pmon3/pmond/model"
 )
 
@@ -14,13 +14,13 @@ var Cmd = &cobra.Command{
 	Short:   "(Re)start a process by id or name",
 	Aliases: []string{"start"},
 	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		if len(flag.User) > 0 && flag.User == "root" && !base.IsRoot() {
 			base.OutputError("cannot set process user to root without sudo")
 		} else {
 			base.OpenSender()
 			defer base.CloseSender()
-			restart.Restart(cmd.CalledAs(), args[0], flag.Json())
+			cmd.Restart(cobraCommand.CalledAs(), args[0], flag.Json())
 		}
 	},
 }

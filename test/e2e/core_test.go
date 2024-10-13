@@ -4,17 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"pmon3/cli/cmd/del"
-	"pmon3/cli/cmd/desc"
-	"pmon3/cli/cmd/drop"
-	"pmon3/cli/cmd/exec"
-	initialize "pmon3/cli/cmd/init"
-	"pmon3/cli/cmd/kill"
-	"pmon3/cli/cmd/list"
-	"pmon3/cli/cmd/log"
-	"pmon3/cli/cmd/logf"
-	"pmon3/cli/cmd/reset"
-	"pmon3/cli/cmd/topn"
+	"pmon3/cli/cmd"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
@@ -57,7 +47,7 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 	ef := model.ExecFlags{
 		Name: "test-server-3",
 	}
-	exec.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
+	cmd.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
 	suite.Sleep()
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
@@ -74,7 +64,7 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 }
 
 func (suite *Pmon3CoreTestSuite) TestC1_DescribingAProcessWithAFourthId() {
-	newCmdResp := desc.Desc("4")
+	newCmdResp := cmd.Desc("4")
 	assert.Equal(suite.T(), "test-server-4", newCmdResp.GetProcess().GetName())
 }
 
@@ -84,13 +74,13 @@ func (suite *Pmon3CoreTestSuite) TestC2_DescribingANonExistentProcess() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestD1_DeletingAProcess() {
-	del.Del("3", false)
+	cmd.Del("3", false)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestD2_ForceDeletingAProcess() {
-	del.Del("4", true)
+	cmd.Del("4", true)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(3, "running", 0)
 }
@@ -102,7 +92,7 @@ func (suite *Pmon3CoreTestSuite) TestD3_ForceDeletingANonExistentProcess() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
-	newCmdResp := kill.Kill(false)
+	newCmdResp := cmd.Kill(false)
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
@@ -112,7 +102,7 @@ func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
-	newCmdResp := initialize.Initialize(false, true)
+	newCmdResp := cmd.Initialize(false, true)
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
@@ -126,7 +116,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go topn.Topn(2, ctx, &wg)
+	go cmd.Topn(2, ctx, &wg)
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	cancel() //will call wg.Done
 
@@ -139,7 +129,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestG1_Drop() {
-	drop.Drop(false)
+	cmd.Drop(false)
 	suite.Sleep()
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	suite.cliHelper.LsAssert(0)
@@ -156,10 +146,10 @@ func (suite *Pmon3CoreTestSuite) TestH_InitAllAfterDrop() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestI_StartingAndStopping() {
-	drop.Drop(true)
+	cmd.Drop(true)
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-6\"}")
 	suite.Sleep()
-	list.Show()
+	cmd.List()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 	suite.cliHelper.ExecBase1("stop", "1")
 	suite.Sleep()
@@ -187,7 +177,7 @@ func (suite *Pmon3CoreTestSuite) TestJ_RestartIncrementsCounter() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestK_ResetRestartCounter() {
-	reset.Reset("1")
+	cmd.Reset("1")
 	suite.Sleep()
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "1")
 	assert.Equal(suite.T(), uint32(0), newCmdResp.GetProcess().GetRestartCount())
@@ -313,14 +303,14 @@ func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestU_LogProcess() {
-	cmdResp := log.Log("test-server-2", true, "10")
+	cmdResp := cmd.Log("test-server-2", true, "10")
 	assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		cmdResp := logf.Logf("test-server-2", "10", ctx)
+		cmdResp := cmd.Logf("test-server-2", "10", ctx)
 		assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
 	}()
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)

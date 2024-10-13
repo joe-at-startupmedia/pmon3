@@ -2,8 +2,8 @@ package initialize
 
 import (
 	"github.com/spf13/cobra"
+	initialize "pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	initialize "pmon3/cli/cmd/init"
 )
 
 var (
@@ -15,7 +15,7 @@ var Cmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize all stopped processes",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
 		initialize.Initialize(processConfigOnlyFlag, blockingFlag)

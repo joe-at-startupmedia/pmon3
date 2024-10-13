@@ -2,8 +2,8 @@ package reset
 
 import (
 	"github.com/spf13/cobra"
+	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/reset"
 )
 
 var (
@@ -14,10 +14,10 @@ var Cmd = &cobra.Command{
 	Use:   "reset",
 	Short: "Reset the restart counter(s)",
 	Args:  cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		reset.Reset(idOrNameFlag)
+		cmd.Reset(idOrNameFlag)
 	},
 }
 

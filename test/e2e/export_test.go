@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"os"
-	"pmon3/cli/cmd/export"
+	"pmon3/cli/cmd"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 )
@@ -36,7 +36,7 @@ func (suite *Pmon3ExportTestSuite) TestA_BootedFromProcessConfig() {
 
 func (suite *Pmon3ExportTestSuite) TestB_ExportJson() {
 
-	exportString, err := export.GetExportString("json", "name")
+	exportString, err := cmd.GetExportString("json", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}
@@ -48,7 +48,7 @@ func (suite *Pmon3ExportTestSuite) TestB_ExportJson() {
 
 func (suite *Pmon3ExportTestSuite) TestC_ExportToml() {
 
-	exportString, err := export.GetExportString("toml", "name")
+	exportString, err := cmd.GetExportString("toml", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}
@@ -62,7 +62,7 @@ func (suite *Pmon3ExportTestSuite) TestC_ExportToml() {
 
 func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 
-	exportString, err := export.GetExportString("yaml", "name")
+	exportString, err := cmd.GetExportString("yaml", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}

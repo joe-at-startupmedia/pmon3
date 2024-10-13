@@ -3,15 +3,7 @@ package e2e
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"pmon3/cli/cmd/group/assign"
-	"pmon3/cli/cmd/group/create"
-	"pmon3/cli/cmd/group/del"
-	"pmon3/cli/cmd/group/desc"
-	"pmon3/cli/cmd/group/drop"
-	"pmon3/cli/cmd/group/list"
-	"pmon3/cli/cmd/group/remove"
-	"pmon3/cli/cmd/group/restart"
-	"pmon3/cli/cmd/group/stop"
+	"pmon3/cli/cmd/group"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/test/e2e/cli_helper"
@@ -70,7 +62,7 @@ func (suite *Pmon3GroupTestSuite) TestA1_BootedFromProcessConfigWithCorrectGroup
 
 func (suite *Pmon3GroupTestSuite) TestA2_ListGroups() {
 
-	cmdResp := list.Show()
+	cmdResp := group.Show()
 
 	groupList := cmdResp.GetGroupList().GetGroups()
 
@@ -116,7 +108,7 @@ func (suite *Pmon3GroupTestSuite) TestB1_ExecCmdWithNewGroup() {
 
 func (suite *Pmon3GroupTestSuite) TestB2_ListGroups() {
 
-	cmdResp := list.Show()
+	cmdResp := group.Show()
 
 	groupList := cmdResp.GetGroupList().GetGroups()
 
@@ -167,7 +159,7 @@ func (suite *Pmon3GroupTestSuite) TestC2_ListGroups() {
 
 func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 
-	restart.Restart("groupA", "{}")
+	group.Restart("groupA", "{}")
 
 	suite.Sleep()
 
@@ -212,7 +204,7 @@ func (suite *Pmon3GroupTestSuite) TestE_RestartGroupB() {
 
 func (suite *Pmon3GroupTestSuite) TestE_StopGroupA() {
 
-	stop.Stop("groupA")
+	group.Stop("groupA")
 
 	suite.Sleep()
 
@@ -272,7 +264,7 @@ func (suite *Pmon3GroupTestSuite) TestE_StopGroupC() {
 
 func (suite *Pmon3GroupTestSuite) TestF_CreateGroup() {
 
-	create.Create("groupF")
+	group.Create("groupF")
 
 	suite.Sleep()
 
@@ -292,11 +284,11 @@ func (suite *Pmon3GroupTestSuite) TestF_CreateGroup() {
 
 func (suite *Pmon3GroupTestSuite) TestG_AssignGroup() {
 
-	assign.Assign("groupF", "group-test-server-5")
+	group.Assign("groupF", "group-test-server-5")
 
 	suite.Sleep()
 
-	cmdResp := desc.Desc("groupF")
+	cmdResp := group.Desc("groupF")
 
 	processList := cmdResp.GetProcessList().GetProcesses()
 
@@ -307,7 +299,7 @@ func (suite *Pmon3GroupTestSuite) TestG_AssignGroup() {
 
 func (suite *Pmon3GroupTestSuite) TestH_RemoveGroup() {
 
-	remove.Remove("groupF", "group-test-server-5")
+	group.Remove("groupF", "group-test-server-5")
 
 	suite.Sleep()
 
@@ -334,7 +326,7 @@ func (suite *Pmon3GroupTestSuite) TestI1_DeleteGroup() {
 		return
 	}
 
-	del.Delete("groupA")
+	group.Delete("groupA")
 
 	suite.Sleep()
 
@@ -364,7 +356,7 @@ func (suite *Pmon3GroupTestSuite) TestI1_DeleteGroup() {
 
 func (suite *Pmon3GroupTestSuite) TestJ1_DropGroup() {
 
-	drop.Drop("groupB", false)
+	group.Drop("groupB", false)
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 

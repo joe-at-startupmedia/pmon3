@@ -2,8 +2,8 @@ package log
 
 import (
 	"github.com/spf13/cobra"
+	"pmon3/cli/cmd"
 	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/log"
 )
 
 var (
@@ -15,10 +15,10 @@ var Cmd = &cobra.Command{
 	Use:   "log [id or name]",
 	Short: "Display process logs by id or name",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		log.Log(args[0], logRotatedFlag, numLinesFlag)
+		cmd.Log(args[0], logRotatedFlag, numLinesFlag)
 	},
 }
 
