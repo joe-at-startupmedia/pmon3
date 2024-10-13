@@ -10,7 +10,7 @@ TEST_REGEX := $(or $(TEST_REGEX),"Test")
 TEST_FILE_CONFIG ?= $(PROJECT_PATH)/test/e2e/config/test-config.core.yml
 TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "directory:" | sed -n "1 p" | cut -d' ' -f4)
 TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_LOGS)")
-DEFAULT_TEST_PACKAGES := "pmon3/cli/...,pmon3/conf,pmon3/pmond/controller/...,pmon3/pmond/db,pmon3/pmond/flap_detector,pmon3/pmond/god,pmon3/pmond/model,pmon3/pmond/observer,pmon3/pmond/process,pmon3/pmond/repo,pmon3/pmond/shell"
+DEFAULT_TEST_PACKAGES := "./..."
 TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))
 
 all: build
