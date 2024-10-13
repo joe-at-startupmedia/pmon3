@@ -109,6 +109,11 @@ make_test_app:
 run_test: clean_test_artifacts make_test_app
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -coverpkg=$(TEST_PACKAGES) ./test/e2e/
 
+.PHONY: codecov
+codecov:
+	cat coverage.txt | grep -v 'pmon3/utils' | grep -v 'pmon3/test' | grep -v 'pmon3/cmd' > coverage.out
+	codecov -t $(CODECOV_TOKEN) --flags $(CODECOV_FLAG) --file coverage.out
+
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
 	cp "$(PROJECT_PATH)/rpm/pmond.service" /usr/lib/systemd/system/
