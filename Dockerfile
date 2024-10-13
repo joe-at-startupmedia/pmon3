@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine
+FROM golang:1.23.2-alpine
 
 ARG GIT_BRANCH_ARG=master
 ARG MAKE_TARGET_ARG=test
