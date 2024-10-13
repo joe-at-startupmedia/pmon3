@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Exec(p *model.Process) (*model.Process, error) {
+func exec(p *model.Process) (*model.Process, error) {
 
 	user, groupIds, err := SetUser(p.Username)
 	if err != nil {

@@ -29,11 +29,14 @@ func (suite *Pmon3DependencyTestSuite) SetupSuite() {
 	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.dependency-test.config.json", "dependency")
 }
 
+func (suite *Pmon3DependencyTestSuite) Sleep() {
+	time.Sleep(suite.cliHelper.GetSleepDurationFromEnv(0, "dependency"))
+}
+
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3DependencyTestSuite) TestA_BootedFromProcessConfigInCorrectOrder() {
 
-	time.Sleep(5 * time.Second)
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 
 	if !passing {
@@ -69,7 +72,7 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	//this should be overwritten by the process configuration file on the next test
 	execFlags = model.ExecFlags{
@@ -78,7 +81,7 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 
 	suite.cliHelper.ExecBase2("restart", "1", execFlags.Json())
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(6, "running", 0)
 
@@ -122,7 +125,7 @@ func (suite *Pmon3DependencyTestSuite) TestB_AddingAdditionalProcessesWithDeps()
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(7, "running", 0)
 
 	nonDeptProcessNames, deptProcessNames = suite.cliHelper.DgraphProcessNames("")
@@ -144,7 +147,7 @@ func (suite *Pmon3DependencyTestSuite) TestC_ShouldRebootWithCorrectDependencyOr
 	}
 
 	suite.cliHelper.ExecBase2("init", "", "blocking")
-	time.Sleep(3 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(7, "running", 0)
 
@@ -189,7 +192,7 @@ func (suite *Pmon3DependencyTestSuite) TestD_ShouldRebootFromConfigOnlyWithCorre
 	}
 
 	suite.cliHelper.ExecBase2("init", "process-config-only", "blocking")
-	time.Sleep(3 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 

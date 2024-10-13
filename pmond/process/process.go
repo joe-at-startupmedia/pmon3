@@ -2,6 +2,7 @@ package process
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/user"
 	"pmon3/pmond"
@@ -10,43 +11,24 @@ import (
 	"pmon3/pmond/repo"
 	"pmon3/pmond/shell"
 	"strconv"
+	"sync"
 	"time"
 )
 
-func findPidFromPsCmd(p *model.Process) uint32 {
-	if len(p.Args) > 0 {
-		return shell.ExecFindPidFromProcessNameAndArgs(p)
-	} else {
-		return shell.ExecFindPidFromProcessName(p)
+var pendingTask sync.Map
+
+func BeginPendingTask(p *model.Process, action string) (bool, error) {
+	existingAction, loaded := pendingTask.LoadOrStore(p.ID, action)
+	if loaded {
+		err := fmt.Errorf("process.BeginPendingTask, task is already pending for process with id (%d) with action(%s)", p.ID, existingAction)
+		pmond.Log.Warn(err)
+		return false, err
 	}
+	return true, nil
 }
 
-func findPpidFromPsCmd(p *model.Process) uint32 {
-	if len(p.Args) > 0 {
-		return shell.ExecFindPpidFromProcessNameAndArgs(p)
-	} else {
-		return shell.ExecFindPpidFromProcessName(p)
-	}
-}
-
-// used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
-func updatedFromPsCmd(p *model.Process) bool {
-
-	newPid := findPidFromPsCmd(p)
-
-	if newPid != 0 && newPid != p.Pid {
-		newPpid := findPpidFromPsCmd(p)
-		if newPpid == 1 {
-			pmond.Log.Errorf("Detected orphan process with the same process name: %s pid: %d", p.Name, newPid)
-			return true
-		}
-		p.Pid = newPid
-		p.Status = model.StatusRunning
-		err := repo.ProcessOf(p).Save()
-		return err == nil
-	}
-
-	return false
+func FinishPendingTask(p *model.Process) {
+	pendingTask.Delete(p.ID)
 }
 
 func Enqueue(p *model.Process, force bool) error {
@@ -65,6 +47,13 @@ func Enqueue(p *model.Process, force bool) error {
 }
 
 func Restart(p *model.Process, isInitializing bool) (bool, error) {
+
+	_, loaded := pendingTask.Load(p.ID)
+	if loaded {
+		pmond.Log.Warnf("process.Restart, task is already pending for process with id(%d)", p.ID)
+		return false, nil
+	}
+
 	restarted := false
 	if !shell.ExecIsRunning(p) && (p.Status == model.StatusRunning || p.Status == model.StatusFailed || p.Status == model.StatusClosed) {
 		if updatedFromPsCmd(p) {
@@ -120,13 +109,6 @@ func SendOsKillSignal(p *model.Process, forced bool) error {
 	}
 }
 
-func KillAndSaveStatus(p *model.Process, status model.ProcessStatus, forced bool) error {
-	if err := SendOsKillSignal(p, forced); err != nil {
-		return err
-	}
-	return repo.ProcessOf(p).UpdateStatus(status)
-}
-
 func SetUser(runUser string) (*user.User, []string, error) {
 	var curUser *user.User
 	var err error
@@ -148,6 +130,42 @@ func SetUser(runUser string) (*user.User, []string, error) {
 	}
 
 	return curUser, groupIds, nil
+}
+
+func findPidFromPsCmd(p *model.Process) uint32 {
+	if len(p.Args) > 0 {
+		return shell.ExecFindPidFromProcessNameAndArgs(p)
+	} else {
+		return shell.ExecFindPidFromProcessName(p)
+	}
+}
+
+func findPpidFromPsCmd(p *model.Process) uint32 {
+	if len(p.Args) > 0 {
+		return shell.ExecFindPpidFromProcessNameAndArgs(p)
+	} else {
+		return shell.ExecFindPpidFromProcessName(p)
+	}
+}
+
+// used as a last alternative if /proc/[pid]/status and golang isNotExist fail to detect running
+func updatedFromPsCmd(p *model.Process) bool {
+
+	newPid := findPidFromPsCmd(p)
+
+	if newPid != 0 && newPid != p.Pid {
+		newPpid := findPpidFromPsCmd(p)
+		if newPpid == 1 {
+			pmond.Log.Errorf("Detected orphan process with the same process name: %s pid: %d", p.Name, newPid)
+			return true
+		}
+		p.Pid = newPid
+		p.Status = model.StatusRunning
+		err := repo.ProcessOf(p).Save()
+		return err == nil
+	}
+
+	return false
 }
 
 func proxyWorker(m *model.Process, cmd string) ([]string, error) {
@@ -175,7 +193,7 @@ func proxyWorker(m *model.Process, cmd string) ([]string, error) {
 
 func workerRestart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p)
+	execP, err := exec(p)
 	if err != nil {
 		return "", err
 	}
@@ -190,7 +208,7 @@ func workerRestart(p *model.Process) (string, error) {
 
 func workerStart(p *model.Process) (string, error) {
 	//returns an instance of the process model
-	execP, err := Exec(p)
+	execP, err := exec(p)
 	if err != nil {
 		return "", err
 	}

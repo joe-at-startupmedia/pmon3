@@ -10,6 +10,7 @@ import (
 	"pmon3/cli/cmd/exec"
 	initialize "pmon3/cli/cmd/init"
 	"pmon3/cli/cmd/kill"
+	"pmon3/cli/cmd/list"
 	"pmon3/cli/cmd/log"
 	"pmon3/cli/cmd/logf"
 	"pmon3/cli/cmd/reset"
@@ -42,6 +43,10 @@ func (suite *Pmon3CoreTestSuite) SetupSuite() {
 	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.core-test.config.json", "core")
 }
 
+func (suite *Pmon3CoreTestSuite) Sleep() {
+	time.Sleep(suite.cliHelper.GetSleepDurationFromEnv(0, "core"))
+}
+
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3CoreTestSuite) TestA_BootedFromProcessConfig() {
@@ -53,18 +58,18 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 		Name: "test-server-3",
 	}
 	exec.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
 		return
 	}
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-4\"}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-5\"}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(5, "running", 0)
 }
 
@@ -80,19 +85,19 @@ func (suite *Pmon3CoreTestSuite) TestC2_DescribingANonExistentProcess() {
 
 func (suite *Pmon3CoreTestSuite) TestD1_DeletingAProcess() {
 	del.Del("3", false)
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestD2_ForceDeletingAProcess() {
 	del.Del("4", true)
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(3, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestD3_ForceDeletingANonExistentProcess() {
 	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("del", "6")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	assert.Equal(suite.T(), "process (6) does not exist", newCmdResp.GetError())
 }
 
@@ -101,7 +106,7 @@ func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
-		time.Sleep(2 * time.Second)
+		suite.Sleep()
 		suite.cliHelper.LsAssertStatus(3, "stopped", 0)
 	}
 }
@@ -111,7 +116,7 @@ func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
-		time.Sleep(2 * time.Second)
+		suite.Sleep()
 		suite.cliHelper.LsAssertStatus(3, "running", 0)
 	}
 }
@@ -122,7 +127,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go topn.Topn(2, ctx, &wg)
-	time.Sleep(5 * time.Second)
+	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	cancel() //will call wg.Done
 
 	cmdResp := suite.cliHelper.ExecBase0("top")
@@ -135,7 +140,8 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 
 func (suite *Pmon3CoreTestSuite) TestG1_Drop() {
 	drop.Drop(false)
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
+	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	suite.cliHelper.LsAssert(0)
 }
 
@@ -145,51 +151,52 @@ func (suite *Pmon3CoreTestSuite) TestG2_DropAfterDrop() {
 
 func (suite *Pmon3CoreTestSuite) TestH_InitAllAfterDrop() {
 	suite.cliHelper.ExecBase2("init", "all", "blocking")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(2, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestI_StartingAndStopping() {
 	drop.Drop(true)
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-6\"}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
+	list.Show()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 	suite.cliHelper.ExecBase1("stop", "1")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "stopped", 0)
 	suite.cliHelper.ExecBase2("restart", "1", "{}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestJ_RestartIncrementsCounter() {
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-7\"}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(2, "running", 0)
 	suite.cliHelper.ExecBase2("restart", "1", "{}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "1")
 	assert.Equal(suite.T(), uint32(2), newCmdResp.GetProcess().GetRestartCount())
 	newCmdResp = suite.cliHelper.ExecBase1("desc", "2")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	assert.Equal(suite.T(), uint32(0), newCmdResp.GetProcess().GetRestartCount())
 	suite.cliHelper.ExecBase2("restart", "2", "{}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	newCmdResp = suite.cliHelper.ExecBase1("desc", "2")
 	assert.Equal(suite.T(), uint32(1), newCmdResp.GetProcess().GetRestartCount())
 }
 
 func (suite *Pmon3CoreTestSuite) TestK_ResetRestartCounter() {
 	reset.Reset("1")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "1")
 	assert.Equal(suite.T(), uint32(0), newCmdResp.GetProcess().GetRestartCount())
 	suite.cliHelper.ExecBase0("reset")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	newCmdResp = suite.cliHelper.ExecBase1("desc", "2")
 	assert.Equal(suite.T(), uint32(0), newCmdResp.GetProcess().GetRestartCount())
 	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 }
 
 func (suite *Pmon3CoreTestSuite) TestL_ResetNonExistentProcess() {
@@ -228,7 +235,7 @@ func (suite *Pmon3CoreTestSuite) TestQ_ExecProcessWithoutName() {
 		NoAutoRestart: true,
 	}
 	suite.cliHelper.ExecBase1("exec", ef.Json())
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 }
 
 func (suite *Pmon3CoreTestSuite) TestR_KilledProcessShouldRestart() {
@@ -247,17 +254,24 @@ func (suite *Pmon3CoreTestSuite) TestR_KilledProcessShouldRestart() {
 		suite.Fail(err.Error())
 	}
 
-	time.Sleep(6 * time.Second)
+	suite.cliHelper.SleepFor(time.Second * 5)
 
-	passing, cmdResp := suite.cliHelper.LsAssertStatus(2, "running", 0)
+	expectedRestartCount := uint32(1)
+	var actualProcessCount uint32
 
-	if !passing {
-		return
+	for range 3 {
+		passing, cmdResp := suite.cliHelper.LsAssertStatus(2, "running", 0)
+		if !passing {
+			break
+		}
+		processList = cmdResp.GetProcessList().GetProcesses()
+		actualProcessCount = processList[0].GetRestartCount()
+		if expectedRestartCount == actualProcessCount {
+			break
+		}
+		suite.cliHelper.SleepFor(time.Second * 1)
 	}
-
-	processList = cmdResp.GetProcessList().GetProcesses()
-
-	assert.Equal(suite.T(), uint32(1), processList[0].GetRestartCount())
+	assert.Equal(suite.T(), expectedRestartCount, actualProcessCount)
 }
 
 func (suite *Pmon3CoreTestSuite) TestS_KilledProcessShouldNotRestart() {
@@ -276,16 +290,17 @@ func (suite *Pmon3CoreTestSuite) TestS_KilledProcessShouldNotRestart() {
 		suite.Fail(err.Error())
 	}
 
-	time.Sleep(6 * time.Second)
+	suite.Sleep()
+	//suite.cliHelper.SleepFor(time.Second * 5)
 
 	_, cmdResp = suite.cliHelper.LsAssertStatus(1, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
 	suite.cliHelper.ExecBase0("drop")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	suite.cliHelper.ExecBase2("restart", "test-server-2", "{}")
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 	_, cmdResp := suite.cliHelper.LsAssertStatus(1, "running", 0)
 
 	processList := cmdResp.GetProcessList().GetProcesses()
@@ -308,7 +323,7 @@ func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
 		cmdResp := logf.Logf("test-server-2", "10", ctx)
 		assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
 	}()
-	time.Sleep(time.Second * 5)
+	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	cancel()
 }
 

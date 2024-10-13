@@ -46,7 +46,7 @@ func sendCmd(cmd *protos.Cmd) {
 
 	select {
 	case <-ctx.Done():
-		cli.Log.Fatal("operation timed out")
+		cli.Log.Fatalf("sendCmd: operation timed out: %s", cmd.String())
 	case err := <-sendErrChan:
 		if err != nil {
 			cli.Log.Fatal(err)
@@ -57,6 +57,7 @@ func sendCmd(cmd *protos.Cmd) {
 
 func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	cli.Log.Debug("getting response")
+	start := time.Now()
 	newCmdResp := &protos.CmdResp{}
 	readErrChan := make(chan error, 1)
 
@@ -66,6 +67,8 @@ func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	//because processes with dependencies take longer to start
 	if sent.GetName() == "init" {
 		sendRcvTimeout = time.Second * 180
+	} else if sent.GetName() == "drop" {
+		sendRcvTimeout = time.Second * 10
 	} else if confExecResponseWait > sendRcvTimeout {
 		sendRcvTimeout = confExecResponseWait
 	}
@@ -90,7 +93,7 @@ func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 
 	select {
 	case <-ctx.Done():
-		cli.Log.Fatal("operation timed out")
+		cli.Log.Fatalf("GetResponse: operation timed out: %s %s", sent.String(), time.Since(start))
 	case err := <-readErrChan:
 		if err != nil {
 			cli.Log.Fatal(err)

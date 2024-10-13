@@ -4,17 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"pmon3/pmond/controller/base"
-	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 )
 
 func Drop(cmd *protos.Cmd) *protos.CmdResp {
 	forced := cmd.GetArg1() == "force"
-	return DropByParams(cmd, forced, model.StatusStopped)
+	return DropByParams(cmd, forced)
 }
 
-func DropByParams(cmd *protos.Cmd, forced bool, status model.ProcessStatus) *protos.CmdResp {
+func DropByParams(cmd *protos.Cmd, forced bool) *protos.CmdResp {
 
 	all, err := repo.Process().FindAll()
 	if err != nil {

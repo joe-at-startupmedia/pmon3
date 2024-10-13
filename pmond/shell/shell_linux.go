@@ -61,6 +61,6 @@ func startProcess(p *model.Process, logFile *os.File, user *user.User, groupIds 
 		processParams = append(processParams, strings.Split(p.Args, " ")...)
 	}
 
-	pmond.Log.Infof("os.StartProcess: %s %s %-v", p.ProcessFile, processParams, attr)
+	pmond.Log.Infof("os.StartProcess: %s %s", p.ProcessFile, processParams)
 	return os.StartProcess(p.ProcessFile, processParams, attr)
 }

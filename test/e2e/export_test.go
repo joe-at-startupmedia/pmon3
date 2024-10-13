@@ -8,8 +8,6 @@ import (
 	"pmon3/cli/cmd/export"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
-
-	"time"
 )
 
 // Define the suite, and absorb the built-in suite
@@ -33,14 +31,7 @@ func (suite *Pmon3ExportTestSuite) SetupSuite() {
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3ExportTestSuite) TestA_BootedFromProcessConfig() {
-
-	time.Sleep(5 * time.Second)
-	passing, _ := suite.cliHelper.LsAssertStatus(4, "running", 0)
-
-	if !passing {
-		return
-	}
-
+	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
 func (suite *Pmon3ExportTestSuite) TestB_ExportJson() {
@@ -86,7 +77,6 @@ func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 // this is necessary because TearDownSuite executes concurrently with the
 // initialization of the next suite
 func (suite *Pmon3ExportTestSuite) TestZ_TearDown() {
-	time.Sleep(2 * time.Second)
 	suite.cliHelper.DropAndClose()
 }
 

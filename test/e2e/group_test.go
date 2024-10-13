@@ -38,11 +38,14 @@ func (suite *Pmon3GroupTestSuite) SetupSuite() {
 	suite.cliHelper = cli_helper.SetupSuite(&suite.Suite, "/test/e2e/config/test-config.core.yml", "/test/e2e/config/process.group-test.config.json", "group")
 }
 
+func (suite *Pmon3GroupTestSuite) Sleep() {
+	time.Sleep(suite.cliHelper.GetSleepDurationFromEnv(0, "group"))
+}
+
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3GroupTestSuite) TestA1_BootedFromProcessConfigWithCorrectGroups() {
 
-	time.Sleep(5 * time.Second)
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 
 	if !passing {
@@ -97,7 +100,7 @@ func (suite *Pmon3GroupTestSuite) TestB1_ExecCmdWithNewGroup() {
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(6, "running", 0)
 
@@ -133,7 +136,7 @@ func (suite *Pmon3GroupTestSuite) TestC1_ExecCmdWithExistingGroup() {
 
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", execFlags.Json())
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(7, "running", 0)
 
@@ -166,7 +169,7 @@ func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 
 	restart.Restart("groupA", "{}")
 
-	time.Sleep(5 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(7, "running", 0)
 
@@ -187,11 +190,9 @@ func (suite *Pmon3GroupTestSuite) TestD_RestartGroupA() {
 
 func (suite *Pmon3GroupTestSuite) TestE_RestartGroupB() {
 
-	time.Sleep(2 * time.Second)
-
 	suite.cliHelper.ExecBase2("group_restart", "groupB", "{}")
 
-	time.Sleep(5 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(7, "running", 0)
 
@@ -213,7 +214,7 @@ func (suite *Pmon3GroupTestSuite) TestE_StopGroupA() {
 
 	stop.Stop("groupA")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 
@@ -243,7 +244,7 @@ func (suite *Pmon3GroupTestSuite) TestE_StopGroupC() {
 
 	suite.cliHelper.ExecBase1("group_stop", "groupC")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(3, "running", 0)
 
@@ -273,7 +274,7 @@ func (suite *Pmon3GroupTestSuite) TestF_CreateGroup() {
 
 	create.Create("groupF")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	cmdResp := suite.cliHelper.ExecBase0("group_list")
 
@@ -293,7 +294,7 @@ func (suite *Pmon3GroupTestSuite) TestG_AssignGroup() {
 
 	assign.Assign("groupF", "group-test-server-5")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	cmdResp := desc.Desc("groupF")
 
@@ -308,7 +309,7 @@ func (suite *Pmon3GroupTestSuite) TestH_RemoveGroup() {
 
 	remove.Remove("groupF", "group-test-server-5")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	cmdResp := suite.cliHelper.ExecBase1("group_desc", "groupF")
 
@@ -321,11 +322,11 @@ func (suite *Pmon3GroupTestSuite) TestI1_DeleteGroup() {
 
 	suite.cliHelper.ExecBase2("group_restart", "groupA", "{}")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	suite.cliHelper.ExecBase2("group_restart", "groupC", "{}")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(7, "running", 0)
 
@@ -335,7 +336,7 @@ func (suite *Pmon3GroupTestSuite) TestI1_DeleteGroup() {
 
 	del.Delete("groupA")
 
-	time.Sleep(2 * time.Second)
+	suite.Sleep()
 
 	passing, cmdResp = suite.cliHelper.LsAssertStatus(7, "running", 0)
 

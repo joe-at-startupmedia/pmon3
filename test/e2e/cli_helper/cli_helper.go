@@ -12,6 +12,7 @@ import (
 	"pmon3/pmond/god"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
+	"pmon3/utils/conv"
 	"strings"
 
 	"time"
@@ -97,7 +98,7 @@ func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string
 
 	if expectedProcessLen != processesMatchingStatus && retries < 3 {
 		cli.Log.Warnf("retry count: %d with params: %d %d %s", retries+1, expectedProcessLen, processesMatchingStatus, status)
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 2)
 		return cliHelper.LsAssertStatus(expectedProcessLen, status, retries+1)
 	}
 
@@ -167,6 +168,24 @@ func (cliHelper *CliHelper) ShouldKill(expectedProcessLen int, waitBeforeAsserti
 	time.Sleep(time.Duration(waitBeforeAssertion) * time.Second)
 	passing, _ := cliHelper.LsAssertStatus(expectedProcessLen, "stopped", 0)
 	return passing
+}
+
+func (cliHelper *CliHelper) GetSleepDurationFromEnv(defaultDuration int, suiteName string) time.Duration {
+	var sleepDuration = defaultDuration
+	sleepEnvArg := os.Getenv("TEST_SLEEP_" + strings.ToUpper(suiteName))
+	if sleepEnvArg != "" {
+		sleepDuration = conv.StrToInt(sleepEnvArg)
+	} else {
+		sleepEnvArg = os.Getenv("TEST_SLEEP")
+		if sleepEnvArg != "" {
+			sleepDuration = conv.StrToInt(sleepEnvArg)
+		}
+	}
+	return time.Duration(sleepDuration)
+}
+
+func (cliHelper *CliHelper) SleepFor(duration time.Duration) {
+	time.Sleep(duration)
 }
 
 func (cliHelper *CliHelper) DropAndClose() {
