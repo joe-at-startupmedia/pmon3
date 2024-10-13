@@ -1,4 +1,4 @@
-package cmd
+package controller
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"os/exec"
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
 	"strings"
 	"sync"

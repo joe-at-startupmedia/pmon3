@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"os"
-	"pmon3/cli/cmd"
+	"pmon3/cli/controller"
 	"pmon3/test/e2e/cli_helper"
 	"testing"
 )
@@ -36,7 +36,7 @@ func (suite *Pmon3ExportTestSuite) TestA_BootedFromProcessConfig() {
 
 func (suite *Pmon3ExportTestSuite) TestB_ExportJson() {
 
-	exportString, err := cmd.GetExportString("json", "name")
+	exportString, err := controller.GetExportString("json", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}
@@ -48,7 +48,7 @@ func (suite *Pmon3ExportTestSuite) TestB_ExportJson() {
 
 func (suite *Pmon3ExportTestSuite) TestC_ExportToml() {
 
-	exportString, err := cmd.GetExportString("toml", "name")
+	exportString, err := controller.GetExportString("toml", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}
@@ -62,7 +62,7 @@ func (suite *Pmon3ExportTestSuite) TestC_ExportToml() {
 
 func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 
-	exportString, err := cmd.GetExportString("yaml", "name")
+	exportString, err := controller.GetExportString("yaml", "name")
 	if err != nil {
 		suite.Fail(err.Error())
 	}
@@ -76,18 +76,18 @@ func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 
 func (suite *Pmon3ExportTestSuite) TestE_ExportJunkShouldError() {
 
-	_, err := cmd.GetExportString("junk", "name")
+	_, err := controller.GetExportString("junk", "name")
 	assert.ErrorContains(suite.T(), err, "accepted formats: json, toml or yaml")
 }
 
 func (suite *Pmon3ExportTestSuite) TestF_ExportJunkShouldOutputError() {
 
-	cmd.Export("junk", "name")
+	controller.Export("junk", "name")
 }
 
 func (suite *Pmon3ExportTestSuite) TestG_ExportYamlShouldOutputYaml() {
 
-	cmd.Export("yaml", "name")
+	controller.Export("yaml", "name")
 }
 
 // this is necessary because TearDownSuite executes concurrently with the

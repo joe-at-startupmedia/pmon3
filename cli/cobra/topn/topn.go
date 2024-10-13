@@ -3,8 +3,8 @@ package topn
 import (
 	"context"
 	"github.com/spf13/cobra"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 	"sync"
 )
 
@@ -21,7 +21,7 @@ var Cmd = &cobra.Command{
 		defer base.CloseSender()
 		var wg sync.WaitGroup
 		wg.Add(1)
-		go cmd.Topn(secondsFlag, context.Background(), &wg)
+		go controller.Topn(secondsFlag, context.Background(), &wg)
 		wg.Wait()
 	},
 }

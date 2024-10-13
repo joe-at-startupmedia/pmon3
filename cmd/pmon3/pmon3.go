@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
 	"pmon3/cli/cobra"
+	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
 	"pmon3/conf"
 )

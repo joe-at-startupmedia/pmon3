@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"pmon3/cli/cmd"
+	"pmon3/cli/controller"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
@@ -47,7 +47,7 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 	ef := model.ExecFlags{
 		Name: "test-server-3",
 	}
-	cmd.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
+	controller.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
 	suite.Sleep()
 	passing, _ := suite.cliHelper.LsAssertStatus(3, "running", 0)
 	if !passing {
@@ -64,7 +64,7 @@ func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfi
 }
 
 func (suite *Pmon3CoreTestSuite) TestC1_DescribingAProcessWithAFourthId() {
-	newCmdResp := cmd.Desc("4")
+	newCmdResp := controller.Desc("4")
 	assert.Equal(suite.T(), "test-server-4", newCmdResp.GetProcess().GetName())
 }
 
@@ -74,13 +74,13 @@ func (suite *Pmon3CoreTestSuite) TestC2_DescribingANonExistentProcess() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestD1_DeletingAProcess() {
-	cmd.Del("3", false)
+	controller.Del("3", false)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(4, "running", 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestD2_ForceDeletingAProcess() {
-	cmd.Del("4", true)
+	controller.Del("4", true)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(3, "running", 0)
 }
@@ -92,7 +92,7 @@ func (suite *Pmon3CoreTestSuite) TestD3_ForceDeletingANonExistentProcess() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
-	newCmdResp := cmd.Kill(false)
+	newCmdResp := controller.Kill(false)
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
@@ -102,7 +102,7 @@ func (suite *Pmon3CoreTestSuite) TestE_KillProcesses() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
-	newCmdResp := cmd.Initialize(false, true)
+	newCmdResp := controller.Initialize(false, true)
 	if len(newCmdResp.GetError()) > 0 {
 		suite.Fail(newCmdResp.GetError())
 	} else {
@@ -116,7 +116,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go cmd.Topn(2, ctx, &wg)
+	go controller.Topn(2, ctx, &wg)
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	cancel() //will call wg.Done
 
@@ -129,7 +129,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestG1_Drop() {
-	cmd.Drop(false)
+	controller.Drop(false)
 	suite.Sleep()
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	suite.cliHelper.LsAssert(0)
@@ -146,15 +146,15 @@ func (suite *Pmon3CoreTestSuite) TestH_InitAllAfterDrop() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestI_StartingAndStopping() {
-	cmd.Drop(true)
+	controller.Drop(true)
 	suite.cliHelper.ExecCmd("/test/app/bin/test_app", "{\"name\": \"test-server-6\"}")
 	suite.Sleep()
-	cmd.List()
+	controller.List()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
-	cmd.Stop("1", false)
+	controller.Stop("1", false)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "stopped", 0)
-	cmd.Restart("restart", "1", "{}")
+	controller.Restart("restart", "1", "{}")
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 }
@@ -177,7 +177,7 @@ func (suite *Pmon3CoreTestSuite) TestJ_RestartIncrementsCounter() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestK_ResetRestartCounter() {
-	cmd.Reset("1")
+	controller.Reset("1")
 	suite.Sleep()
 	newCmdResp := suite.cliHelper.ExecBase1("desc", "1")
 	assert.Equal(suite.T(), uint32(0), newCmdResp.GetProcess().GetRestartCount())
@@ -303,14 +303,14 @@ func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestU_LogProcess() {
-	cmdResp := cmd.Log("test-server-2", true, "10")
+	cmdResp := controller.Log("test-server-2", true, "10")
 	assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
 }
 
 func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		cmdResp := cmd.Logf("test-server-2", "10", ctx)
+		cmdResp := controller.Logf("test-server-2", "10", ctx)
 		assert.Equal(suite.T(), len(cmdResp.GetError()), 0)
 	}()
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
@@ -318,7 +318,7 @@ func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestW_Stop() {
-	cmd.Stop("1", true)
+	controller.Stop("1", true)
 }
 
 // this is necessary because TearDownSuite executes concurrently with the

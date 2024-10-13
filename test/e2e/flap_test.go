@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	initialize "pmon3/cli/cmd"
+	initialize "pmon3/cli/controller"
 	"pmon3/conf"
 	"pmon3/pmond"
 	"pmon3/pmond/flap_detector"

@@ -1,8 +1,8 @@
-package cmd
+package controller
 
 import (
 	"fmt"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/protos"
 	"strings"
 )

@@ -1,15 +1,20 @@
 package group
 
 import (
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	table_list "pmon3/cli/output/process/list"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 )
 
-func Stop(idOrName string) *protos.CmdResp {
+func Drop(idOrName string, forceKill bool) *protos.CmdResp {
 
-	sent := base.SendCmd("group_stop", idOrName)
+	var sent *protos.Cmd
+	if forceKill {
+		sent = base.SendCmdArg2("group_drop", idOrName, "force")
+	} else {
+		sent = base.SendCmd("group_drop", idOrName)
+	}
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
 		all := newCmdResp.GetProcessList().GetProcesses()

@@ -2,8 +2,8 @@ package group
 
 import (
 	"pmon3/cli"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/protos"
 	"time"
 )
@@ -13,7 +13,7 @@ func Restart(idOrName string, flags string) *protos.CmdResp {
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
 		time.Sleep(cli.Config.GetCmdExecResponseWait())
-		cmd.List()
+		controller.List()
 	}
 	return newCmdResp
 }

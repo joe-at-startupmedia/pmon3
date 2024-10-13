@@ -4,7 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"log"
-	"pmon3/cli/cmd"
+	"pmon3/cli/controller"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/test/e2e/cli_helper"
@@ -38,9 +38,9 @@ func (suite *Pmon3DependencyTestSuite) Sleep() {
 
 func (suite *Pmon3DependencyTestSuite) TestA_BootedFromProcessConfigInCorrectOrder() {
 
-	cmd.Dgraph(true)
+	controller.Dgraph(true)
 
-	cmd.Dgraph(false)
+	controller.Dgraph(false)
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 

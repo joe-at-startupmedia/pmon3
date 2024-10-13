@@ -3,7 +3,7 @@ package e2e
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"pmon3/cli/cmd/group"
+	"pmon3/cli/controller/group"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/test/e2e/cli_helper"

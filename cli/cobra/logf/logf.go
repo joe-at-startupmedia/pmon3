@@ -5,8 +5,8 @@ import (
 	"os"
 	"os/signal"
 	"pmon3/cli"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -24,7 +24,7 @@ var Cmd = &cobra.Command{
 		base.OpenSender()
 		defer base.CloseSender()
 		ctx, cancel := context.WithCancel(context.Background())
-		cmd.Logf(args[0], numLinesFlag, ctx)
+		controller.Logf(args[0], numLinesFlag, ctx)
 
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig,

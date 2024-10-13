@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"os"
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
 	"pmon3/pmond/model"

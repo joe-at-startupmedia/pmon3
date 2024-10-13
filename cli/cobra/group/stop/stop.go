@@ -2,8 +2,8 @@ package stop
 
 import (
 	"github.com/spf13/cobra"
-	"pmon3/cli/cmd/base"
-	"pmon3/cli/cmd/group"
+	"pmon3/cli/controller/base"
+	"pmon3/cli/controller/group"
 )
 
 var Cmd = &cobra.Command{

@@ -2,8 +2,8 @@ package export
 
 import (
 	"github.com/spf13/cobra"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 )
 
 var (
@@ -17,7 +17,7 @@ var Cmd = &cobra.Command{
 	Run: func(cobraCommand *cobra.Command, args []string) {
 		base.OpenSender()
 		defer base.CloseSender()
-		cmd.Export(format, orderBy)
+		controller.Export(format, orderBy)
 	},
 }
 

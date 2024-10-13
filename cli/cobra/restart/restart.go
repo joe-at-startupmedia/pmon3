@@ -2,8 +2,8 @@ package restart
 
 import (
 	"github.com/spf13/cobra"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/model"
 )
 
@@ -20,7 +20,7 @@ var Cmd = &cobra.Command{
 		} else {
 			base.OpenSender()
 			defer base.CloseSender()
-			cmd.Restart(cobraCommand.CalledAs(), args[0], flag.Json())
+			controller.Restart(cobraCommand.CalledAs(), args[0], flag.Json())
 		}
 	},
 }

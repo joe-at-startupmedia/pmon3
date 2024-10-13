@@ -1,11 +1,11 @@
-package cmd
+package controller
 
 import (
 	"bufio"
 	"context"
 	"fmt"
 	"io"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
 	"pmon3/pmond/protos"
 	"sync"

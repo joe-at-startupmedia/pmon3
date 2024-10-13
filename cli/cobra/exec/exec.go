@@ -3,8 +3,8 @@ package exec
 import (
 	"github.com/spf13/cobra"
 	"os/user"
-	"pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/model"
 )
 
@@ -28,7 +28,7 @@ var Cmd = &cobra.Command{
 		}
 		base.OpenSender()
 		defer base.CloseSender()
-		cmd.Exec(args[0], flags)
+		controller.Exec(args[0], flags)
 	},
 }
 

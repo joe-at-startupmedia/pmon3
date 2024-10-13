@@ -1,8 +1,8 @@
-package cmd
+package controller
 
 import (
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/cli/output/process/one"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"

@@ -2,8 +2,8 @@ package initialize
 
 import (
 	"github.com/spf13/cobra"
-	initialize "pmon3/cli/cmd"
-	"pmon3/cli/cmd/base"
+	initialize "pmon3/cli/controller"
+	"pmon3/cli/controller/base"
 )
 
 var (

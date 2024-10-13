@@ -1,19 +1,19 @@
-package cmd
+package controller
 
 import (
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/protos"
 	"time"
 )
 
-func Kill(forceKill bool) *protos.CmdResp {
+func Drop(forceKill bool) *protos.CmdResp {
 	var sent *protos.Cmd
 
 	if forceKill {
-		sent = base.SendCmd("kill", "force")
+		sent = base.SendCmd("drop", "force")
 	} else {
-		sent = base.SendCmd("kill", "")
+		sent = base.SendCmd("drop", "")
 	}
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {

@@ -1,7 +1,7 @@
 package group
 
 import (
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/cli/output/group/list"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"

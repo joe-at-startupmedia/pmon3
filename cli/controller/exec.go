@@ -1,14 +1,16 @@
-package cmd
+package controller
 
 import (
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
+	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"time"
 )
 
-func Restart(calledAs string, idOrName string, flags string) *protos.CmdResp {
-	sent := base.SendCmdArg2(calledAs, idOrName, flags)
+func Exec(file string, ef model.ExecFlags) *protos.CmdResp {
+	ef.File = file
+	sent := base.SendCmd("exec", ef.Json())
 	newCmdResp := base.GetResponse(sent)
 	if len(newCmdResp.GetError()) == 0 {
 		time.Sleep(cli.Config.GetCmdExecResponseWait())

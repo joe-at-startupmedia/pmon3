@@ -1,4 +1,4 @@
-package cmd
+package controller
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v3"
 	"pmon3/cli"
-	"pmon3/cli/cmd/base"
+	"pmon3/cli/controller/base"
 	"pmon3/pmond/model"
 )
 
