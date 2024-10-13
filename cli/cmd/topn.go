@@ -51,18 +51,17 @@ func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup) {
 				topCancel()
 				wg.Done()
 				return
-			default:
-				char, key, err := keyboard.GetKey()
-				if err != nil {
-					base.OutputError(err.Error())
+			case kr := <-onKeyboardEvent():
+				if kr.err != nil {
+					base.OutputError(kr.err.Error())
 					topCancel()
 					wg.Done()
 					return
-				} else if key == keyboard.KeyEsc || key == keyboard.KeyCtrlC {
+				} else if kr.key == keyboard.KeyEsc || kr.key == keyboard.KeyCtrlC {
 					topCancel()
 					wg.Done()
 					return
-				} else if char == 's' {
+				} else if kr.char == 's' {
 					topCancel()
 					topCtx, topCancel = context.WithCancel(ctx)
 					sortBit = !sortBit
@@ -71,6 +70,25 @@ func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup) {
 			}
 		}
 	}
+}
+
+type keyboardResult struct {
+	err  error
+	char rune
+	key  keyboard.Key
+}
+
+func onKeyboardEvent() chan keyboardResult {
+	ch := make(chan keyboardResult)
+	go func() {
+		char, key, err := keyboard.GetKey()
+		ch <- keyboardResult{
+			err,
+			char,
+			key,
+		}
+	}()
+	return ch
 }
 
 func topIteration(ctx context.Context, refreshInterval int, writer *uilive.Writer, sortBit *bool, pidArr []string, pidLen int) {
