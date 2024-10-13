@@ -151,10 +151,10 @@ func (suite *Pmon3CoreTestSuite) TestI_StartingAndStopping() {
 	suite.Sleep()
 	cmd.List()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
-	suite.cliHelper.ExecBase1("stop", "1")
+	cmd.Stop("1", false)
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "stopped", 0)
-	suite.cliHelper.ExecBase2("restart", "1", "{}")
+	cmd.Restart("restart", "1", "{}")
 	suite.Sleep()
 	suite.cliHelper.LsAssertStatus(1, "running", 0)
 }
@@ -315,6 +315,10 @@ func (suite *Pmon3CoreTestSuite) TestW_LogfProcess() {
 	}()
 	suite.cliHelper.SleepFor(time.Millisecond * 1000)
 	cancel()
+}
+
+func (suite *Pmon3CoreTestSuite) TestW_Stop() {
+	cmd.Stop("1", true)
 }
 
 // this is necessary because TearDownSuite executes concurrently with the

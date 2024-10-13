@@ -4,8 +4,6 @@ import (
 	"context"
 	"github.com/joe-at-startupmedia/xipc"
 	"github.com/sirupsen/logrus"
-	"os"
-	"os/signal"
 	"pmon3/pmond"
 	"pmon3/pmond/controller"
 	"pmon3/pmond/flap_detector"
@@ -15,26 +13,11 @@ import (
 	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
 	"sync"
-	"syscall"
 	"time"
 )
 
 var xr xipc.IResponder
 var pendingTask sync.Map
-
-func New() {
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	//viewer.SetConfiguration(viewer.WithTheme(viewer.ThemeWesteros), viewer.WithLinkAddr("goprofiler.test:8080"))
-	//mgr := statsview.New()
-	//go mgr.Start()
-
-	ctx := interruptHandler(&wg)
-	Summon(ctx)
-	wg.Wait() //wait for the interrupt handler to complete
-}
 
 func Summon(ctx context.Context) {
 	connectResponder()
@@ -52,26 +35,6 @@ func Banish() {
 		pmond.Log.Warnf("Error closing queues: %-v", err)
 	}
 	time.Sleep(3 * processMonitorInterval) //wait for responder to close and requestProcessor to break before exiting
-}
-
-func interruptHandler(wg *sync.WaitGroup) context.Context {
-	ctx, cancel := context.WithCancel(context.Background())
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc,
-		syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-		syscall.SIGQUIT)
-
-	go func() {
-		s := <-sigc
-		pmond.Log.Infof("Captured interrupt: %s", s)
-		cancel() // terminate the runMonitor loop
-		Banish()
-		wg.Done()
-	}()
-
-	return ctx
 }
 
 func runMonitor(ctx context.Context) {

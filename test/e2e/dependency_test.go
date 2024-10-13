@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"log"
+	"pmon3/cli/cmd"
 	"pmon3/pmond/model"
 	"pmon3/pmond/protos"
 	"pmon3/test/e2e/cli_helper"
@@ -36,6 +37,10 @@ func (suite *Pmon3DependencyTestSuite) Sleep() {
 //Alphabetical prefixes are important for ordering: https://github.com/stretchr/testify/issues/194
 
 func (suite *Pmon3DependencyTestSuite) TestA_BootedFromProcessConfigInCorrectOrder() {
+
+	cmd.Dgraph(true)
+
+	cmd.Dgraph(false)
 
 	passing, cmdResp := suite.cliHelper.LsAssertStatus(5, "running", 0)
 

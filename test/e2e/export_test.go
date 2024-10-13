@@ -74,6 +74,22 @@ func (suite *Pmon3ExportTestSuite) TestD_ExportYaml() {
 	assert.Equal(suite.T(), exportString, fileContents)
 }
 
+func (suite *Pmon3ExportTestSuite) TestE_ExportJunkShouldError() {
+
+	_, err := cmd.GetExportString("junk", "name")
+	assert.ErrorContains(suite.T(), err, "accepted formats: json, toml or yaml")
+}
+
+func (suite *Pmon3ExportTestSuite) TestF_ExportJunkShouldOutputError() {
+
+	cmd.Export("junk", "name")
+}
+
+func (suite *Pmon3ExportTestSuite) TestG_ExportYamlShouldOutputYaml() {
+
+	cmd.Export("yaml", "name")
+}
+
 // this is necessary because TearDownSuite executes concurrently with the
 // initialization of the next suite
 func (suite *Pmon3ExportTestSuite) TestZ_TearDown() {
