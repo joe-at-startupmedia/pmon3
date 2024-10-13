@@ -109,14 +109,17 @@ make_test_app:
 run_test: clean_test_artifacts make_test_app
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 ./test/e2e/
 
-.PHONY: run_cover_test
-run_cover_test: clean_test_artifacts make_test_app
+.PHONY: run_test_cover
+run_test_cover: clean_test_artifacts make_test_app
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -coverpkg=$(TEST_PACKAGES) ./test/e2e/
 
 .PHONY: codecov
 codecov:
 	cat coverage.txt | grep -v 'pmon3/utils' | grep -v 'pmon3/test' | grep -v 'pmon3/cmd' | grep -v 'pmon3/pmond/protos' > coverage.out
 	codecov -t $(CODECOV_TOKEN) --flags $(CODECOV_FLAG) --file coverage.out
+
+.PHONY: run_test_cover_codevoc
+run_test_cover_codevoc: run_test_cover codecov
 
 .PHONY: systemd_install
 systemd_install: systemd_uninstall install
