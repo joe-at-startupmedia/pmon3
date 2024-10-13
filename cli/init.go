@@ -13,7 +13,6 @@ func Instance(confDir string) error {
 	Config = &conf.Config{}
 	//cli doesnt need the process config file
 	if err := conf.Load(confDir, "", Config); err != nil {
-
 		return err
 	}
 	Log = Config.GetLogger()

@@ -7,7 +7,7 @@ ARG TEST_PACKAGES_ARG
 ARG CODECOV_TOKEN_ARG
 
 RUN  apt-get update && \
-  apt-get install -y build-essential git curl bash jq && \
+  apt-get install -y build-essential:q! git curl bash jq && \
   curl -L -o /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.5/codecovcli_alpine_x86_64 && \
   chmod +x /usr/local/bin/codecov && \
   cd /opt/ && \
@@ -18,4 +18,4 @@ ENV TEST_REGEX=${TEST_REGEX_ARG}
 ENV MAKE_TARGET=${MAKE_TARGET_ARG}
 ENV TEST_PACKAGES=${TEST_PACKAGES_ARG}
 
-ENTRYPOINT ["/bin/sh", "-c" , "cd /opt/pmon3 && make build && make install && make ${MAKE_TARGET} && /usr/local/bin/codecov upload-process -t ${CODECOV_TOKEN} -F ${MAKE_TARGET}"]
+ENTRYPOINT ["/bin/sh", "-c" , "cd /opt/pmon3 && make build && make install && make ${MAKE_TARGET}"]

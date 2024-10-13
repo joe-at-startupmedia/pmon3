@@ -107,6 +107,10 @@ make_test_app:
 
 .PHONY: run_test
 run_test: clean_test_artifacts make_test_app
+	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 ./test/e2e/
+
+.PHONY: run_cover_test
+run_cover_test: clean_test_artifacts make_test_app
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -coverpkg=$(TEST_PACKAGES) ./test/e2e/
 
 .PHONY: codecov
