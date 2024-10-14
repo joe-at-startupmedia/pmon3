@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"github.com/eiannone/keyboard"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -113,14 +114,19 @@ func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
 	}
 }
 
-func onKeyboardEvent() chan controller.KeyboardResult {
+func onKeyboardEventSort() chan controller.KeyboardResult {
 	ch := make(chan controller.KeyboardResult)
 	go func() {
-		time.Sleep(2 * time.Second)
 		ch <- controller.KeyboardResult{
 			Char: 's',
 		}
-		time.Sleep(2 * time.Second)
+	}()
+	return ch
+}
+
+func onKeyboardEventEscape() chan controller.KeyboardResult {
+	ch := make(chan controller.KeyboardResult)
+	go func() {
 		ch <- controller.KeyboardResult{
 			Key: keyboard.KeyEsc,
 		}
@@ -128,14 +134,35 @@ func onKeyboardEvent() chan controller.KeyboardResult {
 	return ch
 }
 
+func onKeyboardEventError() chan controller.KeyboardResult {
+	ch := make(chan controller.KeyboardResult)
+	go func() {
+		ch <- controller.KeyboardResult{
+			Err: fmt.Errorf("simulating an error for testing"),
+		}
+	}()
+	return ch
+}
+
 func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 
-	//ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go controller.Topn(2, context.Background(), &wg, onKeyboardEvent, os.Stdout)
-	suite.cliHelper.SleepFor(time.Millisecond * 10000)
+	go controller.Topn(2, ctx, &wg, onKeyboardEventSort, os.Stdout)
+	suite.cliHelper.SleepFor(time.Millisecond * 4000)
+	cancel() //will call wg.Done
+
+	var wg2 sync.WaitGroup
+	wg2.Add(1)
+	go controller.Topn(2, context.Background(), &wg2, onKeyboardEventEscape, os.Stdout)
+	suite.cliHelper.SleepFor(time.Millisecond * 4000)
 	//cancel() //will call wg.Done
+
+	var wg3 sync.WaitGroup
+	wg3.Add(1)
+	go controller.Topn(2, context.Background(), &wg3, onKeyboardEventError, os.Stdout)
+	suite.cliHelper.SleepFor(time.Millisecond * 4000)
 
 	cmdResp := suite.cliHelper.ExecBase0("top")
 	pidCsv := cmdResp.GetValueStr()
