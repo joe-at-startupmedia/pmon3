@@ -117,6 +117,7 @@ func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
 func onKeyboardEventSort() chan controller.KeyboardResult {
 	ch := make(chan controller.KeyboardResult)
 	go func() {
+		time.Sleep(time.Second * 2)
 		ch <- controller.KeyboardResult{
 			Char: 's',
 		}
@@ -127,6 +128,7 @@ func onKeyboardEventSort() chan controller.KeyboardResult {
 func onKeyboardEventEscape() chan controller.KeyboardResult {
 	ch := make(chan controller.KeyboardResult)
 	go func() {
+		time.Sleep(time.Second * 2)
 		ch <- controller.KeyboardResult{
 			Key: keyboard.KeyEsc,
 		}
@@ -137,6 +139,7 @@ func onKeyboardEventEscape() chan controller.KeyboardResult {
 func onKeyboardEventError() chan controller.KeyboardResult {
 	ch := make(chan controller.KeyboardResult)
 	go func() {
+		time.Sleep(time.Second * 2)
 		ch <- controller.KeyboardResult{
 			Err: fmt.Errorf("simulating an error for testing"),
 		}
@@ -162,7 +165,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	var wg3 sync.WaitGroup
 	wg3.Add(1)
 	go controller.Topn(2, context.Background(), &wg3, onKeyboardEventError, os.Stdout)
-	suite.cliHelper.SleepFor(time.Millisecond * 4000)
+	suite.cliHelper.SleepFor(time.Millisecond * 8000)
 
 	cmdResp := suite.cliHelper.ExecBase0("top")
 	pidCsv := cmdResp.GetValueStr()
