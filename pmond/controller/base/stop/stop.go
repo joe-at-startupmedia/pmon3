@@ -2,11 +2,11 @@ package stop
 
 import (
 	"fmt"
-	"os"
 	"pmon3/pmond"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/repo"
+	"pmon3/pmond/shell"
 	"time"
 )
 
@@ -20,12 +20,10 @@ func ByProcess(p *model.Process, forced bool) error {
 
 func ByProcessWithoutPendingCheck(p *model.Process, forced bool) error {
 	status := model.StatusStopped
-	// check process is running
-	_, err := os.Stat(fmt.Sprintf("/proc/%d/status", p.Pid))
-
+	isRunning := shell.ExecIsRunning(p)
 	p.ResetRestartCount()
 	//if process is not currently running
-	if os.IsNotExist(err) {
+	if !isRunning {
 		if p.Status != status {
 			if err := repo.ProcessOf(p).UpdateStatus(status); err != nil {
 				return fmt.Errorf("stop process error: %w", err)
@@ -35,11 +33,11 @@ func ByProcessWithoutPendingCheck(p *model.Process, forced bool) error {
 		}
 	} else {
 		//save it as stopped before we kill it to avoid a race condition
-		if err = repo.ProcessOf(p).UpdateStatus(status); err != nil {
+		if err := repo.ProcessOf(p).UpdateStatus(status); err != nil {
 			return err
 		}
 
-		if err = process.SendOsKillSignal(p, forced); err != nil {
+		if err := process.SendOsKillSignal(p, forced); err != nil {
 			return err
 		}
 

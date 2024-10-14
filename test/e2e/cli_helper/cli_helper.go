@@ -181,7 +181,7 @@ func (cliHelper *CliHelper) GetSleepDurationFromEnv(defaultDuration int, suiteNa
 			sleepDuration = conv.StrToInt(sleepEnvArg)
 		}
 	}
-	return time.Duration(sleepDuration)
+	return time.Duration(sleepDuration) * time.Millisecond
 }
 
 func (cliHelper *CliHelper) SleepFor(duration time.Duration) {
