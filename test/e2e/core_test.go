@@ -153,7 +153,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go controller.Topn(2, ctx, &wg, onKeyboardEventSort, os.Stdout)
-	suite.cliHelper.SleepFor(time.Millisecond * 4000)
+	suite.cliHelper.SleepFor(time.Millisecond * 6000)
 	cancel() //will call wg.Done
 
 	var wg2 sync.WaitGroup
@@ -165,7 +165,7 @@ func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 	var wg3 sync.WaitGroup
 	wg3.Add(1)
 	go controller.Topn(2, context.Background(), &wg3, onKeyboardEventError, os.Stdout)
-	suite.cliHelper.SleepFor(time.Millisecond * 8000)
+	suite.cliHelper.SleepFor(time.Millisecond * 4000)
 
 	cmdResp := suite.cliHelper.ExecBase0("top")
 	pidCsv := cmdResp.GetValueStr()
