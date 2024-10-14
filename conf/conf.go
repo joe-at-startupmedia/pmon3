@@ -13,7 +13,7 @@ import (
 )
 
 // current app version
-var Version = "1.18.0"
+var Version = "1.18.1"
 
 const DEFAULT_LOG_LEVEL = logrus.InfoLevel
 
