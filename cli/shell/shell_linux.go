@@ -1,7 +1,6 @@
 package shell
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -11,8 +10,7 @@ func topCmd(pidArr []string, sortField string, refreshInterval int) []string {
 		strings.Join(pidArr, ","),
 		"-o",
 		"%" + strings.ToUpper(sortField),
-		"-d",
-		strconv.Itoa(refreshInterval),
 		"-b",
+		"-n 1",
 	}
 }

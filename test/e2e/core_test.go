@@ -2,8 +2,10 @@ package e2e
 
 import (
 	"context"
+	"github.com/eiannone/keyboard"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"os"
 	"pmon3/cli/controller"
 	"pmon3/pmond/model"
 	"pmon3/pmond/process"
@@ -111,14 +113,29 @@ func (suite *Pmon3CoreTestSuite) TestF1_InitAll() {
 	}
 }
 
+func onKeyboardEvent() chan controller.KeyboardResult {
+	ch := make(chan controller.KeyboardResult)
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch <- controller.KeyboardResult{
+			Char: 's',
+		}
+		time.Sleep(2 * time.Second)
+		ch <- controller.KeyboardResult{
+			Key: keyboard.KeyEsc,
+		}
+	}()
+	return ch
+}
+
 func (suite *Pmon3CoreTestSuite) TestF2_Top() {
 
-	ctx, cancel := context.WithCancel(context.Background())
+	//ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go controller.Topn(2, ctx, &wg)
-	suite.cliHelper.SleepFor(time.Millisecond * 1000)
-	cancel() //will call wg.Done
+	go controller.Topn(2, context.Background(), &wg, onKeyboardEvent, os.Stdout)
+	suite.cliHelper.SleepFor(time.Millisecond * 10000)
+	//cancel() //will call wg.Done
 
 	cmdResp := suite.cliHelper.ExecBase0("top")
 	pidCsv := cmdResp.GetValueStr()

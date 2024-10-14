@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"os/exec"
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
@@ -15,113 +14,72 @@ import (
 	"time"
 
 	"github.com/eiannone/keyboard"
-	"github.com/gosuri/uilive"
 )
 
-func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup) {
+type KeyboardResult struct {
+	Err  error
+	Char rune
+	Key  keyboard.Key
+}
+
+func Topn(refreshInterval int, ctx context.Context, wg *sync.WaitGroup, keyboardEventHandler func() chan KeyboardResult, writer io.Writer) {
 
 	sent := base.SendCmd("top", "")
 	newCmdResp := base.GetResponse(sent)
 	pidCsv := newCmdResp.GetValueStr()
 	pidArr := strings.Split(pidCsv, ",")
-	pidLen := len(pidArr)
-	if pidLen == 0 {
-		//this should never happen because it should always return at least the pmond pid
-		base.OutputError("process list was empty")
-	} else {
-		sortBit := false
+	if len(pidArr) > 20 {
+		pidArr = getRandomizedLargePidList(pidArr)
+	}
+	sortBit := false
 
-		if err := keyboard.Open(); err != nil {
-			panic(err)
-		}
-		writer := uilive.New()
-		writer.Start()
-		defer func() {
-			writer.Newline()
-			writer.Stop()
-			keyboard.Close()
-		}()
+	topCtx, topCancel := context.WithCancel(ctx)
+	go topIteration(topCtx, refreshInterval, writer, sortBit, pidArr)
 
-		topCtx, topCancel := context.WithCancel(ctx)
-		topIteration(topCtx, refreshInterval, writer, &sortBit, pidArr, pidLen)
-
-		for {
-			select {
-			case <-ctx.Done():
+	for {
+		select {
+		case <-ctx.Done():
+			topCancel()
+			wg.Done()
+			return
+		case kr := <-keyboardEventHandler():
+			if kr.Err != nil {
+				base.OutputError(kr.Err.Error())
 				topCancel()
 				wg.Done()
 				return
-			case kr := <-onKeyboardEvent():
-				if kr.err != nil {
-					base.OutputError(kr.err.Error())
-					topCancel()
-					wg.Done()
-					return
-				} else if kr.key == keyboard.KeyEsc || kr.key == keyboard.KeyCtrlC {
-					topCancel()
-					wg.Done()
-					return
-				} else if kr.char == 's' {
-					topCancel()
-					topCtx, topCancel = context.WithCancel(ctx)
-					sortBit = !sortBit
-					topIteration(topCtx, refreshInterval, writer, &sortBit, pidArr, pidLen)
-				}
+			} else if kr.Key == keyboard.KeyEsc || kr.Key == keyboard.KeyCtrlC {
+				topCancel()
+				wg.Done()
+				return
+			} else if kr.Char == 's' {
+				topCancel()
+				topCtx, topCancel = context.WithCancel(ctx)
+				sortBit = !sortBit
+				go topIteration(topCtx, refreshInterval, writer, sortBit, pidArr)
 			}
 		}
 	}
 }
 
-type keyboardResult struct {
-	err  error
-	char rune
-	key  keyboard.Key
-}
-
-func onKeyboardEvent() chan keyboardResult {
-	ch := make(chan keyboardResult)
-	go func() {
-		char, key, err := keyboard.GetKey()
-		ch <- keyboardResult{
-			err,
-			char,
-			key,
-		}
-	}()
-	return ch
-}
-
-func topIteration(ctx context.Context, refreshInterval int, writer *uilive.Writer, sortBit *bool, pidArr []string, pidLen int) {
-	if pidLen > 20 {
-		go displayTopLoop(ctx, refreshInterval, writer, getRandomizedLargePidList(pidArr), *sortBit)
-	} else {
-		go displayTopLoop(ctx, refreshInterval, writer, pidArr, *sortBit)
-	}
-}
-
-func displayTopLoop(ctx context.Context, refreshInterval int, writer *uilive.Writer, pidArr []string, sortBit bool) {
+func topIteration(ctx context.Context, refreshInterval int, writer io.Writer, sortBit bool, pidArr []string) {
+	ticker := time.NewTicker(time.Duration(refreshInterval) * time.Second)
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		default:
-			go displayTop(refreshInterval, writer, pidArr, sortBit)
-			time.Sleep(time.Duration(refreshInterval) * time.Second)
+		case <-ticker.C:
+			displayTop(refreshInterval, writer, pidArr, sortBit)
 		}
 	}
 }
 
-func displayTop(refreshInterval int, writer *uilive.Writer, pidArr []string, sortBit bool) {
-
-	var cmd *exec.Cmd
-
-	var sortField string
+func displayTop(refreshInterval int, writer io.Writer, pidArr []string, sortBit bool) {
+	sortField := "mem"
 	if sortBit {
 		sortField = "cpu"
-	} else {
-		sortField = "mem"
 	}
-	cmd = shell.ExecTopCmd(pidArr, sortField, refreshInterval)
+	cmd := shell.ExecTopCmd(pidArr, sortField, refreshInterval)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		cli.Log.Errorf("Encountered an error executing: %s: %s", cmd.String(), err)
@@ -160,8 +118,7 @@ func displayTop(refreshInterval int, writer *uilive.Writer, pidArr []string, sor
 func getRandomizedLargePidList(pidArr []string) []string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	for n := len(pidArr); n > 0; n-- {
-		randIndex := r.Intn(n)
-		pidArr[n-1], pidArr[randIndex] = pidArr[randIndex], pidArr[n-1]
+		pidArr[n-1], pidArr[r.Intn(n)] = pidArr[r.Intn(n)], pidArr[n-1]
 	}
 	return pidArr[:20]
 }
