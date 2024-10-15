@@ -13,11 +13,6 @@ fi
 
 RELEASE_ARCHIVE="$PROJECT_NAME-$RELEASE"
 
-clean_downloads() {
-  rm -f "$RELEASE_ARCHIVE.tar.gz"
-  rm -rf "${RELEASE_ARCHIVE//v}"
-}
-
 download_from_project() {
   SRC=$1
   DST=$2
@@ -47,21 +42,18 @@ systemd_install() {
   ./bin/pmon3 --help
 }
 
-
 echo "Installing $PROJECT_NAME from release: $RELEASE"
 
 #the extracted folder isn't prepended by the letter v
 download_from_project "$PROJECT_URL/archive/refs/tags/$RELEASE.tar.gz" "$RELEASE_ARCHIVE.tar.gz"
 
-
-rm -rf "$RELEASE_ARCHIVE" && \
-  tar -xvzf "$RELEASE_ARCHIVE.tar.gz" && \
-  rm -f "$RELEASE_ARCHIVE.tar.gz" && \
+tar -xvzf "$RELEASE_ARCHIVE.tar.gz" && \
   cd "${RELEASE_ARCHIVE//v}" && \
   mkdir bin | true && \
   download_from_project "$PROJECT_URL/releases/download/$RELEASE/pmon3" "bin/pmon3" && \
   download_from_project "$PROJECT_URL/releases/download/$RELEASE/pmond" "bin/pmond" && \
   chmod +x bin/* && \
-  systemd_install
-
-clean_downloads
+  systemd_install && \
+  cd ../ && \
+  rm -f "$RELEASE_ARCHIVE.tar.gz" && \
+  rm -rf "${RELEASE_ARCHIVE//v}"
