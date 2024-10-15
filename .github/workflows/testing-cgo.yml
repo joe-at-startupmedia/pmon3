@@ -2,7 +2,7 @@ name: Testing CGO
 
 on:
   workflow_run:
-    workflows: [Testing]
+    workflows: [CI]
     types:
       - completed
   workflow_dispatch:
