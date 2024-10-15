@@ -1,5 +1,5 @@
 # pmon3
-[![CI](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/ci.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/ci.yml)
+[![CI](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/testing.yml)
 [![codecov](https://codecov.io/gh/joe-at-startupmedia/pmon3/graph/badge.svg?token=RAILGSJ6XQ)](https://codecov.io/gh/joe-at-startupmedia/pmon3)
 
 
