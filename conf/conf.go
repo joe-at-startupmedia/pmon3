@@ -12,6 +12,39 @@ import (
 	"github.com/jinzhu/configor"
 )
 
+// current app version
+var Version = "1.18.1"
+
+const DEFAULT_LOG_LEVEL = logrus.InfoLevel
+
+// GetConfigFile two options:
+// 1. Use PMON3_CONF environment variable
+// 2. fallback to a hardcoded path
+func GetConfigFile() string {
+	conf := os.Getenv("PMON3_CONF")
+	if len(conf) == 0 {
+		conf = "/etc/pmon3/config/config.yml"
+	}
+	return conf
+}
+
+// GetProcessConfigFile two options:
+// 1. Use PMON3__PROCESS_CONF environment variable
+// 2. fallback to a hardcoded path
+func GetProcessConfigFile() string {
+	conf := os.Getenv("PMON3_PROCESS_CONF")
+	if len(conf) == 0 {
+		conf = "/etc/pmon3/config/process.config.json"
+	}
+
+	if _, err := os.Stat(conf); err == nil {
+		return conf
+	} else {
+		log.Printf("%s value provided for the process configuration file does not exist", conf)
+		return ""
+	}
+}
+
 type Config struct {
 	Logger                 *logrus.Logger       `yaml:"-"`
 	ProcessConfig          *model.ProcessConfig `yaml:"-"`
@@ -119,34 +152,6 @@ func Load(configFile string, processConfigFile string, c *Config) error {
 	return nil
 }
 
-// GetConfigFile two options:
-// 1. Use PMON3_CONF environment variable
-// 2. fallback to a hardcoded path
-func GetConfigFile() string {
-	conf := os.Getenv("PMON3_CONF")
-	if len(conf) == 0 {
-		conf = "/etc/pmon3/config/config.yml"
-	}
-	return conf
-}
-
-// GetProcessConfigFile two options:
-// 1. Use PMON3__PROCESS_CONF environment variable
-// 2. fallback to a hardcoded path
-func GetProcessConfigFile() string {
-	conf := os.Getenv("PMON3_PROCESS_CONF")
-	if len(conf) == 0 {
-		conf = "/etc/pmon3/config/process.config.json"
-	}
-
-	if _, err := os.Stat(conf); err == nil {
-		return conf
-	} else {
-		log.Printf("%s value provided for the process configuration file does not exist", conf)
-		return ""
-	}
-}
-
 func (c *Config) GetCmdExecResponseWait() time.Duration {
 	if c.Wait.CmdExecResponse >= 0 && c.Wait.CmdExecResponse <= 10000 {
 		return time.Duration(c.Wait.CmdExecResponse) * time.Millisecond
@@ -246,6 +251,6 @@ func strToLogLevel(str string) logrus.Level {
 	case "error":
 		return logrus.ErrorLevel
 	default:
-		return logrus.InfoLevel
+		return DEFAULT_LOG_LEVEL
 	}
 }
