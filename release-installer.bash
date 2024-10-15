@@ -4,16 +4,18 @@ set -ex
 
 RELEASE=$1
 PROJECT_NAME="pmon3"
-PROJECT_URL="https://github.com/joe-at-startupmedia/pmon3"
-RELEASE_ARCHIVE="$PROJECT_NAME-$RELEASE"
+AUTHOR_NAME="joe-at-startupmedia"
+PROJECT_URL="https://github.com/$AUTHOR_NAME/$PROJECT_NAME"
 
 if [ "$RELEASE" == "" ]; then
-    echo "Please enter release version"
-    exit 1
+  RELEASE=$(wget -q -O - "https://api.github.com/repos/$AUTHOR_NAME/$PROJECT_NAME/tags" | jq -r '.[0].name')
 fi
+
+RELEASE_ARCHIVE="$PROJECT_NAME-$RELEASE"
 
 clean_downloads() {
   rm -f "$RELEASE_ARCHIVE.tar.gz"
+  rm -rf "${RELEASE_ARCHIVE//v}"
 }
 
 download_from_project() {
@@ -23,13 +25,12 @@ download_from_project() {
   wgetreturn=$?
   if [[ $wgetreturn -ne 0 ]]; then
     echo "Could not wget: $SRC"
-    clean_downloads
     exit 1
   fi
 }
 
 systemd_install() {
-  WHOAMI=$(whoami)
+  sudo systemctl stop pmond
   sudo cp -R bin/pmon* /usr/local/bin/
   sudo cp "rpm/pmond.service" /usr/lib/systemd/system/
   sudo cp "rpm/pmond.logrotate" /etc/logrotate.d/pmond
@@ -50,16 +51,16 @@ systemd_install() {
 echo "Installing $PROJECT_NAME from release: $RELEASE"
 
 #the extracted folder isn't prepended by the letter v
-download_from_project "$PROJECT_URL/archive/refs/tags/v$RELEASE.tar.gz" "$RELEASE_ARCHIVE.tar.gz"
+download_from_project "$PROJECT_URL/archive/refs/tags/$RELEASE.tar.gz" "$RELEASE_ARCHIVE.tar.gz"
 
 
 rm -rf "$RELEASE_ARCHIVE" && \
   tar -xvzf "$RELEASE_ARCHIVE.tar.gz" && \
   rm -f "$RELEASE_ARCHIVE.tar.gz" && \
-  cd "$RELEASE_ARCHIVE" && \
-  mkdir bin && \
-  download_from_project "$PROJECT_URL/releases/download/v$RELEASE/pmon3" "bin/pmon3" && \
-  download_from_project "$PROJECT_URL/releases/download/v$RELEASE/pmond" "bin/pmond" && \
+  cd "${RELEASE_ARCHIVE//v}" && \
+  mkdir bin | true && \
+  download_from_project "$PROJECT_URL/releases/download/$RELEASE/pmon3" "bin/pmon3" && \
+  download_from_project "$PROJECT_URL/releases/download/$RELEASE/pmond" "bin/pmond" && \
   chmod +x bin/* && \
   systemd_install
 

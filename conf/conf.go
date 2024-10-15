@@ -12,7 +12,7 @@ import (
 	"github.com/jinzhu/configor"
 )
 
-const Version string = "1.18.2"
+const Version string = "1.18.1"
 
 type Config struct {
 	Logger                 *logrus.Logger       `yaml:"-"`
