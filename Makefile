@@ -58,28 +58,28 @@ mod: ## go mod tidy
 	cd tools && go mod tidy
 
 .PHONY: base_build
-base_build: mod fmt tools misspell betteralign ## run tidy and build
+base_build: mod fmt tools misspell betteralign
 	cd tools && $(GO) mod tidy
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
 
 .PHONY: build
 build: ENV_VARS=CGO_ENABLED=0
-build: base_build
+build: base_build ## run tidy and build with CGO disabled
 	$(call print-target)
 
 .PHONY: build_cgo
 build_cgo: ENV_VARS=CGO_ENABLED=1
-build_cgo: base_build  ## run build with cgo enabled
+build_cgo: base_build  ## run tidy and build with CGO enabled
 	$(call print-target)
 
 .PHONY: test
-test: build run_test ## build and run tests with cgo disabled
+test: build run_test ## build and run tests with CGO disabled
 	$(call print-target)
 
 .PHONY: test_cgo
 test_cgo: BUILD_FLAGS=$(shell echo '-tags posix_mq,cgo_sqlite')
-test_cgo: build_cgo run_test ## build and run tests with cgo enabled
+test_cgo: build_cgo run_test ## build and run tests with CGO enabled
 	$(call print-target)
 
 .PHONY: test_net
