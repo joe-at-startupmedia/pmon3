@@ -11,7 +11,7 @@ TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_LOGS)")
 DEFAULT_TEST_PACKAGES := "./..."
 TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))
 
-all: mod tools help
+all: help
 
 .PHONY: help
 help:
@@ -58,7 +58,7 @@ mod: ## go mod tidy
 	cd tools && go mod tidy
 
 .PHONY: base_build
-base_build: mod fmt misspell betteralign ## run tidy and build
+base_build: mod fmt tools misspell betteralign ## run tidy and build
 	cd tools && $(GO) mod tidy
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmon3 cmd/pmon3/pmon3.go
 	$(ENV_VARS) $(GO) build $(BUILD_FLAGS) -o bin/pmond cmd/pmond/pmond.go
