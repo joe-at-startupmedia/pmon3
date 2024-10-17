@@ -3,13 +3,12 @@ package controller
 import (
 	"pmon3/cli/controller/base"
 	"pmon3/cli/output/process/one"
-	"pmon3/pmond/protos"
-
-	"pmon3/pmond/model"
+	"pmon3/model"
+	protos2 "pmon3/protos"
 )
 
-func Del(idOrName string, forceKill bool) *protos.CmdResp {
-	var sent *protos.Cmd
+func Del(idOrName string, forceKill bool) *protos2.CmdResp {
+	var sent *protos2.Cmd
 	if forceKill {
 		sent = base.SendCmdArg2("del", idOrName, "force")
 	} else {

@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"pmon3/cli/shell"
-	"pmon3/pmond/model"
+	"pmon3/model"
 	"pmon3/pmond/process"
 	shell2 "pmon3/pmond/shell"
 	"pmon3/test/e2e/cli_helper"

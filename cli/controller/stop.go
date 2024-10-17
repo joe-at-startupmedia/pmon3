@@ -4,13 +4,13 @@ import (
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
 	"pmon3/cli/output/process/one"
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	"pmon3/model"
+	protos2 "pmon3/protos"
 	"time"
 )
 
-func Stop(idOrName string, forceKill bool) *protos.CmdResp {
-	var sent *protos.Cmd
+func Stop(idOrName string, forceKill bool) *protos2.CmdResp {
+	var sent *protos2.Cmd
 	if forceKill {
 		sent = base.SendCmdArg2("stop", idOrName, "force")
 	} else {

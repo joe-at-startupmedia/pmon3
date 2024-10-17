@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/model"
+	"pmon3/model"
 )
 
 func Export(format string, orderBy string) {

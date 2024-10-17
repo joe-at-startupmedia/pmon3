@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"pmon3/pmond/protos"
+	"pmon3/protos"
 	"pmon3/utils/conv"
 )
 

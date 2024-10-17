@@ -3,8 +3,8 @@ package shell
 import (
 	"os"
 	"os/user"
+	"pmon3/model"
 	"pmon3/pmond"
-	"pmon3/pmond/model"
 	"pmon3/utils/shell"
 )
 

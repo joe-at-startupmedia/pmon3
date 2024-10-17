@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
-	"pmon3/pmond/protos"
+	"pmon3/protos"
 )
 
 func Log(idOrName string, logRotated bool, numLines string) *protos.CmdResp {

@@ -7,7 +7,7 @@ import (
 	"io"
 	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
-	"pmon3/pmond/protos"
+	"pmon3/protos"
 	"sync"
 )
 

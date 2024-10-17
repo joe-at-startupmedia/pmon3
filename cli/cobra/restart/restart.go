@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"pmon3/cli/controller"
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/model"
+	"pmon3/model"
 )
 
 var flag model.ExecFlags

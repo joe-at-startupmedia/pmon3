@@ -2,9 +2,9 @@ syntax="proto3";
 
 package process;
 
-option go_package = "pmond/protos";
+option go_package = "./protos";
 
-import "pmond/protos/group.proto";
+import "protos/group.proto";
 
 message Process {
       uint32 id = 1;

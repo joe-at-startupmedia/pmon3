@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
-	"pmon3/pmond/model"
+	"pmon3/model"
 	"strings"
 	"time"
 

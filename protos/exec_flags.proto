@@ -2,7 +2,7 @@ syntax="proto3";
 
 package exec_flags;
 
-option go_package = "pmond/protos";
+option go_package = "./protos";
 
 message ExecFlags {
       string file = 1;

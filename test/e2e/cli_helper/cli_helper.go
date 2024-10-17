@@ -8,10 +8,10 @@ import (
 	"os"
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
+	"pmon3/model"
 	"pmon3/pmond"
 	"pmon3/pmond/god"
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	protos2 "pmon3/protos"
 	"pmon3/utils/conv"
 	"strings"
 
@@ -71,7 +71,7 @@ func (cliHelper *CliHelper) ShouldError() *CliHelper {
 	return cliHelper
 }
 
-func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdResp) {
+func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos2.CmdResp) {
 	newCmdResp := cliHelper.ExecBase0("list")
 	processList := newCmdResp.GetProcessList().GetProcesses()
 	cli.Log.Infof("process list: %s \n value string: %s \n", processList, newCmdResp.GetValueStr())
@@ -79,7 +79,7 @@ func (cliHelper *CliHelper) LsAssert(expectedProcessLen int) (bool, *protos.CmdR
 	return passing, newCmdResp
 }
 
-func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string, retries int) (bool, *protos.CmdResp) {
+func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string, retries int) (bool, *protos2.CmdResp) {
 
 	if retries == 3 {
 		cliHelper.suite.Fail("assert status failed with maximum of 3 retries")
@@ -107,7 +107,7 @@ func (cliHelper *CliHelper) LsAssertStatus(expectedProcessLen int, status string
 	return passing, cmdResp
 }
 
-func (cliHelper *CliHelper) ExecCmd(processFile string, execFlagsJson string) *protos.CmdResp {
+func (cliHelper *CliHelper) ExecCmd(processFile string, execFlagsJson string) *protos2.CmdResp {
 	processFile = cliHelper.ProjectPath + processFile
 	cli.Log.Infof("Executing: pmon3 exec %s %s", processFile, execFlagsJson)
 	ef := model.ExecFlags{}
@@ -119,20 +119,20 @@ func (cliHelper *CliHelper) ExecCmd(processFile string, execFlagsJson string) *p
 	return cliHelper.ExecBase1("exec", execFlags.Json())
 }
 
-func (cliHelper *CliHelper) ExecBase0(cmd string) *protos.CmdResp {
+func (cliHelper *CliHelper) ExecBase0(cmd string) *protos2.CmdResp {
 	return cliHelper.execBase(cmd, "", "")
 }
 
-func (cliHelper *CliHelper) ExecBase1(cmd string, arg1 string) *protos.CmdResp {
+func (cliHelper *CliHelper) ExecBase1(cmd string, arg1 string) *protos2.CmdResp {
 	return cliHelper.execBase(cmd, arg1, "")
 }
 
-func (cliHelper *CliHelper) ExecBase2(cmd string, arg1 string, arg2 string) *protos.CmdResp {
+func (cliHelper *CliHelper) ExecBase2(cmd string, arg1 string, arg2 string) *protos2.CmdResp {
 	return cliHelper.execBase(cmd, arg1, arg2)
 }
 
-func (cliHelper *CliHelper) execBase(cmd string, arg1 string, arg2 string) *protos.CmdResp {
-	var sent *protos.Cmd
+func (cliHelper *CliHelper) execBase(cmd string, arg1 string, arg2 string) *protos2.CmdResp {
+	var sent *protos2.Cmd
 	if len(arg2) > 0 {
 		sent = base.SendCmdArg2(cmd, arg1, arg2)
 	} else {

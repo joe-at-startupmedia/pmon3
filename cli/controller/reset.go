@@ -2,7 +2,7 @@ package controller
 
 import (
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/protos"
+	"pmon3/protos"
 )
 
 func Reset(idOrName string) *protos.CmdResp {

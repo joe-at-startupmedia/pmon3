@@ -1,24 +1,24 @@
 package group
 
 import (
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	model2 "pmon3/model"
 	"pmon3/pmond/repo"
+	protos2 "pmon3/protos"
 	"strings"
 )
 
-func Remove(cmd *protos.Cmd) *protos.CmdResp {
+func Remove(cmd *protos2.Cmd) *protos2.CmdResp {
 
 	groupNameOrId := strings.Split(cmd.GetArg1(), ",")
 	processNameOrId := strings.Split(cmd.GetArg2(), ",")
 
-	newCmdResp := protos.CmdResp{
+	newCmdResp := protos2.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}
 
-	var groups []*model.Group
-	var processes []*model.Process
+	var groups []*model2.Group
+	var processes []*model2.Process
 
 	for i := range groupNameOrId {
 		group, err := repo.Group().FindByIdOrName(groupNameOrId[i])

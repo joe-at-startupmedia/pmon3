@@ -2,11 +2,11 @@ syntax="proto3";
 
 package cmd_resp;
 
-option go_package = "pmond/protos";
+option go_package = "./protos";
 
-import "pmond/protos/process.proto";
+import "protos/process.proto";
 
-import "pmond/protos/group.proto";
+import "protos/group.proto";
 
 message CmdResp {
       string id  = 1;

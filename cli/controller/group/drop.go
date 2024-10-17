@@ -3,13 +3,13 @@ package group
 import (
 	"pmon3/cli/controller/base"
 	table_list "pmon3/cli/output/process/list"
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	"pmon3/model"
+	protos2 "pmon3/protos"
 )
 
-func Drop(idOrName string, forceKill bool) *protos.CmdResp {
+func Drop(idOrName string, forceKill bool) *protos2.CmdResp {
 
-	var sent *protos.Cmd
+	var sent *protos2.Cmd
 	if forceKill {
 		sent = base.SendCmdArg2("group_drop", idOrName, "force")
 	} else {

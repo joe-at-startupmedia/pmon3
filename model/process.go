@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/user"
-	"pmon3/pmond/protos"
+	"pmon3/protos"
 	"pmon3/utils/conv"
 	"pmon3/utils/cpu"
 	"strings"

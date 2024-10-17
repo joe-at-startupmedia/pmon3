@@ -3,8 +3,8 @@ package group
 import (
 	"pmon3/cli/controller/base"
 	table_list "pmon3/cli/output/process/list"
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	"pmon3/model"
+	"pmon3/protos"
 )
 
 func Stop(idOrName string) *protos.CmdResp {

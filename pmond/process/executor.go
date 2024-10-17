@@ -3,7 +3,7 @@ package process
 import (
 	"github.com/pkg/errors"
 	"os"
-	"pmon3/pmond/model"
+	"pmon3/model"
 	"pmon3/pmond/shell"
 	"pmon3/utils/conv"
 	"strings"

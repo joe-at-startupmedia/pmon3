@@ -3,11 +3,11 @@ package controller
 import (
 	"fmt"
 	"pmon3/pmond/controller/base"
-	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
+	protos2 "pmon3/protos"
 )
 
-func ResetCounter(cmd *protos.Cmd) *protos.CmdResp {
+func ResetCounter(cmd *protos2.Cmd) *protos2.CmdResp {
 	idOrName := cmd.GetArg1()
 
 	if len(idOrName) > 0 {
@@ -26,7 +26,7 @@ func ResetCounter(cmd *protos.Cmd) *protos.CmdResp {
 		}
 	}
 
-	newCmdResp := protos.CmdResp{
+	newCmdResp := protos2.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

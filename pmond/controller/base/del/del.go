@@ -3,9 +3,9 @@ package del
 import (
 	"errors"
 	"os"
+	"pmon3/model"
 	"pmon3/pmond/controller/base/stop"
 	"pmon3/pmond/flap_detector"
-	"pmon3/pmond/model"
 	"pmon3/pmond/process"
 	"pmon3/pmond/repo"
 )

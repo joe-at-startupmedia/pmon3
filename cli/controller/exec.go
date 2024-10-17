@@ -3,8 +3,8 @@ package controller
 import (
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/model"
-	"pmon3/pmond/protos"
+	"pmon3/model"
+	"pmon3/protos"
 	"time"
 )
 

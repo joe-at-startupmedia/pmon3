@@ -3,17 +3,17 @@ package controller
 import (
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/controller/base/restart"
-	"pmon3/pmond/protos"
 	"pmon3/pmond/repo"
+	protos2 "pmon3/protos"
 )
 
-func Restart(cmd *protos.Cmd) *protos.CmdResp {
+func Restart(cmd *protos2.Cmd) *protos2.CmdResp {
 	idOrName := cmd.GetArg1()
 	flags := cmd.GetArg2()
 	return RestartByParams(cmd, idOrName, flags, true)
 }
 
-func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCounter bool) *protos.CmdResp {
+func RestartByParams(cmd *protos2.Cmd, idOrName string, flags string, incrementCounter bool) *protos2.CmdResp {
 	// kill the process and insert a new record with "queued" status
 
 	p, err := repo.Process().FindByIdOrName(idOrName)
@@ -26,7 +26,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 			return base.ErroredCmdResp(cmd, err)
 		}
 
-		newCmdResp := protos.CmdResp{
+		newCmdResp := protos2.CmdResp{
 			Id:      cmd.GetId(),
 			Name:    cmd.GetName(),
 			Process: p.ToProtobuf(),
@@ -37,7 +37,7 @@ func RestartByParams(cmd *protos.Cmd, idOrName string, flags string, incrementCo
 		if err != nil {
 			return base.ErroredCmdResp(cmd, err)
 		} else {
-			newCmdResp := protos.CmdResp{
+			newCmdResp := protos2.CmdResp{
 				Id:      cmd.GetId(),
 				Name:    cmd.GetName(),
 				Process: p.ToProtobuf(),

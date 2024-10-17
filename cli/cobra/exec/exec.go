@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"pmon3/cli/controller"
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/model"
+	"pmon3/model"
 )
 
 // process failed auto restart

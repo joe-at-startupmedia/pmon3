@@ -2,9 +2,9 @@ syntax="proto3";
 
 package cmd;
 
-option go_package = "pmond/protos";
+option go_package = "./protos";
 
-import "pmond/protos/exec_flags.proto";
+import "protos/exec_flags.proto";
 
 message Cmd {
       string id  = 1;

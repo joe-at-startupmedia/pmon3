@@ -3,12 +3,12 @@ package controller
 import (
 	"pmon3/cli"
 	"pmon3/cli/controller/base"
-	"pmon3/pmond/protos"
+	protos2 "pmon3/protos"
 	"time"
 )
 
-func Drop(forceKill bool) *protos.CmdResp {
-	var sent *protos.Cmd
+func Drop(forceKill bool) *protos2.CmdResp {
+	var sent *protos2.Cmd
 
 	if forceKill {
 		sent = base.SendCmd("drop", "force")

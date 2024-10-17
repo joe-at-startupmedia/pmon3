@@ -2,7 +2,7 @@ syntax="proto3";
 
 package pgroup;
 
-option go_package = "pmond/protos";
+option go_package = "./protos";
 
 message Group {
   uint32 id = 1;
