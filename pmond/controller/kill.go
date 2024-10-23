@@ -5,10 +5,10 @@ import (
 	"pmon3/model"
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func Kill(cmd *protos2.Cmd) *protos2.CmdResp {
+func Kill(cmd *protos.Cmd) *protos.CmdResp {
 	forced := cmd.GetArg1() == "force"
 	return KillByParams(cmd, forced)
 }
@@ -18,7 +18,7 @@ func Kill(cmd *protos2.Cmd) *protos2.CmdResp {
  * status param is the desired state to persist
  * this can either be status stopped or closed
  */
-func KillByParams(cmd *protos2.Cmd, forced bool) *protos2.CmdResp {
+func KillByParams(cmd *protos.Cmd, forced bool) *protos.CmdResp {
 
 	all, err := repo.Process().FindByStatus(model.StatusRunning)
 	if err != nil {
@@ -31,7 +31,7 @@ func KillByParams(cmd *protos2.Cmd, forced bool) *protos2.CmdResp {
 		_ = StopByParams(cmd, process.GetIdStr(), forced)
 	}
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

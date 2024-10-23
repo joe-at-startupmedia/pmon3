@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func Drop(cmd *protos2.Cmd) *protos2.CmdResp {
+func Drop(cmd *protos.Cmd) *protos.CmdResp {
 	forced := cmd.GetArg1() == "force"
 	return DropByParams(cmd, forced)
 }
 
-func DropByParams(cmd *protos2.Cmd, forced bool) *protos2.CmdResp {
+func DropByParams(cmd *protos.Cmd, forced bool) *protos.CmdResp {
 
 	all, err := repo.Process().FindAll()
 	if err != nil {
@@ -26,7 +26,7 @@ func DropByParams(cmd *protos2.Cmd, forced bool) *protos2.CmdResp {
 		_ = DeleteByParams(cmd, process.GetIdStr(), forced)
 	}
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

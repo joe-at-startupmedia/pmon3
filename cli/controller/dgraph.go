@@ -3,13 +3,13 @@ package controller
 import (
 	"fmt"
 	"pmon3/cli/controller/base"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 )
 
-func Dgraph(processConfigOnly bool) *protos2.CmdResp {
+func Dgraph(processConfigOnly bool) *protos.CmdResp {
 
-	var sent *protos2.Cmd
+	var sent *protos.Cmd
 
 	if processConfigOnly {
 		sent = base.SendCmd("dgraph", "process-config-only")

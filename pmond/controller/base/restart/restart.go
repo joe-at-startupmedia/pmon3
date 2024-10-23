@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	model2 "pmon3/model"
+	"pmon3/model"
 	"pmon3/pmond"
 	"pmon3/pmond/controller/base/exec"
 	"pmon3/pmond/process"
@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func setExecFileAbsPath(execFlags *model2.ExecFlags) error {
+func setExecFileAbsPath(execFlags *model.ExecFlags) error {
 	_, err := os.Stat(execFlags.File)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("%s does not exist: %w", execFlags.File, err)
@@ -34,7 +34,7 @@ func setExecFileAbsPath(execFlags *model2.ExecFlags) error {
 	return nil
 }
 
-func ByProcess(cmd *protos.Cmd, p *model2.Process, idOrName string, flags string, incrementCounter bool) (*model2.Process, error) {
+func ByProcess(cmd *protos.Cmd, p *model.Process, idOrName string, flags string, incrementCounter bool) (*model.Process, error) {
 	// kill the process and insert a new record with "queued" status
 
 	//the process doesn't exist,  so we'll look in the AppConfig
@@ -63,7 +63,7 @@ func ByProcess(cmd *protos.Cmd, p *model2.Process, idOrName string, flags string
 		}
 		defer process.FinishPendingTask(p)
 
-		if err := repo.ProcessOf(p).UpdateStatus(model2.StatusRestarting); err != nil {
+		if err := repo.ProcessOf(p).UpdateStatus(model.StatusRestarting); err != nil {
 			return nil, err
 		}
 
@@ -71,7 +71,7 @@ func ByProcess(cmd *protos.Cmd, p *model2.Process, idOrName string, flags string
 			return nil, err
 		}
 
-		execFlags := model2.ExecFlags{}
+		execFlags := model.ExecFlags{}
 		parsedFlags, err := execFlags.Parse(flags)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse flags: %w", err)
@@ -90,9 +90,9 @@ func ByProcess(cmd *protos.Cmd, p *model2.Process, idOrName string, flags string
 	return p, nil
 }
 
-func UpdateAsQueued(m *model2.Process, flags *model2.ExecFlags) error {
+func UpdateAsQueued(m *model.Process, flags *model.ExecFlags) error {
 	// only stopped and failed process can be restarted
-	if m.Status != model2.StatusStopped && m.Status != model2.StatusFailed && m.Status != model2.StatusRestarting {
+	if m.Status != model.StatusStopped && m.Status != model.StatusFailed && m.Status != model.StatusRestarting {
 		return fmt.Errorf("process already running with the name provided: %s", m.Name)
 	}
 	if len(flags.Log) > 0 || len(flags.LogDir) > 0 {
@@ -123,7 +123,7 @@ func UpdateAsQueued(m *model2.Process, flags *model2.ExecFlags) error {
 		m.AutoRestart = !flags.NoAutoRestart
 	}
 
-	m.Status = model2.StatusQueued
+	m.Status = model.StatusQueued
 	m.ProcessFile = flags.File
 
 	//allow updating dependencies on restart

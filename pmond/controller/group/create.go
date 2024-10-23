@@ -3,14 +3,14 @@ package group
 import (
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 )
 
-func Create(cmd *protos2.Cmd) *protos2.CmdResp {
+func Create(cmd *protos.Cmd) *protos.CmdResp {
 	groupName := cmd.GetArg1()
 	_, err := repo.Group().Create(groupName)
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

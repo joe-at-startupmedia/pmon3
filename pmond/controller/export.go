@@ -1,17 +1,17 @@
 package controller
 
 import (
-	model2 "pmon3/model"
+	"pmon3/model"
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func Export(cmd *protos2.Cmd) *protos2.CmdResp {
+func Export(cmd *protos.Cmd) *protos.CmdResp {
 
 	orderBy := cmd.GetArg1()
 
-	var all []model2.Process
+	var all []model.Process
 	var err error
 
 	if len(orderBy) > 0 {
@@ -24,14 +24,14 @@ func Export(cmd *protos2.Cmd) *protos2.CmdResp {
 		return base.ErroredCmdResp(cmd, err)
 	}
 
-	processConfig := model2.ProcessConfig{
-		Processes: make([]model2.ExecFlags, len(all)),
+	processConfig := model.ProcessConfig{
+		Processes: make([]model.ExecFlags, len(all)),
 	}
 	for i, p := range all {
 		processConfig.Processes[i] = *p.ToExecFlags()
 	}
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:       cmd.GetId(),
 		Name:     cmd.GetName(),
 		ValueStr: processConfig.Json(),

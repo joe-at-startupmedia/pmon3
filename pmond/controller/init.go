@@ -2,18 +2,18 @@ package controller
 
 import (
 	"os/user"
-	model2 "pmon3/model"
+	"pmon3/model"
 	"pmon3/pmond"
 	"pmon3/pmond/process"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 	"time"
 )
 
-func Initialize(cmd *protos2.Cmd) *protos2.CmdResp {
+func Initialize(cmd *protos.Cmd) *protos.CmdResp {
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}
@@ -69,13 +69,13 @@ func StartAppsFromBoth(blocking bool) error {
 	return err
 }
 
-func getQueueableFromBoth() (*[]model2.Process, *[]model2.Process, error) {
+func getQueueableFromBoth() (*[]model.Process, *[]model.Process, error) {
 	all, err := repo.Process().FindAll()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var qPs []model2.Process
+	var qPs []model.Process
 	qNm := map[string]bool{}
 
 	for _, execFlags := range pmond.Config.ProcessConfig.Processes {
@@ -84,7 +84,7 @@ func getQueueableFromBoth() (*[]model2.Process, *[]model2.Process, error) {
 		pUser, _ := getExecFlagsUser(&execFlags)
 		groupFlags := execFlags.Groups
 		groups, _ := repo.Group().FindOrInsertByNames(groupFlags)
-		p := model2.FromExecFlags(&execFlags, pLog, pUser, groups)
+		p := model.FromExecFlags(&execFlags, pLog, pUser, groups)
 		qPs = append(qPs, *p)
 		qNm[processName] = true
 	}
@@ -99,7 +99,7 @@ func getQueueableFromBoth() (*[]model2.Process, *[]model2.Process, error) {
 		}
 	}
 
-	nonDependentProcesses, dependentProcesses, err := model2.ComputeDepGraph(&qPs)
+	nonDependentProcesses, dependentProcesses, err := model.ComputeDepGraph(&qPs)
 	if err != nil {
 		pmond.Log.Errorf("encountered error attempting to prioritize databse processes from dep graph: %s", err)
 		return nil, nil, err
@@ -108,13 +108,13 @@ func getQueueableFromBoth() (*[]model2.Process, *[]model2.Process, error) {
 	return nonDependentProcesses, dependentProcesses, nil
 }
 
-func execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.ExecFlags, dependentProcesses *[]model2.ExecFlags) error {
+func execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses *[]model.ExecFlags, dependentProcesses *[]model.ExecFlags) error {
 
 	var retErr error
 
 	if dependentProcesses != nil {
 		for _, execFlags := range *dependentProcesses {
-			pmond.Log.Infof("launch dependent %s", strings.Join(model2.ExecFlagsNames(dependentProcesses), " "))
+			pmond.Log.Infof("launch dependent %s", strings.Join(model.ExecFlagsNames(dependentProcesses), " "))
 			err := EnqueueProcess(&execFlags)
 			time.Sleep(pmond.Config.GetDependentProcessEnqueuedWait())
 			if err != nil {
@@ -125,7 +125,7 @@ func execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.ExecFl
 	}
 
 	if nonDependentProcesses != nil {
-		pmond.Log.Infof("launch independent %s", strings.Join(model2.ExecFlagsNames(nonDependentProcesses), " "))
+		pmond.Log.Infof("launch independent %s", strings.Join(model.ExecFlagsNames(nonDependentProcesses), " "))
 
 		for _, execFlags := range *nonDependentProcesses {
 			err := EnqueueProcess(&execFlags)
@@ -139,12 +139,12 @@ func execFlagsEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.ExecFl
 	return retErr
 }
 
-func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.Process, dependentProcesses *[]model2.Process) error {
+func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model.Process, dependentProcesses *[]model.Process) error {
 
 	var retErr error
 
 	if dependentProcesses != nil {
-		pmond.Log.Infof("launch dependent %s", strings.Join(model2.ProcessNames(dependentProcesses), " "))
+		pmond.Log.Infof("launch dependent %s", strings.Join(model.ProcessNames(dependentProcesses), " "))
 
 		for _, dp := range *dependentProcesses {
 			pmond.Log.Infof("enqueue dependent and wait %s %d", dp.Name, pmond.Config.GetDependentProcessEnqueuedWait())
@@ -158,7 +158,7 @@ func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.Process,
 	}
 
 	if nonDependentProcesses != nil {
-		pmond.Log.Infof("launch independent %s", strings.Join(model2.ProcessNames(nonDependentProcesses), " "))
+		pmond.Log.Infof("launch independent %s", strings.Join(model.ProcessNames(nonDependentProcesses), " "))
 
 		for _, ndp := range *nonDependentProcesses {
 			pmond.Log.Infof("enqueue nondependent %s", ndp.Name)
@@ -173,7 +173,7 @@ func processEnqueueUsingDepGraphResults(nonDependentProcesses *[]model2.Process,
 	return retErr
 }
 
-func getExecFlagsLogPath(execFlags *model2.ExecFlags) (string, error) {
+func getExecFlagsLogPath(execFlags *model.ExecFlags) (string, error) {
 	logPath, err := process.GetLogPath(execFlags.LogDir, execFlags.Log, execFlags.Name)
 	if err != nil {
 		return "", err
@@ -181,7 +181,7 @@ func getExecFlagsLogPath(execFlags *model2.ExecFlags) (string, error) {
 	return logPath, nil
 }
 
-func getExecFlagsUser(execFlags *model2.ExecFlags) (*user.User, error) {
+func getExecFlagsUser(execFlags *model.ExecFlags) (*user.User, error) {
 	u, _, err := process.SetUser(execFlags.User)
 	if err != nil {
 		return nil, err

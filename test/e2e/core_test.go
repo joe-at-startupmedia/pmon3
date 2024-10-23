@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"os"
 	"pmon3/cli/controller"
-	model2 "pmon3/model"
+	"pmon3/model"
 	"pmon3/pmond/process"
 	"pmon3/test/e2e/cli_helper"
 	"strings"
@@ -47,7 +47,7 @@ func (suite *Pmon3CoreTestSuite) TestA_BootedFromProcessConfig() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestB_AddingAdditionalProcessesFromProcessConfig() {
-	ef := model2.ExecFlags{
+	ef := model.ExecFlags{
 		Name: "test-server-3",
 	}
 	controller.Exec(suite.cliHelper.ProjectPath+"/test/app/bin/test_app", ef)
@@ -247,7 +247,7 @@ func (suite *Pmon3CoreTestSuite) TestM_ExecProcessWithNonExistentAbsolutePath() 
 }
 
 func (suite *Pmon3CoreTestSuite) TestN_ExecProcessWithNonExistentRelativePath() {
-	ef := model2.ExecFlags{}
+	ef := model.ExecFlags{}
 	execFlags, _ := ef.Parse("{\"name\": \"test-server-7\"}")
 	execFlags.File = "./nonexistent_path/test_app"
 	newCmdResp := suite.cliHelper.ShouldError().ExecBase1("exec", execFlags.Json())
@@ -255,7 +255,7 @@ func (suite *Pmon3CoreTestSuite) TestN_ExecProcessWithNonExistentRelativePath() 
 }
 
 func (suite *Pmon3CoreTestSuite) TestO_ExecProcessWithExistentRelativePath() {
-	ef := model2.ExecFlags{}
+	ef := model.ExecFlags{}
 	execFlags, _ := ef.Parse("{\"name\": \"test-server-7\"}")
 	execFlags.File = "../app/bin/test_app"
 	suite.cliHelper.ExecBase1("exec", execFlags.Json())
@@ -267,7 +267,7 @@ func (suite *Pmon3CoreTestSuite) TestP_ExecProcessWithMalformedJson() {
 }
 
 func (suite *Pmon3CoreTestSuite) TestQ_ExecProcessWithoutName() {
-	ef := model2.ExecFlags{
+	ef := model.ExecFlags{
 		File:          suite.cliHelper.ProjectPath + "/test/app/bin/test_app",
 		NoAutoRestart: true,
 	}
@@ -281,7 +281,7 @@ func (suite *Pmon3CoreTestSuite) TestR_KilledProcessShouldRestart() {
 
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	p := model2.ProcessFromProtobuf(processList[0])
+	p := model.ProcessFromProtobuf(processList[0])
 
 	assert.Greater(suite.T(), len(p.GetPidStr()), 2)
 
@@ -317,7 +317,7 @@ func (suite *Pmon3CoreTestSuite) TestS_KilledProcessShouldNotRestart() {
 
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	p := model2.ProcessFromProtobuf(processList[1])
+	p := model.ProcessFromProtobuf(processList[1])
 
 	assert.Greater(suite.T(), len(p.GetPidStr()), 2)
 
@@ -344,7 +344,7 @@ func (suite *Pmon3CoreTestSuite) TestT_StartOneFromProcessConfig() {
 
 	assert.Equal(suite.T(), 1, len(processList))
 
-	p := model2.ProcessFromProtobuf(processList[0])
+	p := model.ProcessFromProtobuf(processList[0])
 
 	assert.Equal(suite.T(), "test-server-2", p.Name)
 }

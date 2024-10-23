@@ -4,8 +4,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"pmon3/cli/controller/group"
-	model2 "pmon3/model"
-	protos2 "pmon3/protos"
+	"pmon3/model"
+	"pmon3/protos"
 	"pmon3/test/e2e/cli_helper"
 	"pmon3/utils/array"
 	"testing"
@@ -45,8 +45,8 @@ func (suite *Pmon3GroupTestSuite) TestA1_BootedFromProcessConfigWithCorrectGroup
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	var groupNames = array.Map(processList, func(p *protos2.Process) []string {
-		return array.Map(p.GetGroups(), func(g *protos2.Group) string {
+	var groupNames = array.Map(processList, func(p *protos.Process) []string {
+		return array.Map(p.GetGroups(), func(g *protos.Group) string {
 			return g.GetName()
 		})
 	})
@@ -84,7 +84,7 @@ func (suite *Pmon3GroupTestSuite) TestA3_GetProcessGroups() {
 }
 
 func (suite *Pmon3GroupTestSuite) TestB1_ExecCmdWithNewGroup() {
-	execFlags := model2.ExecFlags{
+	execFlags := model.ExecFlags{
 		Name:    "group-test-server-6",
 		EnvVars: "TEST_APP_PORT=11015",
 		Groups:  []string{"groupD"},
@@ -101,7 +101,7 @@ func (suite *Pmon3GroupTestSuite) TestB1_ExecCmdWithNewGroup() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), []string{"groupD"}, array.Map(processList[5].GetGroups(), func(g *protos2.Group) string {
+	assert.Equal(suite.T(), []string{"groupD"}, array.Map(processList[5].GetGroups(), func(g *protos.Group) string {
 		return g.GetName()
 	}))
 }
@@ -120,7 +120,7 @@ func (suite *Pmon3GroupTestSuite) TestB2_ListGroups() {
 }
 
 func (suite *Pmon3GroupTestSuite) TestC1_ExecCmdWithExistingGroup() {
-	execFlags := model2.ExecFlags{
+	execFlags := model.ExecFlags{
 		Name:    "group-test-server-7",
 		EnvVars: "TEST_APP_PORT=11016",
 		Groups:  []string{"groupC", "groupE"},
@@ -137,7 +137,7 @@ func (suite *Pmon3GroupTestSuite) TestC1_ExecCmdWithExistingGroup() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), []string{"groupC", "groupE"}, array.Map(processList[6].GetGroups(), func(g *protos2.Group) string {
+	assert.Equal(suite.T(), []string{"groupC", "groupE"}, array.Map(processList[6].GetGroups(), func(g *protos.Group) string {
 		return g.GetName()
 	}))
 }
@@ -222,13 +222,13 @@ func (suite *Pmon3GroupTestSuite) TestE_StopGroupA() {
 
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[0].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[1].GetStatus())
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[2].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[3].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[4].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[5].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[6].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[0].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[1].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[2].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[3].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[4].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[5].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[6].GetStatus())
 
 }
 
@@ -252,13 +252,13 @@ func (suite *Pmon3GroupTestSuite) TestE_StopGroupC() {
 
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[0].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[1].GetStatus())
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[2].GetStatus())
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[3].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[4].GetStatus())
-	assert.Equal(suite.T(), model2.StatusRunning.String(), processList[5].GetStatus())
-	assert.Equal(suite.T(), model2.StatusStopped.String(), processList[6].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[0].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[1].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[2].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[3].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[4].GetStatus())
+	assert.Equal(suite.T(), model.StatusRunning.String(), processList[5].GetStatus())
+	assert.Equal(suite.T(), model.StatusStopped.String(), processList[6].GetStatus())
 
 }
 
@@ -337,8 +337,8 @@ func (suite *Pmon3GroupTestSuite) TestI1_DeleteGroup() {
 	}
 	processList := cmdResp.GetProcessList().GetProcesses()
 
-	var groupNames = array.Map(processList, func(p *protos2.Process) []string {
-		return array.Map(p.GetGroups(), func(g *protos2.Group) string {
+	var groupNames = array.Map(processList, func(p *protos.Process) []string {
+		return array.Map(p.GetGroups(), func(g *protos.Group) string {
 			return g.GetName()
 		})
 	})
@@ -367,8 +367,8 @@ func (suite *Pmon3GroupTestSuite) TestJ1_DropGroup() {
 
 	assert.Equal(suite.T(), 5, len(processList))
 
-	var groupNames = array.Map(processList, func(p *protos2.Process) []string {
-		return array.Map(p.GetGroups(), func(g *protos2.Group) string {
+	var groupNames = array.Map(processList, func(p *protos.Process) []string {
+		return array.Map(p.GetGroups(), func(g *protos.Group) string {
 			return g.GetName()
 		})
 	})

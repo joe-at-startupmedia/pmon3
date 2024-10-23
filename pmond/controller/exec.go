@@ -11,7 +11,7 @@ import (
 	"pmon3/pmond/controller/base/exec"
 	"pmon3/pmond/controller/base/restart"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
 func setExecFileAbsPath(execFlags *model.ExecFlags) error {
@@ -35,14 +35,14 @@ func setExecFileAbsPath(execFlags *model.ExecFlags) error {
 	return nil
 }
 
-func Exec(cmd *protos2.Cmd) *protos2.CmdResp {
+func Exec(cmd *protos.Cmd) *protos.CmdResp {
 	flags := cmd.GetArg1()
 	execflags := model.ExecFlags{}
 	parsedFlags, err := execflags.Parse(flags)
 	if err != nil {
 		return base.ErroredCmdResp(cmd, fmt.Errorf("command error: could not parse flags: %w, flags: %s", err, flags))
 	}
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

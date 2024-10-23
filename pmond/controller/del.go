@@ -5,23 +5,23 @@ import (
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/controller/base/del"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func Delete(cmd *protos2.Cmd) *protos2.CmdResp {
+func Delete(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
 	forced := cmd.GetArg2() == "force"
 	return DeleteByParams(cmd, idOrName, forced)
 }
 
-func DeleteByParams(cmd *protos2.Cmd, idOrName string, forced bool) *protos2.CmdResp {
+func DeleteByParams(cmd *protos.Cmd, idOrName string, forced bool) *protos.CmdResp {
 	p, err := repo.Process().FindByIdOrName(idOrName)
 	if err != nil {
 		return base.ErroredCmdResp(cmd, fmt.Errorf("process (%s) does not exist", idOrName))
 	}
 
 	err = del.ByProcess(p, forced)
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

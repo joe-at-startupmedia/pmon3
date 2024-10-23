@@ -3,14 +3,14 @@ package group
 import (
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 )
 
-func Delete(cmd *protos2.Cmd) *protos2.CmdResp {
+func Delete(cmd *protos.Cmd) *protos.CmdResp {
 	groupIdOrName := cmd.GetArg1()
 	err := repo.Group().Delete(groupIdOrName)
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

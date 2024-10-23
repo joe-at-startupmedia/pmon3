@@ -7,7 +7,7 @@ import (
 	"github.com/joe-at-startupmedia/xipc"
 	"os/user"
 	"pmon3/cli"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 	"time"
 
@@ -31,7 +31,7 @@ func handleOpenError(e error) {
 	}
 }
 
-func sendCmd(cmd *protos2.Cmd) {
+func sendCmd(cmd *protos.Cmd) {
 	cli.Log.Debug("sending message")
 	pbm := proto.Message(cmd)
 	sendErrChan := make(chan error, 1)
@@ -55,10 +55,10 @@ func sendCmd(cmd *protos2.Cmd) {
 	}
 }
 
-func GetResponse(sent *protos2.Cmd) *protos2.CmdResp {
+func GetResponse(sent *protos.Cmd) *protos.CmdResp {
 	cli.Log.Debug("getting response")
 	start := time.Now()
-	newCmdResp := &protos2.CmdResp{}
+	newCmdResp := &protos.CmdResp{}
 	readErrChan := make(chan error, 1)
 
 	sendRcvTimeout := SEND_RECEIVE_TIMEOUT
@@ -109,8 +109,8 @@ func OutputError(error string) {
 	fmt.Println(errorStyle.Render(error))
 }
 
-func SendCmd(cmdName string, arg1 string) *protos2.Cmd {
-	cmd := &protos2.Cmd{
+func SendCmd(cmdName string, arg1 string) *protos.Cmd {
+	cmd := &protos.Cmd{
 		Id:   uuid.NewString(),
 		Name: cmdName,
 		Arg1: arg1,
@@ -121,8 +121,8 @@ func SendCmd(cmdName string, arg1 string) *protos2.Cmd {
 	return cmd
 }
 
-func SendCmdArg2(cmdName string, arg1 string, arg2 string) *protos2.Cmd {
-	cmd := &protos2.Cmd{
+func SendCmdArg2(cmdName string, arg1 string, arg2 string) *protos.Cmd {
+	cmd := &protos.Cmd{
 		Id:   uuid.NewString(),
 		Name: cmdName,
 		Arg1: arg1,
@@ -134,7 +134,7 @@ func SendCmdArg2(cmdName string, arg1 string, arg2 string) *protos2.Cmd {
 	return cmd
 }
 
-func waitForResponse(newCmdResp *protos2.CmdResp) (*proto.Message, error) {
+func waitForResponse(newCmdResp *protos.CmdResp) (*proto.Message, error) {
 	return xr.WaitForProto(newCmdResp)
 }
 

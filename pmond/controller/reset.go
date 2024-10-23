@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"pmon3/pmond/controller/base"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func ResetCounter(cmd *protos2.Cmd) *protos2.CmdResp {
+func ResetCounter(cmd *protos.Cmd) *protos.CmdResp {
 	idOrName := cmd.GetArg1()
 
 	if len(idOrName) > 0 {
@@ -26,7 +26,7 @@ func ResetCounter(cmd *protos2.Cmd) *protos2.CmdResp {
 		}
 	}
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}

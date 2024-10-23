@@ -1,11 +1,11 @@
 package base
 
 import (
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func ErroredCmdResp(cmd *protos2.Cmd, err error) *protos2.CmdResp {
-	return &protos2.CmdResp{
+func ErroredCmdResp(cmd *protos.Cmd, err error) *protos.CmdResp {
+	return &protos.CmdResp{
 		Id:    cmd.GetId(),
 		Name:  cmd.GetName(),
 		Error: err.Error(),

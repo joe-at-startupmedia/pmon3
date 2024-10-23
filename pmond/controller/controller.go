@@ -5,17 +5,17 @@ import (
 	"google.golang.org/protobuf/proto"
 	"pmon3/pmond"
 	"pmon3/pmond/controller/group"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 )
 
-func MsgHandler(cmd *protos2.Cmd) (processed []byte, err error) {
+func MsgHandler(cmd *protos.Cmd) (processed []byte, err error) {
 
 	pmond.Log.Infof("got a cmd: %s", cmd)
 
 	//reload the configuration file for possible changes
 	pmond.Config.Reload()
 
-	var cmdResp *protos2.CmdResp
+	var cmdResp *protos.CmdResp
 	switch cmd.GetName() {
 	case "log":
 		fallthrough

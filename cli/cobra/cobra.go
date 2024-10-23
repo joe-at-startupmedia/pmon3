@@ -1,7 +1,6 @@
 package cobra
 
 import (
-	"fmt"
 	"pmon3/cli/cobra/completion"
 	"pmon3/cli/cobra/del"
 	"pmon3/cli/cobra/desc"
@@ -26,14 +25,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use: "pmon3",
-}
-
-var verCmd = &cobra.Command{
-	Use: "version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("pmon3: %s \n", conf.Version)
-	},
+	Use:     "pmon3",
+	Version: conf.Version,
 }
 
 func Bootstrap() error {
@@ -54,7 +47,6 @@ func Bootstrap() error {
 		restart.Cmd,
 		stop.Cmd,
 		export.Cmd,
-		verCmd,
 	)
 
 	if runtime.GOOS == "linux" {

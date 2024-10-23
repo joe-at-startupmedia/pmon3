@@ -1,24 +1,24 @@
 package group
 
 import (
-	model2 "pmon3/model"
+	"pmon3/model"
 	"pmon3/pmond/repo"
-	protos2 "pmon3/protos"
+	"pmon3/protos"
 	"strings"
 )
 
-func Assign(cmd *protos2.Cmd) *protos2.CmdResp {
+func Assign(cmd *protos.Cmd) *protos.CmdResp {
 
 	groupNameOrId := strings.Split(cmd.GetArg1(), ",")
 	processNameOrId := strings.Split(cmd.GetArg2(), ",")
 
-	newCmdResp := protos2.CmdResp{
+	newCmdResp := protos.CmdResp{
 		Id:   cmd.GetId(),
 		Name: cmd.GetName(),
 	}
 
-	var groups []*model2.Group
-	var processes []*model2.Process
+	var groups []*model.Group
+	var processes []*model.Process
 
 	for i := range groupNameOrId {
 		group, err := repo.Group().FindByIdOrName(groupNameOrId[i])
