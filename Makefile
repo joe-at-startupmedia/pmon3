@@ -96,12 +96,12 @@ make_test_app: ## build the test app
 	cp ./test/app/bin/test_app "$(TEST_ARTIFACT_PATH)"
 
 .PHONY: run_test
-run_test: clean make_test_app ## run the tests
+run_test: make_test_app ## run the tests
 	$(call print-target)
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 ./test/e2e/
 
 .PHONY: run_test_cover
-run_test_cover: clean make_test_app ## run the tests and generate a coverage report
+run_test_cover: make_test_app ## run the tests and generate a coverage report
 	$(call print-target)
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.out -coverpkg=$(TEST_PACKAGES) ./test/e2e/
 

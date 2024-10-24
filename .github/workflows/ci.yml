@@ -38,7 +38,7 @@ jobs:
       run: |
         GOPATH_BIN=$(go env GOPATH)/bin
         export PATH="${GOPATH_BIN}:${PATH}"
-        docker build --build-arg TEST_PACKAGES_ARG=${{inputs.cover_packages}} --build-arg TEST_REGEX_ARG=${{inputs.run_regex}} --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=test -t pmon3 .
+        docker build --build-arg TEST_PACKAGES_ARG=${{inputs.cover_packages}} --build-arg TEST_REGEX_ARG=${{inputs.run_regex}} --build-arg CODECOV_TOKEN_ARG=${{ secrets.CODECOV_TOKEN }} --build-arg GIT_BRANCH_ARG=${{ steps.extract_branch.outputs.branch }} --build-arg MAKE_TARGET_ARG=run_test_cover_codecov -t pmon3 .
 
     - name: Docker Testing
       run: |
