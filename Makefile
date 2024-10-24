@@ -111,7 +111,7 @@ run_test_cover: clean make_test_app ## run the tests and generate a coverage rep
 .PHONY: codecov
 codecov: ## process the coverage report and upload it
 	$(call print-target)
-	codecov -t $(CODECOV_TOKEN) --flags $(CODECOV_FLAG) --file coverage.out
+	/usr/local/bin/codecov upload-process -t $(CODECOV_TOKEN) -F $(CODECOV_FLAG)
 
 .PHONY: run_test_cover_codecov
 run_test_cover_codecov: run_test_cover codecov ## run the tests and process/upload the coverage reports
