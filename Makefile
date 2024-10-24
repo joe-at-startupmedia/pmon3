@@ -10,7 +10,7 @@ TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "directory:" | sed -n "1 p"
 TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_LOGS)")
 DEFAULT_TEST_PACKAGES := "./..."
 TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))
-COVERAGE_OMISSION := '!/^(pmon3\/utils|pmon3\/test|pmon3\/cmd|pmon3\/cli\/cobra|pmon3\/pmond\/protos)/'
+COVERAGE_OMISSION := '!/^(pmon3\/utils|pmon3\/test|pmon3\/cmd|pmon3\/cli\/cobra|pmon3\/protos)/'
 
 all: help
 
@@ -105,7 +105,7 @@ run_test: clean make_test_app ## run the tests
 run_test_cover: clean make_test_app ## run the tests and generate a coverage report
 	$(call print-target)
 	PROJECT_PATH=$(PROJECT_PATH) ARTIFACT_PATH=$(TEST_ARTIFACT_PATH) $(GO) test $(BUILD_FLAGS) -v -run $(TEST_REGEX) -p 1 -coverprofile=coverage.txt -coverpkg=$(TEST_PACKAGES) ./test/e2e/
-	awk $COVERAGE_OMISSION coverage.txt > coverage.out
+	awk $(COVERAGE_OMISSION) coverage.txt > coverage.out
 	rm -f coverage.txt
 
 .PHONY: codecov

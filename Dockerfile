@@ -8,8 +8,9 @@ ARG CODECOV_TOKEN_ARG
 
 RUN  apt-get update && \
   apt-get install -y build-essential git curl bash jq && \
-  curl -L -o /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.5/codecovcli_alpine_x86_64 && \
+  curl -L -o /usr/local/bin/codecov https://github.com/codecov/codecov-cli/releases/download/v0.7.5/codecovcli_linux && \
   chmod +x /usr/local/bin/codecov && \
+  ls /usr/local/bin/ && \
   cd /opt/ && \
   git clone --single-branch --branch ${GIT_BRANCH_ARG} https://github.com/joe-at-startupmedia/pmon3.git
 
