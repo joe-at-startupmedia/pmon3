@@ -1,6 +1,7 @@
 # pmon3
 [![CI](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/ci.yml/badge.svg)](https://github.com/joe-at-startupmedia/pmon3/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/joe-at-startupmedia/pmon3/graph/badge.svg?token=RAILGSJ6XQ)](https://codecov.io/gh/joe-at-startupmedia/pmon3)
+[![Release](https://img.shields.io/github/v/release/joe-at-startupmedia/pmon3)](https://github.com/joe-at-startupmedia/pmon3/releases/latest)
 
 
 `pmon3` is a process manager (currently supports Linux and MacOSX) which allows you to keep processes alive forever. Processes can be declared directly via the [CLI](#section_commands) or in a [configuration file](#section_processconfig). `pmon3` allows you to get started quickly while providing configuration granularity at both the [system](#section_config) and [process](#section_processconfig) levels.
