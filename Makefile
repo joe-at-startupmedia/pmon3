@@ -9,7 +9,7 @@ TEST_FILE_CONFIG ?= $(PROJECT_PATH)/test/e2e/config/test-config.core.yml
 TEST_DIR_LOGS=$(shell cat $(TEST_FILE_CONFIG) | grep "directory:" | sed -n "1 p" | cut -d' ' -f4)
 TEST_ARTIFACT_PATH=$(shell dirname "$(TEST_DIR_LOGS)")
 DEFAULT_TEST_PACKAGES := "./..."
-TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))]
+TEST_PACKAGES := $(or $(TEST_PACKAGES),$(DEFAULT_TEST_PACKAGES))
 COVERAGE_OMISSION := '!/^(pmon3\/utils|pmon3\/test|pmon3\/cmd|pmon3\/cli\/cobra|pmon3\/pmond\/protos)/'
 
 all: help

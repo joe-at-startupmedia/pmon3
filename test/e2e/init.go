@@ -11,5 +11,5 @@ func init() {
 type processUsageStatsMock struct{}
 
 func (p *processUsageStatsMock) GetUsageStats(_ int) (string, string) {
-	return "1.1MB", "1.1%"
+	return "1.1 MB", "1.1%"
 }
