@@ -24,6 +24,7 @@ func Desc(cmd *protos.Cmd) *protos.CmdResp {
 func listProcesses(cmd *protos.Cmd, g *model.Group) *protos.CmdResp {
 	newProcessList := protos.ProcessList{}
 	for _, p := range g.Processes {
+		p.SetUsageStats()
 		newProcessList.Processes = append(newProcessList.Processes, p.ToProtobuf())
 	}
 	newCmdResp := protos.CmdResp{

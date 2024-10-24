@@ -2,17 +2,9 @@ package model
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"pmon3/protos"
 	"pmon3/utils/conv"
 )
-
-type Group struct {
-	gorm.Model
-	Name      string     `gorm:"unique" json:"name"`
-	Processes []*Process `gorm:"many2many:process_groups;"`
-	ID        uint32     `gorm:"primary_key" json:"id"`
-}
 
 func (g *Group) ToProtobuf() *protos.Group {
 	return &protos.Group{

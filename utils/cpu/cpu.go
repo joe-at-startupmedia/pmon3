@@ -6,7 +6,7 @@ import (
 	"pmon3/utils/conv"
 )
 
-func GetExtraInfo(pid int) (string, string) {
+func GetUsageStats(pid int) (string, string) {
 	cpuVal := "0"
 	memVal := "0"
 

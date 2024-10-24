@@ -13,6 +13,7 @@ func List(cmd *protos.Cmd) *protos.CmdResp {
 	}
 	newProcessList := protos.ProcessList{}
 	for _, p := range all {
+		p.SetUsageStats()
 		newProcessList.Processes = append(newProcessList.Processes, p.ToProtobuf())
 	}
 	newCmdResp := protos.CmdResp{

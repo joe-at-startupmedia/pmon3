@@ -7,10 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ProcessConfig struct {
-	Processes []ExecFlags `json:"processes"`
-}
-
 func (ac *ProcessConfig) Json() string {
 	content, _ := json.Marshal(ac)
 	return string(content)

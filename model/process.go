@@ -6,30 +6,11 @@ import (
 	"github.com/hashicorp/go-set/v2"
 	"github.com/joe-at-startupmedia/depgraph"
 	"github.com/sirupsen/logrus"
-	"os"
 	"os/user"
 	"pmon3/protos"
 	"pmon3/utils/conv"
-	"pmon3/utils/cpu"
 	"strings"
 	"time"
-)
-
-type ProcessStatus int64
-
-const dateTimeFormat = "2006-01-02 15:04:05"
-
-var restartCount = make(map[uint32]uint32)
-
-const (
-	StatusQueued ProcessStatus = iota
-	StatusInit
-	StatusRunning
-	StatusStopped
-	StatusFailed
-	StatusClosed
-	StatusBackoff
-	StatusRestarting
 )
 
 func (s ProcessStatus) String() string {
@@ -76,33 +57,14 @@ func StringToProcessStatus(s string) ProcessStatus {
 	return StatusFailed
 }
 
-type Process struct {
-	CreatedAt    time.Time     `json:"created_at"`
-	UpdatedAt    time.Time     `json:"updated_at"`
-	Pointer      *os.Process   `gorm:"-" json:"-"`
-	Log          string        `gorm:"column:log" json:"log"`
-	Name         string        `gorm:"unique" json:"name"`
-	ProcessFile  string        `json:"process_file"`
-	Args         string        `json:"args"`
-	EnvVars      string        `json:"env_vars"`
-	Username     string        `json:"username"`
-	Dependencies string        `json:"dependencies"`
-	Groups       []*Group      `gorm:"many2many:process_groups;"`
-	Status       ProcessStatus `json:"status"`
-	ID           uint32        `gorm:"primary_key" json:"id"`
-	Pid          uint32        `gorm:"column:pid" json:"pid"`
-	Uid          uint32        `gorm:"column:uid" json:"uid"`
-	Gid          uint32        `gorm:"column:gid" json:"gid"`
-	RestartCount uint32        `gorm:"-" json:"-"`
-	AutoRestart  bool          `json:"auto_restart"`
-}
-
 func (p *Process) RenderTable() []string {
-	cpuVal, memVal := "0%", "0.0 MB"
-	if p.Status == StatusRunning {
-		cpuVal, memVal = cpu.GetExtraInfo(int(p.Pid))
+	cpuVal, memVal := "0.0%", "0.0 MB"
+	if p.CpuUsage != "" {
+		cpuVal = p.CpuUsage
 	}
-
+	if p.MemoryUsage != "" {
+		memVal = p.MemoryUsage
+	}
 	return []string{
 		p.GetIdStr(),
 		p.Name,
@@ -134,7 +96,7 @@ func (p *Process) GetPidStr() string {
 }
 
 func (p *Process) GetRestartCount() uint32 {
-	return restartCount[p.ID]
+	return processRestartCounter[p.ID]
 }
 
 func (p *Process) GetRestartCountStr() string {
@@ -142,11 +104,11 @@ func (p *Process) GetRestartCountStr() string {
 }
 
 func (p *Process) ResetRestartCount() {
-	restartCount[p.ID] = 0
+	processRestartCounter[p.ID] = 0
 }
 
 func (p *Process) IncrRestartCount() {
-	restartCount[p.ID] += 1
+	processRestartCounter[p.ID] += 1
 }
 
 func (p *Process) GetGroupHashSet() *set.HashSet[*Group, string] {
@@ -159,6 +121,12 @@ func (p *Process) GetGroupNames() []string {
 		groupNames[i] = p.Groups[i].Name
 	}
 	return groupNames
+}
+
+func (p *Process) SetUsageStats() {
+	if p.Status == StatusRunning {
+		p.MemoryUsage, p.CpuUsage = ProcessUsageStatsAccessor.GetUsageStats(int(p.Pid))
+	}
 }
 
 func (p *Process) ToExecFlags() *ExecFlags {
@@ -316,6 +284,8 @@ func (p *Process) ToProtobuf() *protos.Process {
 		Username:     p.Username,
 		Gid:          p.Gid,
 		RestartCount: p.GetRestartCount(),
+		MemoryUsage:  p.MemoryUsage,
+		CpuUsage:     p.CpuUsage,
 		Dependencies: p.Dependencies,
 		Groups:       GroupsArrayToProtobuf(p.Groups),
 	}
@@ -347,6 +317,8 @@ func ProcessFromProtobuf(p *protos.Process) *Process {
 		Username:     p.GetUsername(),
 		Gid:          p.GetGid(),
 		RestartCount: p.GetRestartCount(),
+		MemoryUsage:  p.GetMemoryUsage(),
+		CpuUsage:     p.GetCpuUsage(),
 		Dependencies: p.GetDependencies(),
 		Groups:       GroupsArrayFromProtobuf(p.GetGroups()),
 	}

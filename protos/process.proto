@@ -22,8 +22,10 @@ message Process {
       string username = 13;
       uint32 gid = 14;
       uint32 restart_count = 15;
-      string dependencies = 16;
-      repeated pgroup.Group groups = 17;
+      string memory_usage = 16;
+      string cpu_usage = 17;
+      string dependencies = 18;
+      repeated pgroup.Group groups = 19;
 }
 
 message ProcessList {
