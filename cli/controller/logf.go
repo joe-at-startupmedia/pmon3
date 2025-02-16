@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"pmon3/cli"
 	"pmon3/cli/controller/base"
 	"pmon3/cli/shell"
 	"pmon3/protos"
@@ -42,6 +43,9 @@ func Logf(idOrName string, numLines string, ctx context.Context) *protos.CmdResp
 					}
 				}
 			}()
+			if err = c.Start(); err != nil {
+				cli.Log.Errorf("Encountered an error executing: %s: %s", c.String(), err)
+			}
 			wg.Wait()
 		}
 
